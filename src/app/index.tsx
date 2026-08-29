@@ -1,98 +1,71 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { useBudget } from '../hooks/useBudget';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function DashboardScreen() {
+  const { budgetStatuses, loading, error } = useBudget();
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
+  if (loading) {
     return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
+      <View className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#0ea5e9" />
+      </View>
     );
   }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
+  if (error) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-50 p-4">
+        <Text className="text-red-500 text-center">Failed to load data: {error.message}</Text>
+      </View>
+    );
+  }
+
+  if (budgetStatuses.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-50 p-4">
+        <Text className="text-gray-500 text-center text-lg">No categories found.</Text>
+        <Text className="text-gray-400 text-center mt-2">Go to Settings to add a category.</Text>
+      </View>
+    );
+  }
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <ScrollView className="flex-1 bg-gray-50 p-4">
+      <Text className="text-2xl font-bold text-gray-800 mb-6">Today's Quota</Text>
+      
+      {budgetStatuses.map((status) => {
+        const isOverBudget = status.remaining < 0;
+        const progressPercentage = Math.min(100, Math.max(0, (status.spentThisMonth / status.accumulatedLimit) * 100)) || 0;
+
+        return (
+          <View key={status.category.id} className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-gray-100">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-lg font-semibold text-gray-800">{status.category.name}</Text>
+              <Text className={`text-xl font-bold ${isOverBudget ? 'text-red-500' : 'text-green-500'}`}>
+                ${status.remaining.toFixed(2)}
+              </Text>
+            </View>
+            
+            <View className="h-3 w-full bg-gray-100 rounded-full overflow-hidden mb-2">
+              <View 
+                className={`h-full rounded-full ${isOverBudget ? 'bg-red-500' : 'bg-sky-500'}`}
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </View>
+            
+            <View className="flex-row justify-between">
+              <Text className="text-xs text-gray-500">
+                Spent: ${status.spentThisMonth.toFixed(2)}
+              </Text>
+              <Text className="text-xs text-gray-500">
+                Limit: ${status.accumulatedLimit.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        );
+      })}
+      
+      <View className="h-20" />
+    </ScrollView>
   );
 }
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});
