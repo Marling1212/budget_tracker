@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { useBudget } from '../hooks/useBudget';
 import { supabase } from '../lib/supabase';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AddTransactionScreen() {
   const router = useRouter();
@@ -15,11 +16,13 @@ export default function AddTransactionScreen() {
 
   const handleSave = async () => {
     if (!amount || isNaN(Number(amount))) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      const msg = 'Please enter a valid amount';
+      if (Platform.OS === 'web') window.alert(msg);
       return;
     }
     if (!selectedCategoryId) {
-      Alert.alert('Error', 'Please select a category');
+      const msg = 'Please select a category';
+      if (Platform.OS === 'web') window.alert(msg);
       return;
     }
 
@@ -39,14 +42,16 @@ export default function AddTransactionScreen() {
       if (error) throw error;
       
       await refreshData();
-      router.navigate('/'); // go back to dashboard
       
       // Reset form
       setAmount('');
       setNote('');
       setSelectedCategoryId(null);
+      
+      router.navigate('/'); // go back to dashboard
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      const msg = err.message || JSON.stringify(err);
+      if (Platform.OS === 'web') window.alert('Error: ' + msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -55,65 +60,82 @@ export default function AddTransactionScreen() {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-[#F8FAFC]"
     >
-      <ScrollView className="flex-1 p-4" keyboardShouldPersistTaps="handled">
+      <ScrollView className="flex-1 p-5" keyboardShouldPersistTaps="handled">
         
-        <View className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <Text className="text-gray-700 font-semibold mb-2 text-base">Amount</Text>
-          <View className="flex-row items-center border-b border-gray-200 pb-2 mb-6">
-            <Text className="text-3xl font-bold text-gray-800 mr-2">$</Text>
+        <View className="mb-8 mt-2">
+          <Text className="text-4xl font-extrabold text-slate-800 tracking-tight">Add Expense</Text>
+          <Text className="text-slate-500 font-medium mt-1 text-base">Keep track of your spending</Text>
+        </View>
+
+        <View className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 mb-8">
+          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
+          <View className="flex-row items-center border-b-2 border-slate-100 pb-2 mb-8">
+            <Text className="text-4xl font-black text-slate-800 mr-2">$</Text>
             <TextInput
-              className="flex-1 text-3xl font-bold text-gray-800"
+              className="flex-1 text-4xl font-black text-slate-800"
               placeholder="0.00"
+              placeholderTextColor="#cbd5e1"
               keyboardType="decimal-pad"
               value={amount}
               onChangeText={setAmount}
             />
           </View>
 
-          <Text className="text-gray-700 font-semibold mb-3 text-base">Category</Text>
-          <View className="flex-row flex-wrap mb-4">
-            {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                onPress={() => setSelectedCategoryId(cat.id)}
-                className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
-                  selectedCategoryId === cat.id 
-                    ? 'bg-sky-500 border-sky-500' 
-                    : 'bg-white border-gray-300'
-                }`}
-              >
-                <Text className={`${selectedCategoryId === cat.id ? 'text-white' : 'text-gray-600'} font-medium`}>
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
+          <View className="flex-row flex-wrap mb-6">
+            {categories.map((cat) => {
+              const isSelected = selectedCategoryId === cat.id;
+              return (
+                <TouchableOpacity
+                  key={cat.id}
+                  onPress={() => setSelectedCategoryId(cat.id)}
+                  className={`mr-3 mb-3 px-5 py-3 rounded-2xl border-2 ${
+                    isSelected 
+                      ? 'border-indigo-500 bg-indigo-50' 
+                      : 'border-slate-200 bg-white'
+                  }`}
+                >
+                  <Text className={`${isSelected ? 'text-indigo-600 font-bold' : 'text-slate-600 font-medium'}`}>
+                    {cat.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
             {categories.length === 0 && (
-              <Text className="text-gray-400 italic">No categories available. Please add one in settings.</Text>
+              <Text className="text-slate-400 italic">No categories available. Please add one in settings.</Text>
             )}
           </View>
 
-          <Text className="text-gray-700 font-semibold mb-2 text-base">Note (Optional)</Text>
+          <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
           <TextInput
-            className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-gray-800 mb-6"
+            className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-medium text-base mb-2"
             placeholder="What was this for?"
+            placeholderTextColor="#94a3b8"
             value={note}
             onChangeText={setNote}
           />
+        </View>
 
-          <TouchableOpacity
-            onPress={handleSave}
-            disabled={isSubmitting}
-            className={`rounded-xl py-4 items-center ${isSubmitting ? 'bg-sky-300' : 'bg-sky-500'}`}
+        <TouchableOpacity
+          onPress={handleSave}
+          disabled={isSubmitting}
+          className="shadow-md shadow-indigo-200 mb-10"
+        >
+          <LinearGradient
+            colors={isSubmitting ? ['#94a3b8', '#cbd5e1'] : ['#4f46e5', '#6366f1']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            className="rounded-2xl py-4 items-center"
           >
             {isSubmitting ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text className="text-white font-bold text-lg">Save Expense</Text>
+              <Text className="text-white font-extrabold text-lg tracking-wide">Save Expense</Text>
             )}
-          </TouchableOpacity>
-        </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
       </ScrollView>
     </KeyboardAvoidingView>
