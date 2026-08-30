@@ -322,14 +322,16 @@ export default function HistoryScreen() {
                 <TouchableOpacity 
                   onPress={handleSaveEdit}
                   disabled={isSaving}
-                  className="flex-1 overflow-hidden rounded-2xl shadow-sm"
+                  className="flex-1 overflow-hidden rounded-2xl shadow-sm items-center justify-center"
+                  style={{ height: 56 }}
                 >
                   <LinearGradient
                     colors={isSaving ? ['#94a3b8', '#cbd5e1'] : ['#4f46e5', '#6366f1']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
-                    className="py-4 items-center flex-row justify-center"
-                  >
+                    style={{ position: 'absolute', width: '100%', height: '100%' }}
+                  />
+                  <View className="flex-row items-center z-10">
                     {isSaving ? (
                       <ActivityIndicator color="white" size="small" />
                     ) : (
@@ -338,7 +340,7 @@ export default function HistoryScreen() {
                         <Text className="text-white font-bold text-base">Save Changes</Text>
                       </>
                     )}
-                  </LinearGradient>
+                  </View>
                 </TouchableOpacity>
               </View>
             </ScrollView>
