@@ -38,8 +38,11 @@ function TwoVesselNode({
   const CANVAS_CENTER = 1500;
   
   // Calculate node position on a circle
-  // Increased radius to accommodate taller nodes
-  const radius = 240; 
+  // Dynamically increase radius if there are many nodes so they don't overlap
+  const minSpacing = 320; // Minimum arc length per node
+  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
+  const radius = Math.max(280, calculatedRadius); // Base radius of 280
+  
   const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2; // Start from top (-90 deg)
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
