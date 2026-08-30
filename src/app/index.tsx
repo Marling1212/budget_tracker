@@ -343,17 +343,16 @@ export default function DashboardScreen() {
 
       {/* Floating Action Button (FAB) */}
       <TouchableOpacity
-        className="absolute bottom-8 right-6 w-16 h-16 rounded-full shadow-lg shadow-indigo-200 z-50 overflow-hidden"
+        className="absolute bottom-8 right-6 w-16 h-16 rounded-full shadow-lg shadow-indigo-200 z-50 overflow-hidden items-center justify-center bg-indigo-500"
         onPress={() => setIsAddingExpense(true)}
       >
         <LinearGradient
           colors={['#4f46e5', '#6366f1']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="w-full h-full items-center justify-center"
-        >
-          <Plus color="white" size={32} />
-        </LinearGradient>
+          style={{ position: 'absolute', width: '100%', height: '100%' }}
+        />
+        <Plus color="white" size={32} style={{ zIndex: 10 }} />
       </TouchableOpacity>
 
       {/* Add Expense Modal */}
