@@ -1,9 +1,12 @@
-import React from 'react';
-import { View, Text, ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ActivityIndicator, Dimensions, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useBudget } from '../hooks/useBudget';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
+import { format } from 'date-fns';
+import { supabase } from '../lib/supabase';
+import { Plus, X } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -147,8 +150,66 @@ function TwoVesselNode({
 }
 
 export default function DashboardScreen() {
-  const { budgetStatuses, loading, error } = useBudget();
+  const { categories, budgetStatuses, refreshData, loading, error } = useBudget();
   const router = useRouter();
+
+  // Add Expense State
+  const [isAddingExpense, setIsAddingExpense] = useState(false);
+  const [addAmount, setAddAmount] = useState('');
+  const [addNote, setAddNote] = useState('');
+  const [addCategoryId, setAddCategoryId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const safeAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}: ${message}`);
+    } else {
+      // @ts-ignore
+      import('react-native').then(({ Alert }) => {
+        Alert.alert(title, message);
+      });
+    }
+  }
+
+  const handleSaveExpense = async () => {
+    if (!addAmount || isNaN(Number(addAmount))) {
+      safeAlert('Error', 'Please enter a valid amount');
+      return;
+    }
+    if (!addCategoryId) {
+      safeAlert('Error', 'Please select a category');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      
+      const { error } = await supabase
+        .from('transactions')
+        .insert({
+          category_id: addCategoryId,
+          amount: Number(addAmount),
+          date: today,
+          note: addNote || null,
+        });
+
+      if (error) throw error;
+      
+      await refreshData();
+      
+      // Reset form
+      setAddAmount('');
+      setAddNote('');
+      setAddCategoryId(null);
+      setIsAddingExpense(false);
+    } catch (err: any) {
+      console.error(err);
+      safeAlert('Error', err.message || JSON.stringify(err));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Gesture handling state
   const scale = useSharedValue(1);
@@ -279,6 +340,112 @@ export default function DashboardScreen() {
           ))}
         </Animated.View>
       </GestureDetector>
+
+      {/* Floating Action Button (FAB) */}
+      <TouchableOpacity
+        className="absolute bottom-8 right-6 w-16 h-16 rounded-full shadow-lg shadow-indigo-200 z-50 overflow-hidden"
+        onPress={() => setIsAddingExpense(true)}
+      >
+        <LinearGradient
+          colors={['#4f46e5', '#6366f1']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="w-full h-full items-center justify-center"
+        >
+          <Plus color="white" size={32} />
+        </LinearGradient>
+      </TouchableOpacity>
+
+      {/* Add Expense Modal */}
+      <Modal
+        visible={isAddingExpense}
+        animationType="slide"
+        transparent={true}
+      >
+        <View className="flex-1 justify-end bg-slate-900/50">
+          <View className="bg-white rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[90%]">
+            <View className="flex-row justify-between items-center mb-8">
+              <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Add Expense</Text>
+              <TouchableOpacity onPress={() => setIsAddingExpense(false)} className="p-3 bg-slate-100 rounded-full">
+                <X color="#64748b" size={24} />
+              </TouchableOpacity>
+            </View>
+
+            <KeyboardAvoidingView 
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              className="flex-1"
+            >
+              <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
+                <View className="flex-row items-center border-b-2 border-slate-100 pb-2 mb-8">
+                  <Text className="text-4xl font-black text-slate-800 mr-2">$</Text>
+                  <TextInput
+                    className="flex-1 text-4xl font-black text-slate-800"
+                    placeholder="0.00"
+                    placeholderTextColor="#cbd5e1"
+                    keyboardType="decimal-pad"
+                    value={addAmount}
+                    onChangeText={setAddAmount}
+                  />
+                </View>
+
+                <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
+                <View className="flex-row flex-wrap mb-8">
+                  {categories.map((cat) => (
+                    <TouchableOpacity
+                      key={cat.id}
+                      onPress={() => setAddCategoryId(cat.id)}
+                      className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
+                        addCategoryId === cat.id 
+                          ? 'border-indigo-600 bg-indigo-50' 
+                          : 'border-slate-100 bg-white'
+                      }`}
+                    >
+                      <Text className={`font-bold ${addCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500'}`}>
+                        {cat.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                  {categories.length === 0 && (
+                    <Text className="text-slate-400 italic">No categories available. Please add one in settings.</Text>
+                  )}
+                </View>
+
+                <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
+                <TextInput
+                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-medium text-base mb-8"
+                  placeholder="What was this for?"
+                  placeholderTextColor="#94a3b8"
+                  value={addNote}
+                  onChangeText={setAddNote}
+                />
+
+                <TouchableOpacity
+                  onPress={handleSaveExpense}
+                  disabled={isSubmitting}
+                  className="shadow-md shadow-indigo-200 mb-20 overflow-hidden rounded-2xl"
+                >
+                  <LinearGradient
+                    colors={isSubmitting ? ['#94a3b8', '#cbd5e1'] : ['#4f46e5', '#6366f1']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    className="py-4 items-center flex-row justify-center"
+                  >
+                    {isSubmitting ? (
+                      <ActivityIndicator color="#ffffff" />
+                    ) : (
+                      <>
+                        <Plus color="white" size={24} className="mr-2" />
+                        <Text className="text-white font-extrabold text-lg tracking-wide">Save Expense</Text>
+                      </>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </View>
+        </View>
+      </Modal>
     </GestureHandlerRootView>
   );
 }
