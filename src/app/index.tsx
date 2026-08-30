@@ -255,6 +255,7 @@ export default function DashboardScreen() {
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [addAmount, setAddAmount] = useState('');
   const [addNote, setAddNote] = useState('');
+  const [addDate, setAddDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [addCategoryId, setAddCategoryId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -293,7 +294,7 @@ export default function DashboardScreen() {
         .insert({
           category_id: addCategoryId,
           amount: Number(addAmount),
-          date: today,
+          date: addDate,
           note: addNote || null,
         });
 
@@ -305,6 +306,7 @@ export default function DashboardScreen() {
       setAddAmount('');
       setAddNote('');
       setAddCategoryId(null);
+      setAddDate(format(new Date(), 'yyyy-MM-dd'));
       setIsAddingExpense(false);
     } catch (err: any) {
       console.error(err);
@@ -505,6 +507,15 @@ export default function DashboardScreen() {
                     onChangeText={setAddAmount}
                   />
                 </View>
+
+                <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Date (YYYY-MM-DD)</Text>
+                <TextInput
+                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-bold text-lg mb-8"
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#94a3b8"
+                  value={addDate}
+                  onChangeText={setAddDate}
+                />
 
                 <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
                 <View className="flex-row flex-wrap mb-8">
