@@ -43,7 +43,7 @@ export default function SettingsScreen() {
         throw error;
       }
 
-      await refreshData();
+      await refreshData(true);
       setNewCatName('');
       setNewCatBudget('');
       setIsAccumulative(true);
@@ -62,7 +62,7 @@ export default function SettingsScreen() {
         try {
           const { error } = await supabase.from('categories').delete().eq('id', id);
           if (error) throw error;
-          await refreshData();
+          await refreshData(true);
         } catch (err: any) {
           safeAlert('Error', err.message);
         }
@@ -81,7 +81,7 @@ export default function SettingsScreen() {
                 try {
                   const { error } = await supabase.from('categories').delete().eq('id', id);
                   if (error) throw error;
-                  await refreshData();
+                  await refreshData(true);
                 } catch (err: any) {
                   safeAlert('Error', err.message);
                 }

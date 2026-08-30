@@ -25,7 +25,7 @@ const GRADIENTS = [
   ['#10b981', '#059669'], // Emerald
   ['#f59e0b', '#d97706'], // Amber
   ['#6366f1', '#4f46e5'], // Indigo
-];
+] as const;
 
 function TwoVesselNode({ 
   status, 
@@ -54,14 +54,14 @@ function TwoVesselNode({
   
   // --- Top Container (Daily Glass) ---
   const topIsOverBudget = status.todayRemaining < 0;
-  const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] : colors;
+  const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
   const topFillPercentage = Math.max(0, Math.min(100, (status.todayRemaining / status.dailyBudget) * 100)) || 0;
   const topTargetHeight = (topFillPercentage / 100) * 140;
   const topFillHeight = useSharedValue(0);
 
   // --- Bottom Container (Savings Vault) ---
   const bottomIsNegative = status.totalSaved < 0;
-  const bottomColors = bottomIsNegative ? ['#ef4444', '#b91c1c'] : colors;
+  const bottomColors = bottomIsNegative ? ['#ef4444', '#b91c1c'] as const : colors;
   // Cap at 100% just for animation scale
   const bottomFillPercentage = Math.max(0, Math.min(100, (status.totalSaved / status.expectedMonthlyBudget) * 100)) || 0;
   const bottomTargetHeight = (bottomFillPercentage / 100) * 140;
@@ -186,7 +186,7 @@ function SingleVesselNode({
   
   const remaining = status.expectedMonthlyBudget - status.spentThisMonth;
   const isOverBudget = remaining < 0;
-  const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] : colors;
+  const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
   
   const fillPercentage = Math.max(0, Math.min(100, (remaining / status.expectedMonthlyBudget) * 100)) || 0;
   const targetHeight = (fillPercentage / 100) * 290;
@@ -299,7 +299,7 @@ export default function DashboardScreen() {
 
       if (error) throw error;
       
-      await refreshData();
+      await refreshData(true);
       
       // Reset form
       setAddAmount('');

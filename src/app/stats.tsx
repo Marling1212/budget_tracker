@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
 import React, { useEffect } from 'react';
 
-function ProgressBar({ percentage, color, expectedPercentage }: { percentage: number, color: string[], expectedPercentage?: number }) {
+function ProgressBar({ percentage, color, expectedPercentage }: { percentage: number, color: readonly [string, string, ...string[]], expectedPercentage?: number }) {
   const width = useSharedValue(0);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function StatsScreen() {
 
         <ProgressBar 
           percentage={totalPercentage} 
-          color={isOverTotal ? ['#ef4444', '#b91c1c'] : ['#3b82f6', '#8b5cf6']} 
+          color={isOverTotal ? ['#ef4444', '#b91c1c'] as const : ['#3b82f6', '#8b5cf6'] as const} 
           expectedPercentage={timePercentage}
         />
         
@@ -114,8 +114,8 @@ export default function StatsScreen() {
           ['#10b981', '#059669'], // Emerald
           ['#f59e0b', '#d97706'], // Amber
           ['#6366f1', '#4f46e5'], // Indigo
-        ];
-        const color = catIsOver ? ['#ef4444', '#b91c1c'] : GRADIENTS[index % GRADIENTS.length];
+        ] as const;
+        const color = catIsOver ? ['#ef4444', '#b91c1c'] as const : GRADIENTS[index % GRADIENTS.length];
 
         return (
           <View key={status.category.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100">

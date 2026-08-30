@@ -9,7 +9,7 @@ interface BudgetContextType {
   budgetStatuses: BudgetStatus[];
   loading: boolean;
   error: Error | null;
-  refreshData: () => Promise<void>;
+  refreshData: (background?: boolean) => Promise<void>;
 }
 
 const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
@@ -21,14 +21,15 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  const fetchData = useCallback(async (background: boolean = false) => {
+    if (!background) setLoading(true);
     setError(null);
     try {
       // 1. Fetch categories
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
+        .lte('created_at', new Date().toISOString()) // Cache buster
         .order('created_at', { ascending: true });
 
       if (categoriesError) throw categoriesError;
@@ -42,7 +43,8 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         .from('transactions')
         .select('*')
         .gte('date', firstDayOfMonth)
-        .lt('date', firstDayOfNextMonth);
+        .lt('date', firstDayOfNextMonth)
+        .lte('created_at', new Date().toISOString()); // Cache buster
 
       if (transactionsError) throw transactionsError;
 

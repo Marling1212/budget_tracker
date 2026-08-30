@@ -99,7 +99,7 @@ export default function HistoryScreen() {
 
       if (error) throw error;
       
-      await refreshData();
+      await refreshData(true);
       setEditingTransaction(null);
     } catch (err: any) {
       console.error(err);
@@ -141,7 +141,7 @@ export default function HistoryScreen() {
 
       if (error) throw error;
       
-      await refreshData();
+      await refreshData(true);
       setEditingTransaction(null);
     } catch (err: any) {
       console.error(err);
