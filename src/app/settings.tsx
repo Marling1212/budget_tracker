@@ -116,21 +116,21 @@ export default function SettingsScreen() {
 
       {/* Add New Category Section */}
       {!isAdding ? (
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => setIsAdding(true)}
-          className="mb-8 overflow-hidden rounded-3xl"
+          className="mb-8 rounded-xl overflow-hidden shadow-sm shadow-indigo-100 items-center justify-center bg-indigo-50"
+          style={{ height: 56 }}
         >
           <LinearGradient
-            colors={['#e0e7ff', '#ede9fe']}
+            colors={['#6366f1', '#4f46e5']}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            className="p-6 items-center flex-row justify-center border border-indigo-100"
-          >
-            <View className="bg-indigo-500 rounded-full p-1.5 mr-3">
-              <Plus color="#ffffff" size={20} />
-            </View>
-            <Text className="text-indigo-600 font-extrabold text-lg">Create Category</Text>
-          </LinearGradient>
+            end={{ x: 1, y: 0 }}
+            style={{ position: 'absolute', width: '100%', height: '100%' }}
+          />
+          <View className="flex-row items-center z-10">
+            <Plus color="white" size={20} className="mr-2" />
+            <Text className="text-white font-bold text-lg">Create Category</Text>
+          </View>
         </TouchableOpacity>
       ) : (
         <View className="bg-white rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100">
@@ -177,20 +177,22 @@ export default function SettingsScreen() {
             <TouchableOpacity 
               onPress={handleAddCategory}
               disabled={isSaving}
-              className="flex-1 overflow-hidden rounded-2xl shadow-sm"
+              className="flex-1 overflow-hidden rounded-2xl shadow-sm items-center justify-center"
+              style={{ height: 56 }}
             >
               <LinearGradient
                 colors={isSaving ? ['#94a3b8', '#cbd5e1'] : ['#4f46e5', '#6366f1']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                className="py-4 items-center"
-              >
+                style={{ position: 'absolute', width: '100%', height: '100%' }}
+              />
+              <View className="flex-row items-center z-10">
                 {isSaving ? (
                   <ActivityIndicator color="white" size="small" />
                 ) : (
                   <Text className="text-white font-bold text-base">Save</Text>
                 )}
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
