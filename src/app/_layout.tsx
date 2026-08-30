@@ -9,43 +9,46 @@ import AppTabs from '@/components/app-tabs';
 SplashScreen.preventAutoHideAsync();
 
 import { Tabs } from 'expo-router';
-import { Home, PlusCircle, Settings, List } from 'lucide-react-native';
+import { Home, Settings, List } from 'lucide-react-native';
+import { BudgetProvider } from '../hooks/useBudget';
 
 export default function TabLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: true,
-        tabBarActiveTintColor: '#0ea5e9', // Tailwind sky-500
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Dashboard',
-          tabBarIcon: ({ color }) => <Home color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: 'History',
-          tabBarIcon: ({ color }) => <List color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color }) => <Settings color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          href: null,
-          title: 'Analysis',
-        }}
-      />
-    </Tabs>
+    <BudgetProvider>
+      <Tabs
+        screenOptions={{
+          headerShown: true,
+          tabBarActiveTintColor: '#0ea5e9', // Tailwind sky-500
+        }}>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Dashboard',
+            tabBarIcon: ({ color }) => <Home color={color} size={24} />,
+          }}
+        />
+        <Tabs.Screen
+          name="history"
+          options={{
+            title: 'History',
+            tabBarIcon: ({ color }) => <List color={color} size={24} />,
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Settings',
+            tabBarIcon: ({ color }) => <Settings color={color} size={24} />,
+          }}
+        />
+        <Tabs.Screen
+          name="stats"
+          options={{
+            href: null,
+            title: 'Analysis',
+          }}
+        />
+      </Tabs>
+    </BudgetProvider>
   );
 }

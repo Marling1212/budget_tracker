@@ -1,9 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { getDaysInMonth, getDate } from 'date-fns';
 import { supabase } from '../lib/supabase';
 import { Category, Transaction, BudgetStatus } from '../types/database';
 
-export function useBudget() {
+interface BudgetContextType {
+  categories: Category[];
+  transactions: Transaction[];
+  budgetStatuses: BudgetStatus[];
+  loading: boolean;
+  error: Error | null;
+  refreshData: () => Promise<void>;
+}
+
+const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
+
+export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budgetStatuses, setBudgetStatuses] = useState<BudgetStatus[]>([]);
@@ -25,7 +36,6 @@ export function useBudget() {
       // 2. Fetch current month's transactions
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      // Get next month's first day to use as upper bound (exclusive)
       const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
 
       const { data: transactionsData, error: transactionsError } = await supabase
@@ -57,7 +67,6 @@ export function useBudget() {
     const currentDayOfMonth = getDate(now);
 
     const statuses: BudgetStatus[] = categories.map((category) => {
-      // Calculate spent this month for this category
       const categoryTransactions = transactions.filter(t => t.category_id === category.id);
       const spentThisMonth = categoryTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
@@ -103,12 +112,24 @@ export function useBudget() {
     setBudgetStatuses(statuses);
   }, [categories, transactions]);
 
-  return {
-    categories,
-    transactions,
-    budgetStatuses,
-    loading,
-    error,
-    refreshData: fetchData,
-  };
+  return (
+    <BudgetContext.Provider value={{
+      categories,
+      transactions,
+      budgetStatuses,
+      loading,
+      error,
+      refreshData: fetchData,
+    }}>
+      {children}
+    </BudgetContext.Provider>
+  );
+}
+
+export function useBudget() {
+  const context = useContext(BudgetContext);
+  if (context === undefined) {
+    throw new Error('useBudget must be used within a BudgetProvider');
+  }
+  return context;
 }
