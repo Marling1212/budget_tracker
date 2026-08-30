@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   View, 
   Text, 
-  FlatList, 
+  SectionList, 
   TouchableOpacity, 
   ActivityIndicator, 
   ScrollView, 
@@ -20,7 +20,6 @@ export default function HistoryScreen() {
   const { categories, transactions, refreshData, loading, budgetStatuses } = useBudget();
   
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [selectedDay, setSelectedDay] = useState<number | 'ALL'>('ALL');
   
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [editAmount, setEditAmount] = useState('');
@@ -29,28 +28,32 @@ export default function HistoryScreen() {
   const [editCategoryId, setEditCategoryId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Generate days array (1 to daysInMonth)
-  const daysInMonth = budgetStatuses.length > 0 ? budgetStatuses[0].daysInMonth : 31;
-  const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-
-  // Filter transactions
-  const filteredTransactions = useMemo(() => {
-    return transactions.filter(t => {
-      // Filter by category
+  // Group transactions by date
+  const sections = useMemo(() => {
+    const groups: { [key: string]: Transaction[] } = {};
+    
+    // First filter by category
+    const categoryFiltered = transactions.filter(t => {
       if (selectedCategory !== 'ALL' && t.category_id !== selectedCategory) {
         return false;
       }
-      
-      // Filter by day
-      if (selectedDay !== 'ALL') {
-        const txDay = new Date(t.date).getDate();
-        if (txDay !== selectedDay) {
-          return false;
-        }
-      }
       return true;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [transactions, selectedCategory, selectedDay]);
+
+    // Group by date
+    categoryFiltered.forEach(t => {
+      if (!groups[t.date]) groups[t.date] = [];
+      groups[t.date].push(t);
+    });
+
+    // Convert to SectionList format
+    return Object.keys(groups)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+      .map(date => ({
+        title: date,
+        data: groups[date]
+      }));
+  }, [transactions, selectedCategory]);
 
   const openEditModal = (tx: Transaction) => {
     setEditingTransaction(tx);
@@ -187,56 +190,41 @@ export default function HistoryScreen() {
             ))}
           </ScrollView>
         </View>
-
-        {/* Date Filter */}
-        <View className="mt-4 flex-row items-center">
-          <Calendar color="#94a3b8" size={16} className="mr-3" />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-1">
-            <TouchableOpacity 
-              onPress={() => setSelectedDay('ALL')}
-              className={`w-12 h-12 rounded-2xl items-center justify-center mr-2 border-2 ${selectedDay === 'ALL' ? 'border-indigo-600 bg-indigo-50' : 'border-transparent bg-slate-100'}`}
-            >
-              <Text className={`font-black text-xs ${selectedDay === 'ALL' ? 'text-indigo-600' : 'text-slate-600'}`}>
-                ALL
-              </Text>
-            </TouchableOpacity>
-            {daysArray.map(day => (
-              <TouchableOpacity 
-                key={day}
-                onPress={() => setSelectedDay(day)}
-                className={`w-12 h-12 rounded-2xl items-center justify-center mr-2 border-2 ${selectedDay === day ? 'border-indigo-600 bg-indigo-50' : 'border-transparent bg-slate-100'}`}
-              >
-                <Text className={`font-black text-lg ${selectedDay === day ? 'text-indigo-600' : 'text-slate-700'}`}>
-                  {day}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
       </View>
 
       {/* Transactions List */}
-      <FlatList
-        data={filteredTransactions}
+      <SectionList
+        sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 20, paddingBottom: 100 }}
+        stickySectionHeadersEnabled={true}
         ListEmptyComponent={
           <View className="items-center justify-center py-20">
             <Text className="text-slate-400 font-bold text-lg">No transactions found</Text>
           </View>
         }
+        renderSectionHeader={({ section: { title } }) => {
+          const dateObj = new Date(title);
+          const formattedDate = !isNaN(dateObj.getTime()) 
+            ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' })
+            : title;
+          
+          return (
+            <View className="bg-[#F8FAFC] py-2 mb-2 mt-4">
+              <Text className="text-slate-500 font-bold text-sm tracking-wider uppercase">
+                {formattedDate}
+              </Text>
+            </View>
+          );
+        }}
         renderItem={({ item }) => {
           const cat = categories.find(c => c.id === item.category_id);
-          const day = new Date(item.date).getDate();
           return (
             <TouchableOpacity 
               onPress={() => openEditModal(item)}
               className="bg-white rounded-3xl p-4 mb-3 shadow-sm border border-slate-100 flex-row items-center justify-between"
             >
               <View className="flex-row items-center flex-1">
-                <View className="w-12 h-12 bg-indigo-50 rounded-2xl items-center justify-center mr-4">
-                  <Text className="text-indigo-600 font-black text-lg">{day}</Text>
-                </View>
                 <View className="flex-1">
                   <Text className="text-slate-800 font-extrabold text-base">{cat?.name || 'Unknown'}</Text>
                   {item.note ? (

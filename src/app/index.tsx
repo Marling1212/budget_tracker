@@ -152,6 +152,84 @@ function TwoVesselNode({
   );
 }
 
+function SingleVesselNode({ 
+  status, 
+  index, 
+  totalNodes 
+}: { 
+  status: BudgetStatus; 
+  index: number; 
+  totalNodes: number;
+}) {
+  const CANVAS_CENTER = 1500;
+  
+  const minSpacing = 320;
+  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
+  const radius = Math.max(280, calculatedRadius);
+  
+  const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2;
+  const x = Math.cos(angle) * radius;
+  const y = Math.sin(angle) * radius;
+
+  const colors = GRADIENTS[index % GRADIENTS.length];
+  
+  const remaining = status.expectedMonthlyBudget - status.spentThisMonth;
+  const isOverBudget = remaining < 0;
+  const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] : colors;
+  
+  const fillPercentage = Math.max(0, Math.min(100, (remaining / status.expectedMonthlyBudget) * 100)) || 0;
+  const targetHeight = (fillPercentage / 100) * 290;
+  const fillHeight = useSharedValue(0);
+
+  React.useEffect(() => {
+    fillHeight.value = withTiming(targetHeight, { duration: 1500 });
+  }, [targetHeight]);
+
+  const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
+
+  return (
+    <View 
+      style={{
+        position: 'absolute',
+        top: CANVAS_CENTER + y - 145,
+        left: CANVAS_CENTER + x - 70,
+        width: 140,
+        height: 290,
+      }}
+      className="items-center justify-center"
+    >
+      <View className="w-full h-full bg-white rounded-[70px] shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50" />
+        <Animated.View 
+          style={[
+            { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
+            animatedStyle
+          ]}
+        >
+          <LinearGradient
+            colors={fillColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ position: 'absolute', bottom: 0, left: 0, width: 140, height: 290 }}
+          />
+        </Animated.View>
+
+        <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
+          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
+            {status.category.name}
+          </Text>
+          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900'} font-black text-3xl mt-1`}>
+            {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
+          </Text>
+          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800'} font-bold text-[10px] mt-1 text-center`}>
+            {isOverBudget ? 'OVERSPENT' : 'REMAINING\nMONTHLY'}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export default function DashboardScreen() {
   const { categories, budgetStatuses, refreshData, loading, error } = useBudget();
   const router = useRouter();
@@ -333,14 +411,27 @@ export default function DashboardScreen() {
             </View>
           </TouchableOpacity>
 
-          {budgetStatuses.map((status, index) => (
-            <TwoVesselNode 
-              key={status.category.id}
-              status={status}
-              index={index}
-              totalNodes={budgetStatuses.length}
-            />
-          ))}
+          {budgetStatuses.map((status, index) => {
+            if (status.category.is_accumulative) {
+              return (
+                <TwoVesselNode 
+                  key={status.category.id}
+                  status={status}
+                  index={index}
+                  totalNodes={budgetStatuses.length}
+                />
+              );
+            } else {
+              return (
+                <SingleVesselNode 
+                  key={status.category.id}
+                  status={status}
+                  index={index}
+                  totalNodes={budgetStatuses.length}
+                />
+              );
+            }
+          })}
         </Animated.View>
       </GestureDetector>
 
