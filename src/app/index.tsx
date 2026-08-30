@@ -47,7 +47,7 @@ function TwoVesselNode({
   const colors = GRADIENTS[index % GRADIENTS.length];
   
   // --- Top Container (Daily Glass) ---
-  const topIsOverBudget = status.todayRemaining <= 0;
+  const topIsOverBudget = status.todayRemaining < 0;
   const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] : colors;
   const topFillPercentage = Math.max(0, Math.min(100, (status.todayRemaining / status.dailyBudget) * 100)) || 0;
   const topTargetHeight = (topFillPercentage / 100) * 140;
@@ -105,10 +105,10 @@ function TwoVesselNode({
             {status.category.name} Daily
           </Text>
           <Text className="text-slate-900 font-black text-2xl mt-1">
-            ${Math.abs(status.todayRemaining).toFixed(0)}
+            {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
           </Text>
           <Text className="text-slate-800 font-bold text-[10px] mt-1">
-            {topIsOverBudget ? '0 REMAINING' : 'REMAINING TODAY'}
+            {topIsOverBudget ? 'OVERSPENT' : 'REMAINING TODAY'}
           </Text>
         </View>
       </View>

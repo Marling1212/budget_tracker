@@ -83,7 +83,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       const dailyBudget = category.daily_budget;
       const expectedMonthlyBudget = dailyBudget * daysInMonth;
       
-      const todayRemaining = Math.max(0, dailyBudget - spentToday);
+      const todayRemaining = dailyBudget - spentToday;
       const totalSaved = (dailyBudget * (currentDayOfMonth - 1)) - spentPast;
 
       let accumulatedLimit = expectedMonthlyBudget;
