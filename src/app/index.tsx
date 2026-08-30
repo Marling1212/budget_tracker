@@ -248,16 +248,34 @@ function SingleVesselNode({
 }
 
 export default function DashboardScreen() {
-  const { categories, budgetStatuses, refreshData, loading, error } = useBudget();
+  const { categories, budgetStatuses, refreshData, loading, error, transactions } = useBudget();
   const router = useRouter();
-
-  // Add Expense State
+  
+  // State for Add Expense Modal
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [addAmount, setAddAmount] = useState('');
   const [addNote, setAddNote] = useState('');
   const [addDate, setAddDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [addCategoryId, setAddCategoryId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Derive top frequent notes for the selected category
+  const frequentNotes = React.useMemo(() => {
+    if (!addCategoryId) return [];
+    
+    const categoryTransactions = transactions.filter(t => t.category_id === addCategoryId && t.note && t.note.trim().length > 0);
+    
+    const noteCounts: Record<string, number> = {};
+    categoryTransactions.forEach(t => {
+      const note = t.note!.trim();
+      noteCounts[note] = (noteCounts[note] || 0) + 1;
+    });
+    
+    return Object.entries(noteCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4) // Top 4 frequent notes
+      .map(entry => entry[0]);
+  }, [addCategoryId, transactions]);
 
   const handleNodeDoubleTap = (categoryId: string) => {
     setAddCategoryId(categoryId);
@@ -549,12 +567,26 @@ export default function DashboardScreen() {
 
                 <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
                 <TextInput
-                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-medium text-base mb-8"
+                  className={`bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-medium text-base ${frequentNotes.length > 0 ? 'mb-3' : 'mb-8'}`}
                   placeholder="What was this for?"
                   placeholderTextColor="#94a3b8"
                   value={addNote}
                   onChangeText={setAddNote}
                 />
+                
+                {frequentNotes.length > 0 && (
+                  <View className="flex-row flex-wrap mb-8">
+                    {frequentNotes.map((note) => (
+                      <TouchableOpacity
+                        key={note}
+                        onPress={() => setAddNote(note)}
+                        className="bg-indigo-50 border border-indigo-100 px-4 py-2 rounded-full mr-2 mb-2"
+                      >
+                        <Text className="text-indigo-600 font-bold text-xs">{note}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
 
                 <TouchableOpacity
                   onPress={handleSaveExpense}
