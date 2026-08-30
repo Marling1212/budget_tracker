@@ -80,18 +80,18 @@ function PiggyBankNode({
           colors={colors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="w-full h-full"
+          style={{ width: '100%', height: '100%' }}
         />
       </Animated.View>
 
       <View className="absolute inset-0 items-center justify-center bg-white/40 p-2">
-        <Text className="text-slate-900 font-extrabold text-sm uppercase tracking-wider text-center shadow-sm">
+        <Text className="text-slate-900 font-extrabold text-sm uppercase tracking-wider text-center">
           {status.category.name}
         </Text>
-        <Text className="text-slate-900 font-black text-2xl mt-1 shadow-sm">
+        <Text className="text-slate-900 font-black text-2xl mt-1">
           ${Math.abs(status.remaining).toFixed(0)}
         </Text>
-        <Text className="text-slate-800 font-bold text-[10px] mt-1 shadow-sm">
+        <Text className="text-slate-800 font-bold text-[10px] mt-1">
           {isOverBudget ? 'OVER' : 'SAVED'}
         </Text>
         
