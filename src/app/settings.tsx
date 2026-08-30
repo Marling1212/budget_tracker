@@ -6,7 +6,7 @@ import { Trash2, Plus } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function SettingsScreen() {
-  const { categories, refreshData, loading } = useBudget();
+  const { categories, budgetStatuses, refreshData, loading } = useBudget();
   const [isAdding, setIsAdding] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatBudget, setNewCatBudget] = useState('');
@@ -93,12 +93,25 @@ export default function SettingsScreen() {
     }
   };
 
+  const totalMonthlyExpected = budgetStatuses.reduce((sum, status) => sum + status.expectedMonthlyBudget, 0);
+
   return (
     <ScrollView className="flex-1 bg-[#F8FAFC]" contentContainerStyle={{ padding: 20 }}>
       
-      <View className="mb-8 mt-2">
+      <View className="mb-6 mt-2">
         <Text className="text-4xl font-extrabold text-slate-800 tracking-tight">Settings</Text>
         <Text className="text-slate-500 font-medium mt-1 text-base">Manage your budget categories</Text>
+      </View>
+
+      {/* Monthly Overview Card */}
+      <View className="bg-white rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 flex-row justify-between items-center">
+        <View>
+          <Text className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Expected Monthly Total</Text>
+          <Text className="text-slate-900 font-black text-3xl">${totalMonthlyExpected.toFixed(0)}</Text>
+        </View>
+        <View className="bg-indigo-50 px-3 py-1.5 rounded-full">
+          <Text className="text-indigo-600 font-bold text-xs">{categories.length} Categories</Text>
+        </View>
       </View>
 
       {/* Add New Category Section */}

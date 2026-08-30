@@ -39,6 +39,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Settings color={color} size={24} />,
         }}
       />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          href: null,
+          title: 'Analysis',
+        }}
+      />
     </Tabs>
   );
 }

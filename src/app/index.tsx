@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, ActivityIndicator, Dimensions, TouchableOpacity } from 'react-native';
 import { useBudget } from '../hooks/useBudget';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useRouter } from 'expo-router';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -147,6 +148,7 @@ function TwoVesselNode({
 
 export default function DashboardScreen() {
   const { budgetStatuses, loading, error } = useBudget();
+  const router = useRouter();
 
   // Gesture handling state
   const scale = useSharedValue(1);
@@ -241,18 +243,31 @@ export default function DashboardScreen() {
             animatedCanvasStyle
           ]}
         >
-          {/* Center reference point for aesthetics */}
-          <View 
-            className="absolute bg-slate-200/50 rounded-full items-center justify-center"
+          {/* Center reference point for aesthetics and routing */}
+          <TouchableOpacity 
+            onPress={() => router.push('/stats')}
+            className="absolute bg-white rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
             style={{ 
-              top: 1500 - 50, 
-              left: 1500 - 50, 
-              width: 100, 
-              height: 100 
+              top: 1500 - 60, 
+              left: 1500 - 60, 
+              width: 120, 
+              height: 120 
             }}
           >
-            <Text className="text-slate-400 font-black text-xs text-center">CENTER</Text>
-          </View>
+            <LinearGradient
+              colors={['#e0e7ff', '#ffffff']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ position: 'absolute', width: '100%', height: '100%' }}
+            />
+            <View className="items-center justify-center p-2">
+              <Text className="text-indigo-600 font-black text-sm text-center tracking-widest">MONTHLY</Text>
+              <Text className="text-indigo-600 font-black text-sm text-center tracking-widest mb-1">STATS</Text>
+              <View className="bg-indigo-600 px-3 py-1 rounded-full">
+                <Text className="text-white font-bold text-[10px] text-center">TAP HERE</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
 
           {budgetStatuses.map((status, index) => (
             <TwoVesselNode 
