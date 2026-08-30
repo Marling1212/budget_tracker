@@ -47,15 +47,16 @@ function PiggyBankNode({
   const fillPercentage = Math.max(0, Math.min(100, (status.remaining / status.accumulatedLimit) * 100)) || 0;
   const colors = isOverBudget ? ['#ef4444', '#b91c1c'] : GRADIENTS[index % GRADIENTS.length];
 
+  const targetHeight = (fillPercentage / 100) * 160;
   const fillHeight = useSharedValue(0);
 
   React.useEffect(() => {
-    fillHeight.value = withTiming(fillPercentage, { duration: 1500 });
-  }, [fillPercentage]);
+    fillHeight.value = withTiming(targetHeight, { duration: 1500 });
+  }, [targetHeight]);
 
   const animatedFillStyle = useAnimatedStyle(() => {
     return {
-      height: `${fillHeight.value}%`,
+      height: fillHeight.value,
     };
   });
 
@@ -73,14 +74,16 @@ function PiggyBankNode({
       <View className="absolute inset-0 bg-slate-50" />
       
       <Animated.View 
-        className="absolute bottom-0 left-0 right-0 w-full"
-        style={animatedFillStyle}
+        style={[
+          { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
+          animatedFillStyle
+        ]}
       >
         <LinearGradient
           colors={colors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ width: '100%', height: '100%' }}
+          style={{ position: 'absolute', bottom: 0, left: 0, width: 160, height: 160 }}
         />
       </Animated.View>
 
