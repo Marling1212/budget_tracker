@@ -383,6 +383,13 @@ export default function DashboardScreen() {
     );
   }
 
+  // Calculate radius to scale the center button proportionally
+  const totalNodes = budgetStatuses.length;
+  const minSpacing = 320;
+  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
+  const radius = Math.max(280, calculatedRadius);
+  const buttonScale = Math.max(1, radius / 280);
+
   return (
     <GestureHandlerRootView className="flex-1 bg-[#F8FAFC]">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
@@ -417,7 +424,8 @@ export default function DashboardScreen() {
               top: 1500 - 60, 
               left: 1500 - 60, 
               width: 120, 
-              height: 120 
+              height: 120,
+              transform: [{ scale: buttonScale }]
             }}
           >
             <LinearGradient
