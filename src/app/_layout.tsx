@@ -9,7 +9,7 @@ import AppTabs from '@/components/app-tabs';
 SplashScreen.preventAutoHideAsync();
 
 import { Tabs } from 'expo-router';
-import { Home, PlusCircle, Settings } from 'lucide-react-native';
+import { Home, PlusCircle, Settings, List } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -30,6 +30,13 @@ export default function TabLayout() {
         options={{
           title: 'Add Expense',
           tabBarIcon: ({ color }) => <PlusCircle color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'History',
+          tabBarIcon: ({ color }) => <List color={color} size={24} />,
         }}
       />
       <Tabs.Screen
