@@ -61,9 +61,22 @@ export function useBudget() {
       const categoryTransactions = transactions.filter(t => t.category_id === category.id);
       const spentThisMonth = categoryTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
+      const todayString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+      const spentToday = categoryTransactions
+        .filter(t => t.date === todayString)
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+
+      const spentPast = categoryTransactions
+        .filter(t => t.date !== todayString)
+        .reduce((sum, t) => sum + Number(t.amount), 0);
+
       const dailyBudget = category.daily_budget;
       const expectedMonthlyBudget = dailyBudget * daysInMonth;
       
+      const todayRemaining = Math.max(0, dailyBudget - spentToday);
+      const totalSaved = (dailyBudget * (currentDayOfMonth - 1)) - spentPast;
+
       let accumulatedLimit = expectedMonthlyBudget;
       if (category.is_accumulative) {
         accumulatedLimit = dailyBudget * currentDayOfMonth;
@@ -74,9 +87,13 @@ export function useBudget() {
       return {
         category,
         spentThisMonth,
+        spentToday,
+        spentPast,
         dailyBudget,
         expectedMonthlyBudget,
         accumulatedLimit,
+        todayRemaining,
+        totalSaved,
         remaining,
         daysInMonth,
         currentDayOfMonth,

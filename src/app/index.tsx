@@ -22,7 +22,7 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'], // Indigo
 ];
 
-function PiggyBankNode({ 
+function TwoVesselNode({ 
   status, 
   index, 
   totalNodes 
@@ -31,76 +31,113 @@ function PiggyBankNode({
   index: number; 
   totalNodes: number;
 }) {
-  const isOverBudget = status.remaining < 0;
-  
-  // Center of our 3000x3000 canvas
   const CANVAS_CENTER = 1500;
   
   // Calculate node position on a circle
-  // Smaller radius and node size so it fits better
-  const radius = 180; 
+  // Increased radius to accommodate taller nodes
+  const radius = 240; 
   const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2; // Start from top (-90 deg)
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
 
-  // Saved amount = Accumulated Limit - Spent this month
-  const fillPercentage = Math.max(0, Math.min(100, (status.remaining / status.accumulatedLimit) * 100)) || 0;
-  const colors = isOverBudget ? ['#ef4444', '#b91c1c'] : GRADIENTS[index % GRADIENTS.length];
+  const colors = GRADIENTS[index % GRADIENTS.length];
+  
+  // --- Top Container (Daily Glass) ---
+  const topIsOverBudget = status.todayRemaining <= 0;
+  const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] : colors;
+  const topFillPercentage = Math.max(0, Math.min(100, (status.todayRemaining / status.dailyBudget) * 100)) || 0;
+  const topTargetHeight = (topFillPercentage / 100) * 140;
+  const topFillHeight = useSharedValue(0);
 
-  const targetHeight = (fillPercentage / 100) * 160;
-  const fillHeight = useSharedValue(0);
+  // --- Bottom Container (Savings Vault) ---
+  const bottomIsNegative = status.totalSaved < 0;
+  const bottomColors = bottomIsNegative ? ['#ef4444', '#b91c1c'] : colors;
+  // Cap at 100% just for animation scale
+  const bottomFillPercentage = Math.max(0, Math.min(100, (status.totalSaved / status.expectedMonthlyBudget) * 100)) || 0;
+  const bottomTargetHeight = (bottomFillPercentage / 100) * 140;
+  const bottomFillHeight = useSharedValue(0);
 
   React.useEffect(() => {
-    fillHeight.value = withTiming(targetHeight, { duration: 1500 });
-  }, [targetHeight]);
+    topFillHeight.value = withTiming(topTargetHeight, { duration: 1500 });
+    // Add a slight delay for the vault animation so it feels like a sequence
+    setTimeout(() => {
+      bottomFillHeight.value = withTiming(bottomTargetHeight, { duration: 1500 });
+    }, 300);
+  }, [topTargetHeight, bottomTargetHeight]);
 
-  const animatedFillStyle = useAnimatedStyle(() => {
-    return {
-      height: fillHeight.value,
-    };
-  });
+  const topAnimatedStyle = useAnimatedStyle(() => ({ height: topFillHeight.value }));
+  const bottomAnimatedStyle = useAnimatedStyle(() => ({ height: bottomFillHeight.value }));
 
   return (
     <View 
       style={{
         position: 'absolute',
-        top: CANVAS_CENTER + y - 80, // 80 is half of node height (160)
-        left: CANVAS_CENTER + x - 80, // 80 is half of node width
-        width: 160,
-        height: 160,
+        top: CANVAS_CENTER + y - 145, // half of total height 290
+        left: CANVAS_CENTER + x - 70, // half of width 140
+        width: 140,
+        height: 290,
       }}
-      className="bg-white rounded-[80px] shadow-lg border-4 border-slate-100 overflow-hidden items-center justify-center"
+      className="items-center justify-between"
     >
-      <View className="absolute inset-0 bg-slate-50" />
-      
-      <Animated.View 
-        style={[
-          { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
-          animatedFillStyle
-        ]}
-      >
-        <LinearGradient
-          colors={colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ position: 'absolute', bottom: 0, left: 0, width: 160, height: 160 }}
-        />
-      </Animated.View>
+      {/* Top Container: Daily Glass */}
+      <View className="w-full h-[140px] bg-white rounded-t-[70px] rounded-b-3xl shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50" />
+        <Animated.View 
+          style={[
+            { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
+            topAnimatedStyle
+          ]}
+        >
+          <LinearGradient
+            colors={topColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ position: 'absolute', bottom: 0, left: 0, width: 140, height: 140 }}
+          />
+        </Animated.View>
 
-      <View className="absolute inset-0 items-center justify-center bg-white/40 p-2">
-        <Text className="text-slate-900 font-extrabold text-sm uppercase tracking-wider text-center">
-          {status.category.name}
-        </Text>
-        <Text className="text-slate-900 font-black text-2xl mt-1">
-          ${Math.abs(status.remaining).toFixed(0)}
-        </Text>
-        <Text className="text-slate-800 font-bold text-[10px] mt-1">
-          {isOverBudget ? 'OVER' : 'SAVED'}
-        </Text>
-        
-        <View className="bg-slate-900/10 px-2 py-1 rounded-full mt-2">
-          <Text className="text-slate-800 font-bold text-[10px]">
-            ${status.expectedMonthlyBudget.toFixed(0)}/mo
+        <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
+          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
+            {status.category.name} Daily
+          </Text>
+          <Text className="text-slate-900 font-black text-2xl mt-1">
+            ${Math.abs(status.todayRemaining).toFixed(0)}
+          </Text>
+          <Text className="text-slate-800 font-bold text-[10px] mt-1">
+            {topIsOverBudget ? '0 REMAINING' : 'REMAINING TODAY'}
+          </Text>
+        </View>
+      </View>
+
+      {/* Spacer / Pipe connector */}
+      <View className="w-3 h-[10px] bg-slate-200 rounded-full" />
+
+      {/* Bottom Container: Savings Vault */}
+      <View className="w-full h-[140px] bg-white rounded-b-[70px] rounded-t-3xl shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50" />
+        <Animated.View 
+          style={[
+            { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
+            bottomAnimatedStyle
+          ]}
+        >
+          <LinearGradient
+            colors={bottomColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ position: 'absolute', bottom: 0, left: 0, width: 140, height: 140 }}
+          />
+        </Animated.View>
+
+        <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
+          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
+            Vault
+          </Text>
+          <Text className="text-slate-900 font-black text-2xl mt-1">
+            {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
+          </Text>
+          <Text className="text-slate-800 font-bold text-[10px] mt-1">
+            {bottomIsNegative ? 'DEFICIT' : 'TOTAL SAVED'}
           </Text>
         </View>
       </View>
@@ -218,7 +255,7 @@ export default function DashboardScreen() {
           </View>
 
           {budgetStatuses.map((status, index) => (
-            <PiggyBankNode 
+            <TwoVesselNode 
               key={status.category.id}
               status={status}
               index={index}

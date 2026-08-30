@@ -18,9 +18,13 @@ export type Transaction = {
 export type BudgetStatus = {
   category: Category;
   spentThisMonth: number;
+  spentToday: number;
+  spentPast: number;
   dailyBudget: number;
   expectedMonthlyBudget: number;
   accumulatedLimit: number;
+  todayRemaining: number;
+  totalSaved: number;
   remaining: number;
   daysInMonth: number;
   currentDayOfMonth: number;
