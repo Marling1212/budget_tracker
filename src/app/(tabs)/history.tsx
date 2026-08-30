@@ -10,11 +10,11 @@ import {
   TextInput,
   Platform
 } from 'react-native';
-import { useBudget } from '../hooks/useBudget';
-import { supabase } from '../lib/supabase';
+import { useBudget } from '../../hooks/useBudget';
+import { supabase } from '../../lib/supabase';
 import { Calendar, Tag, ChevronLeft, Trash2, Edit2, X, Save } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Transaction, Category } from '../types/database';
+import { Transaction, Category } from '../../types/database';
 
 export default function HistoryScreen() {
   const { categories, transactions, refreshData, loading, budgetStatuses } = useBudget();

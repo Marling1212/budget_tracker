@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, ActivityIndicator, Dimensions, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useBudget } from '../hooks/useBudget';
+import { useBudget } from '../../hooks/useBudget';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { format } from 'date-fns';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { Plus, X } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
@@ -14,7 +14,7 @@ import Animated, {
   withSpring,
   runOnJS
 } from 'react-native-reanimated';
-import { BudgetStatus } from '../types/database';
+import { BudgetStatus } from '../../types/database';
 
 const { width, height } = Dimensions.get('window');
 
@@ -428,14 +428,15 @@ export default function DashboardScreen() {
               marginLeft: -1500,
               backgroundColor: 'transparent',
               // @ts-ignore (for web cursor)
-              cursor: 'grab',
-              userSelect: 'none'
+              cursor: 'grab' as any,
+              userSelect: 'none' as any
             },
             animatedCanvasStyle
           ]}
         >
           {/* Center reference point for aesthetics and routing */}
           <TouchableOpacity 
+            // @ts-ignore
             onPress={() => router.push('/stats')}
             className="absolute bg-white rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
             style={{ 

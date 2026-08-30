@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Switch, Platform } from 'react-native';
-import { useBudget } from '../hooks/useBudget';
-import { supabase } from '../lib/supabase';
+import { useBudget } from '../../hooks/useBudget';
+import { supabase } from '../../lib/supabase';
 import { Trash2, Plus } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../../contexts/AuthContext';
+import { LogOut } from 'lucide-react-native';
 
 export default function SettingsScreen() {
   const { categories, budgetStatuses, refreshData, loading } = useBudget();
@@ -12,6 +14,7 @@ export default function SettingsScreen() {
   const [newCatBudget, setNewCatBudget] = useState('');
   const [isAccumulative, setIsAccumulative] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const { signOut, user } = useAuth();
 
   const safeAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -100,7 +103,7 @@ export default function SettingsScreen() {
       
       <View className="mb-6 mt-2">
         <Text className="text-4xl font-extrabold text-slate-800 tracking-tight">Settings</Text>
-        <Text className="text-slate-500 font-medium mt-1 text-base">Manage your budget categories</Text>
+        <Text className="text-slate-500 font-medium mt-1 text-base">Account: {user?.email}</Text>
       </View>
 
       {/* Monthly Overview Card */}
@@ -225,6 +228,15 @@ export default function SettingsScreen() {
         ))
       )}
       
+      {/* Sign Out Button */}
+      <TouchableOpacity 
+        onPress={signOut}
+        className="mt-8 mb-4 bg-slate-100 rounded-2xl py-4 flex-row justify-center items-center"
+      >
+        <LogOut color="#64748b" size={20} className="mr-2" />
+        <Text className="text-slate-600 font-bold text-lg">Sign Out</Text>
+      </TouchableOpacity>
+
       <View className="h-24" />
     </ScrollView>
   );

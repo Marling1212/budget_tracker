@@ -1,54 +1,58 @@
 import '../global.css';
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
-
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { useEffect } from 'react';
+import { useRouter, useSegments } from 'expo-router';
+import { View, ActivityIndicator } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
-import { Tabs } from 'expo-router';
-import { Home, Settings, List } from 'lucide-react-native';
-import { BudgetProvider } from '../hooks/useBudget';
+function RootLayoutNav() {
+  const { session, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
-export default function TabLayout() {
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!session && !inAuthGroup) {
+      // Redirect to login if not logged in and not in auth group
+      // @ts-ignore
+      router.replace('/(auth)/login');
+    } else if (session && inAuthGroup) {
+      // Redirect to tabs if logged in and trying to access login
+      // @ts-ignore
+      router.replace('/(tabs)');
+    }
+  }, [session, isLoading, segments]);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0ea5e9" />
+      </View>
+    );
+  }
+
   return (
-    <BudgetProvider>
-      <Tabs
-        screenOptions={{
-          headerShown: true,
-          tabBarActiveTintColor: '#0ea5e9', // Tailwind sky-500
-        }}>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Dashboard',
-            tabBarIcon: ({ color }) => <Home color={color} size={24} />,
-          }}
-        />
-        <Tabs.Screen
-          name="history"
-          options={{
-            title: 'History',
-            tabBarIcon: ({ color }) => <List color={color} size={24} />,
-          }}
-        />
-        <Tabs.Screen
-          name="settings"
-          options={{
-            title: 'Settings',
-            tabBarIcon: ({ color }) => <Settings color={color} size={24} />,
-          }}
-        />
-        <Tabs.Screen
-          name="stats"
-          options={{
-            href: null,
-            title: 'Analysis',
-          }}
-        />
-      </Tabs>
-    </BudgetProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
+
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }
