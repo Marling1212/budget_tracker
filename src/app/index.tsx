@@ -104,10 +104,10 @@ function TwoVesselNode({
           <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
             {status.category.name} Daily
           </Text>
-          <Text className="text-slate-900 font-black text-2xl mt-1">
+          <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900'} font-black text-2xl mt-1`}>
             {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
           </Text>
-          <Text className="text-slate-800 font-bold text-[10px] mt-1">
+          <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800'} font-bold text-[10px] mt-1`}>
             {topIsOverBudget ? 'OVERSPENT' : 'REMAINING TODAY'}
           </Text>
         </View>
@@ -137,10 +137,10 @@ function TwoVesselNode({
           <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
             Vault
           </Text>
-          <Text className="text-slate-900 font-black text-2xl mt-1">
+          <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900'} font-black text-2xl mt-1`}>
             {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
           </Text>
-          <Text className="text-slate-800 font-bold text-[10px] mt-1">
+          <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800'} font-bold text-[10px] mt-1`}>
             {bottomIsNegative ? 'DEFICIT' : 'TOTAL SAVED'}
           </Text>
         </View>
