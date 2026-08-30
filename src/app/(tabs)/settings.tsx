@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Switch, Platform } from 'react-native';
 import { useBudget } from '../../hooks/useBudget';
 import { supabase } from '../../lib/supabase';
-import { Trash2, Plus } from 'lucide-react-native';
+import { Trash2, Plus, Edit2 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { LogOut } from 'lucide-react-native';
@@ -10,6 +10,7 @@ import { LogOut } from 'lucide-react-native';
 export default function SettingsScreen() {
   const { categories, budgetStatuses, refreshData, loading } = useBudget();
   const [isAdding, setIsAdding] = useState(false);
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const [newCatName, setNewCatName] = useState('');
   const [newCatBudget, setNewCatBudget] = useState('');
   const [isAccumulative, setIsAccumulative] = useState(true);
@@ -27,7 +28,23 @@ export default function SettingsScreen() {
     }
   }
 
-  const handleAddCategory = async () => {
+  const resetForm = () => {
+    setNewCatName('');
+    setNewCatBudget('');
+    setIsAccumulative(true);
+    setIsAdding(false);
+    setEditingCatId(null);
+  };
+
+  const handleEditCategory = (cat: any) => {
+    setEditingCatId(cat.id);
+    setNewCatName(cat.name);
+    setNewCatBudget(String(cat.daily_budget));
+    setIsAccumulative(cat.is_accumulative);
+    setIsAdding(true);
+  };
+
+  const handleSaveCategory = async () => {
     if (!newCatName.trim() || !newCatBudget || isNaN(Number(newCatBudget))) {
       safeAlert('Error', 'Please enter a valid name and budget');
       return;
@@ -35,22 +52,32 @@ export default function SettingsScreen() {
 
     setIsSaving(true);
     try {
-      const { error } = await supabase.from('categories').insert({
-        name: newCatName.trim(),
-        daily_budget: Number(newCatBudget),
-        is_accumulative: isAccumulative,
-      });
+      if (editingCatId) {
+        const { error } = await supabase.from('categories').update({
+          name: newCatName.trim(),
+          daily_budget: Number(newCatBudget),
+          is_accumulative: isAccumulative,
+        }).eq('id', editingCatId);
 
-      if (error) {
-        console.error("Supabase insert error:", error);
-        throw error;
+        if (error) {
+          console.error("Supabase update error:", error);
+          throw error;
+        }
+      } else {
+        const { error } = await supabase.from('categories').insert({
+          name: newCatName.trim(),
+          daily_budget: Number(newCatBudget),
+          is_accumulative: isAccumulative,
+        });
+
+        if (error) {
+          console.error("Supabase insert error:", error);
+          throw error;
+        }
       }
 
       await refreshData(true);
-      setNewCatName('');
-      setNewCatBudget('');
-      setIsAccumulative(true);
-      setIsAdding(false);
+      resetForm();
     } catch (err: any) {
       console.error(err);
       safeAlert('Error', err.message || JSON.stringify(err));
@@ -137,6 +164,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       ) : (
         <View className="bg-white rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100">
+          <Text className="text-xl font-extrabold text-slate-800 mb-6">{editingCatId ? 'Edit Category' : 'New Category'}</Text>
           <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Category Name</Text>
           <TextInput
             className="border-b-2 border-slate-100 py-2 mb-6 text-2xl font-bold text-slate-800"
@@ -171,14 +199,14 @@ export default function SettingsScreen() {
 
           <View className="flex-row space-x-4">
             <TouchableOpacity 
-              onPress={() => setIsAdding(false)}
+              onPress={resetForm}
               className="flex-1 bg-slate-100 py-4 rounded-2xl items-center"
             >
               <Text className="text-slate-600 font-bold text-base">Cancel</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              onPress={handleAddCategory}
+              onPress={handleSaveCategory}
               disabled={isSaving}
               className="flex-1 overflow-hidden rounded-2xl shadow-sm items-center justify-center"
               style={{ height: 56 }}
@@ -218,12 +246,20 @@ export default function SettingsScreen() {
                 </Text>
               </View>
             </View>
-            <TouchableOpacity 
-              onPress={() => handleDeleteCategory(cat.id)} 
-              className="p-3 bg-red-50 rounded-full"
-            >
-              <Trash2 color="#ef4444" size={20} />
-            </TouchableOpacity>
+            <View className="flex-row">
+              <TouchableOpacity 
+                onPress={() => handleEditCategory(cat)} 
+                className="p-3 bg-slate-100 rounded-full mr-2"
+              >
+                <Edit2 color="#64748b" size={20} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => handleDeleteCategory(cat.id)} 
+                className="p-3 bg-red-50 rounded-full"
+              >
+                <Trash2 color="#ef4444" size={20} />
+              </TouchableOpacity>
+            </View>
           </View>
         ))
       )}
