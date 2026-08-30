@@ -34,7 +34,7 @@ export default function SettingsScreen() {
     try {
       const { error } = await supabase.from('categories').insert({
         name: newCatName.trim(),
-        monthly_budget: Number(newCatBudget),
+        daily_budget: Number(newCatBudget),
         is_accumulative: isAccumulative,
       });
 
@@ -130,7 +130,7 @@ export default function SettingsScreen() {
             onChangeText={setNewCatName}
           />
           
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Monthly Budget ($)</Text>
+          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Daily Budget ($)</Text>
           <TextInput
             className="border-b-2 border-slate-100 py-2 mb-8 text-2xl font-bold text-slate-800"
             placeholder="300"
@@ -194,7 +194,7 @@ export default function SettingsScreen() {
             <View className="flex-1 pr-4">
               <Text className="text-slate-800 font-extrabold text-lg mb-1">{cat.name}</Text>
               <View className="flex-row items-center">
-                <Text className="text-indigo-500 font-bold mr-2">${cat.monthly_budget}</Text>
+                <Text className="text-indigo-500 font-bold mr-2">${cat.daily_budget}/day</Text>
                 <Text className="text-slate-400 font-medium text-xs">
                   • {cat.is_accumulative ? 'Accumulates' : 'Fixed'}
                 </Text>

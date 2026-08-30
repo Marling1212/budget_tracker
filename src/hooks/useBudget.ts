@@ -61,11 +61,12 @@ export function useBudget() {
       const categoryTransactions = transactions.filter(t => t.category_id === category.id);
       const spentThisMonth = categoryTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
-      const dailyQuota = category.monthly_budget / daysInMonth;
+      const dailyBudget = category.daily_budget;
+      const expectedMonthlyBudget = dailyBudget * daysInMonth;
       
-      let accumulatedLimit = category.monthly_budget;
+      let accumulatedLimit = expectedMonthlyBudget;
       if (category.is_accumulative) {
-        accumulatedLimit = dailyQuota * currentDayOfMonth;
+        accumulatedLimit = dailyBudget * currentDayOfMonth;
       }
 
       const remaining = accumulatedLimit - spentThisMonth;
@@ -73,7 +74,8 @@ export function useBudget() {
       return {
         category,
         spentThisMonth,
-        dailyQuota,
+        dailyBudget,
+        expectedMonthlyBudget,
         accumulatedLimit,
         remaining,
         daysInMonth,

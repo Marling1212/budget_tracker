@@ -76,7 +76,7 @@ export default function DashboardScreen() {
                   </Text>
                 </View>
                 <View className="bg-white/20 px-3 py-1.5 rounded-xl backdrop-blur-md">
-                  <Text className="text-white font-bold">${status.category.monthly_budget}/mo</Text>
+                  <Text className="text-white font-bold">${status.expectedMonthlyBudget.toFixed(0)}/mo</Text>
                 </View>
               </View>
               

@@ -1,7 +1,7 @@
 export type Category = {
   id: string; // uuid
   name: string;
-  monthly_budget: number;
+  daily_budget: number;
   is_accumulative: boolean;
   created_at: string;
 };
@@ -18,7 +18,8 @@ export type Transaction = {
 export type BudgetStatus = {
   category: Category;
   spentThisMonth: number;
-  dailyQuota: number;
+  dailyBudget: number;
+  expectedMonthlyBudget: number;
   accumulatedLimit: number;
   remaining: number;
   daysInMonth: number;
