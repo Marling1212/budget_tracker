@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
 import React, { useEffect } from 'react';
 
-function ProgressBar({ percentage, color }: { percentage: number, color: string[] }) {
+function ProgressBar({ percentage, color, expectedPercentage }: { percentage: number, color: string[], expectedPercentage?: number }) {
   const width = useSharedValue(0);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ function ProgressBar({ percentage, color }: { percentage: number, color: string[
   }));
 
   return (
-    <View className="h-4 w-full bg-slate-100 rounded-full overflow-hidden">
+    <View className="h-4 w-full bg-slate-200 rounded-full overflow-hidden relative">
       <Animated.View style={[{ height: '100%', borderRadius: 9999 }, animatedStyle]}>
         <LinearGradient
           colors={color}
@@ -27,6 +27,12 @@ function ProgressBar({ percentage, color }: { percentage: number, color: string[
           style={{ width: '100%', height: '100%' }}
         />
       </Animated.View>
+      {expectedPercentage !== undefined && (
+        <View 
+          className="absolute top-0 bottom-0 w-1 bg-slate-800 z-10"
+          style={{ left: `${expectedPercentage}%`, marginLeft: -2 }}
+        />
+      )}
     </View>
   );
 }
@@ -48,6 +54,9 @@ export default function StatsScreen() {
   
   const totalPercentage = totalExpected > 0 ? Math.min(100, (totalSpent / totalExpected) * 100) : 0;
   const isOverTotal = totalSpent > totalExpected;
+
+  const firstStatus = budgetStatuses[0];
+  const timePercentage = firstStatus ? (firstStatus.currentDayOfMonth / firstStatus.daysInMonth) * 100 : 0;
 
   return (
     <ScrollView className="flex-1 bg-[#F8FAFC]" contentContainerStyle={{ padding: 20 }}>
@@ -80,6 +89,7 @@ export default function StatsScreen() {
         <ProgressBar 
           percentage={totalPercentage} 
           color={isOverTotal ? ['#ef4444', '#b91c1c'] : ['#3b82f6', '#8b5cf6']} 
+          expectedPercentage={timePercentage}
         />
         
         <View className="flex-row justify-between mt-3">
@@ -120,7 +130,7 @@ export default function StatsScreen() {
                 {catPercentage.toFixed(0)}%
               </Text>
             </View>
-            <ProgressBar percentage={catPercentage} color={color} />
+            <ProgressBar percentage={catPercentage} color={color} expectedPercentage={timePercentage} />
           </View>
         );
       })}
