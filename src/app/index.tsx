@@ -11,7 +11,8 @@ import Animated, {
   useSharedValue, 
   useAnimatedStyle, 
   withTiming, 
-  withSpring
+  withSpring,
+  runOnJS
 } from 'react-native-reanimated';
 import { BudgetStatus } from '../types/database';
 
@@ -29,11 +30,13 @@ const GRADIENTS = [
 function TwoVesselNode({ 
   status, 
   index, 
-  totalNodes 
+  totalNodes,
+  onDoubleTap
 }: { 
   status: BudgetStatus; 
   index: number; 
   totalNodes: number;
+  onDoubleTap: (categoryId: string) => void;
 }) {
   const CANVAS_CENTER = 1500;
   
@@ -75,17 +78,22 @@ function TwoVesselNode({
   const topAnimatedStyle = useAnimatedStyle(() => ({ height: topFillHeight.value }));
   const bottomAnimatedStyle = useAnimatedStyle(() => ({ height: bottomFillHeight.value }));
 
+  const doubleTap = Gesture.Tap().numberOfTaps(2).onEnd(() => {
+    runOnJS(onDoubleTap)(status.category.id);
+  });
+
   return (
-    <View 
-      style={{
-        position: 'absolute',
-        top: CANVAS_CENTER + y - 145, // half of total height 290
-        left: CANVAS_CENTER + x - 70, // half of width 140
-        width: 140,
-        height: 290,
-      }}
-      className="items-center justify-between"
-    >
+    <GestureDetector gesture={doubleTap}>
+      <Animated.View 
+        style={{
+          position: 'absolute',
+          top: CANVAS_CENTER + y - 145, // half of total height 290
+          left: CANVAS_CENTER + x - 70, // half of width 140
+          width: 140,
+          height: 290,
+        }}
+        className="items-center justify-between"
+      >
       {/* Top Container: Daily Glass */}
       <View className="w-full h-[140px] bg-white rounded-t-[70px] rounded-b-3xl shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50" />
@@ -148,18 +156,21 @@ function TwoVesselNode({
           </Text>
         </View>
       </View>
-    </View>
+    </Animated.View>
+    </GestureDetector>
   );
 }
 
 function SingleVesselNode({ 
   status, 
   index, 
-  totalNodes 
+  totalNodes,
+  onDoubleTap
 }: { 
   status: BudgetStatus; 
   index: number; 
   totalNodes: number;
+  onDoubleTap: (categoryId: string) => void;
 }) {
   const CANVAS_CENTER = 1500;
   
@@ -187,17 +198,22 @@ function SingleVesselNode({
 
   const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
 
+  const doubleTap = Gesture.Tap().numberOfTaps(2).onEnd(() => {
+    runOnJS(onDoubleTap)(status.category.id);
+  });
+
   return (
-    <View 
-      style={{
-        position: 'absolute',
-        top: CANVAS_CENTER + y - 145,
-        left: CANVAS_CENTER + x - 70,
-        width: 140,
-        height: 290,
-      }}
-      className="items-center justify-center"
-    >
+    <GestureDetector gesture={doubleTap}>
+      <Animated.View 
+        style={{
+          position: 'absolute',
+          top: CANVAS_CENTER + y - 145,
+          left: CANVAS_CENTER + x - 70,
+          width: 140,
+          height: 290,
+        }}
+        className="items-center justify-center"
+      >
       <View className="w-full h-full bg-white rounded-[70px] shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50" />
         <Animated.View 
@@ -226,7 +242,8 @@ function SingleVesselNode({
           </Text>
         </View>
       </View>
-    </View>
+    </Animated.View>
+    </GestureDetector>
   );
 }
 
@@ -240,6 +257,11 @@ export default function DashboardScreen() {
   const [addNote, setAddNote] = useState('');
   const [addCategoryId, setAddCategoryId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNodeDoubleTap = (categoryId: string) => {
+    setAddCategoryId(categoryId);
+    setIsAddingExpense(true);
+  };
 
   const safeAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -419,6 +441,7 @@ export default function DashboardScreen() {
                   status={status}
                   index={index}
                   totalNodes={budgetStatuses.length}
+                  onDoubleTap={handleNodeDoubleTap}
                 />
               );
             } else {
@@ -428,6 +451,7 @@ export default function DashboardScreen() {
                   status={status}
                   index={index}
                   totalNodes={budgetStatuses.length}
+                  onDoubleTap={handleNodeDoubleTap}
                 />
               );
             }
