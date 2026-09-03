@@ -6,6 +6,8 @@ import { Trash2, Plus, Edit2, LogOut } from 'lucide-react-native';
 import * as Icons from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 const AVAILABLE_ICONS = ['Tag', 'Coffee', 'Car', 'Home', 'ShoppingCart', 'Utensils', 'Smartphone', 'Heart', 'Smile', 'Book', 'Gift', 'Plane'];
 const AVAILABLE_COLORS = ['#6366f1', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
@@ -25,7 +27,9 @@ export default function SettingsScreen() {
   const [newCatIcon, setNewCatIcon] = useState('Tag');
   const [newCatColor, setNewCatColor] = useState('#6366f1');
   const [isSaving, setIsSaving] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const { signOut, user } = useAuth();
+  const { transactions } = useBudget();
 
   const safeAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -175,6 +179,62 @@ export default function SettingsScreen() {
           ]
         );
       });
+    }
+  };
+
+  const handleExportCSV = async () => {
+    if (!transactions || transactions.length === 0) {
+      safeAlert('No Data', 'You have no transactions to export.');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      // 1. Create CSV String
+      const header = 'Date,Category,Amount,Note,Tags\n';
+      const rows = transactions.map(t => {
+        const cat = categories.find(c => c.id === t.category_id);
+        const catName = cat ? `"${cat.name.replace(/"/g, '""')}"` : 'Unknown';
+        const amount = t.amount;
+        const note = t.note ? `"${t.note.replace(/"/g, '""')}"` : '';
+        const tags = t.tags && t.tags.length > 0 ? `"${t.tags.join(', ')}"` : '';
+        return `${t.date},${catName},${amount},${note},${tags}`;
+      });
+      const csvContent = header + rows.join('\n');
+
+      // 2. Save to temp file
+      if (Platform.OS === 'web') {
+        // Simple download trigger for web
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `BudgetTracker_Export_${new Date().getTime()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        const fileName = `BudgetTracker_Export_${new Date().getTime()}.csv`;
+        const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+        
+        await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: FileSystem.EncodingType.UTF8 });
+        
+        // 3. Share the file
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'text/csv',
+            dialogTitle: 'Export Budget Tracker Data',
+            UTI: 'public.comma-separated-values-text'
+          });
+        } else {
+          safeAlert('Error', 'Sharing is not available on this device');
+        }
+      }
+    } catch (error: any) {
+      console.error(error);
+      safeAlert('Export Failed', error.message);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -401,10 +461,25 @@ export default function SettingsScreen() {
         })
       )}
       
-      {/* Sign Out Button */}
+      {/* Actions */}
+      <Text className="text-xl font-extrabold text-slate-800 mb-4 mt-8 tracking-tight">Actions</Text>
+      
+      <TouchableOpacity 
+        onPress={handleExportCSV}
+        disabled={isExporting}
+        className="mb-4 bg-indigo-50 rounded-2xl py-4 flex-row justify-center items-center border border-indigo-100"
+      >
+        {isExporting ? (
+          <ActivityIndicator color="#4f46e5" size="small" className="mr-2" />
+        ) : (
+          <Icons.Download color="#4f46e5" size={20} className="mr-2" />
+        )}
+        <Text className="text-indigo-600 font-bold text-lg">Export to CSV</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity 
         onPress={signOut}
-        className="mt-8 mb-4 bg-slate-100 rounded-2xl py-4 flex-row justify-center items-center"
+        className="mb-4 bg-slate-100 rounded-2xl py-4 flex-row justify-center items-center"
       >
         <LogOut color="#64748b" size={20} className="mr-2" />
         <Text className="text-slate-600 font-bold text-lg">Sign Out</Text>
