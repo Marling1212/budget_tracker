@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { getDaysInMonth, getDate, format } from 'date-fns';
 import { supabase } from '../lib/supabase';
-import { Category, Transaction, BudgetStatus, RecurringTransaction } from '../types/database';
+import { Category, Transaction, BudgetStatus, RecurringTransaction, Account } from '../types/database';
 
 interface BudgetContextType {
   categories: Category[];
   transactions: Transaction[];
   recurringTransactions: RecurringTransaction[];
+  accounts: Account[];
   budgetStatuses: BudgetStatus[];
+  netWorth: number;
   loading: boolean;
   error: Error | null;
   currentMonth: Date;
@@ -21,6 +23,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [recurringTransactions, setRecurringTransactions] = useState<RecurringTransaction[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [budgetStatuses, setBudgetStatuses] = useState<BudgetStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -46,6 +49,14 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       
       if (recurringError) throw recurringError;
 
+      // 1.8 Fetch Accounts
+      const { data: accountsData, error: accountsError } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('created_at', { ascending: true });
+        
+      if (accountsError) throw accountsError;
+
       const todayStr = format(new Date(), 'yyyy-MM-dd');
       let dueRecurring = (recurringData as RecurringTransaction[]).filter(r => r.next_date <= todayStr);
       let didProcessAny = false;
@@ -63,7 +74,9 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
               amount: r.amount,
               note: r.note,
               date: format(currentDate, 'yyyy-MM-dd'),
-              recurring_id: r.id
+              recurring_id: r.id,
+              account_id: r.account_id,
+              type: r.type,
             });
             
             if (r.frequency === 'DAILY') currentDate.setDate(currentDate.getDate() + 1);
@@ -116,6 +129,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       setCategories(categoriesData as Category[]);
       setTransactions(transactionsData as Transaction[]);
       setRecurringTransactions(finalRecurringData as RecurringTransaction[]);
+      setAccounts(accountsData as Account[]);
     } catch (err: any) {
       console.error('Error fetching budget data:', err);
       setError(err);
@@ -137,7 +151,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     const currentDayOfMonth = isCurrentMonth ? getDate(actualNow) : daysInMonth;
 
     const statuses: BudgetStatus[] = categories.map((category) => {
-      const categoryTransactions = transactions.filter(t => t.category_id === category.id);
+      const categoryTransactions = transactions.filter(t => t.category_id === category.id && t.type === 'EXPENSE');
       const spentThisMonth = categoryTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
       const todayString = isCurrentMonth 
@@ -184,12 +198,16 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     setBudgetStatuses(statuses);
   }, [categories, transactions, currentMonth]);
 
+  const netWorth = accounts.reduce((sum, a) => sum + Number(a.balance), 0);
+
   return (
     <BudgetContext.Provider value={{
       categories,
       transactions,
       recurringTransactions,
+      accounts,
       budgetStatuses,
+      netWorth,
       loading,
       error,
       currentMonth,

@@ -259,7 +259,7 @@ function SingleVesselNode({
 }
 
 export default function DashboardScreen() {
-  const { categories, budgetStatuses, refreshData, loading, error, transactions } = useBudget();
+  const { categories, budgetStatuses, refreshData, loading, error, transactions, accounts, netWorth } = useBudget();
   const router = useRouter();
   
   // State for Add Expense Modal
@@ -273,6 +273,8 @@ export default function DashboardScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
   const [frequency, setFrequency] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>('MONTHLY');
+  const [addType, setAddType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE');
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -351,6 +353,8 @@ export default function DashboardScreen() {
             next_date: addDate,
             note: addNote || null,
             frequency: frequency,
+            type: addType,
+            account_id: selectedAccountId
           });
 
         if (error) throw error;
@@ -363,6 +367,8 @@ export default function DashboardScreen() {
             date: addDate,
             note: addNote || null,
             tags: parsedTags,
+            type: addType,
+            account_id: selectedAccountId
           });
 
         if (error) throw error;
@@ -378,6 +384,8 @@ export default function DashboardScreen() {
       setAddDate(format(new Date(), 'yyyy-MM-dd'));
       setIsRecurring(false);
       setFrequency('MONTHLY');
+      setAddType('EXPENSE');
+      setSelectedAccountId(null);
       setIsAddingExpense(false);
     } catch (err: any) {
       console.error(err);
@@ -466,8 +474,9 @@ export default function DashboardScreen() {
   return (
     <GestureHandlerRootView className="flex-1 bg-[#F8FAFC]">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
-        <Text className="text-4xl font-extrabold text-slate-800 tracking-tight">Spatial Map</Text>
-        <Text className="text-slate-600 font-bold mt-1 text-base">Pinch to zoom, drag to pan</Text>
+        <Text className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">Net Worth</Text>
+        <Text className="text-4xl font-extrabold text-slate-800 tracking-tight">${netWorth.toFixed(0)}</Text>
+        <Text className="text-slate-600 font-bold mt-1 text-xs">Pinch to zoom, drag to pan</Text>
       </View>
 
       <GestureDetector gesture={composedGestures}>
@@ -577,6 +586,21 @@ export default function DashboardScreen() {
               className="flex-1"
             >
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                <View className="flex-row bg-slate-100 p-1 rounded-xl mb-6">
+                  <TouchableOpacity
+                    onPress={() => setAddType('EXPENSE')}
+                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'EXPENSE' ? 'bg-white shadow-sm' : ''}`}
+                  >
+                    <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500'}`}>Expense</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setAddType('INCOME')}
+                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'INCOME' ? 'bg-white shadow-sm' : ''}`}
+                  >
+                    <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500'}`}>Income</Text>
+                  </TouchableOpacity>
+                </View>
+
                 <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
                 <View className="flex-row items-center border-b-2 border-slate-100 pb-2 mb-8">
                   <Text className="text-4xl font-black text-slate-800 mr-2">$</Text>
@@ -637,6 +661,41 @@ export default function DashboardScreen() {
                     <Text className="text-slate-400 italic">No categories available. Please add one in settings.</Text>
                   )}
                 </View>
+
+                {accounts.length > 0 && (
+                  <>
+                    <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
+                    <View className="flex-row flex-wrap mb-8">
+                      {accounts.map((acc) => (
+                        <TouchableOpacity
+                          key={acc.id}
+                          onPress={() => setSelectedAccountId(acc.id)}
+                          className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
+                            selectedAccountId === acc.id 
+                              ? 'border-indigo-600 bg-indigo-50' 
+                              : 'border-slate-100 bg-white'
+                          }`}
+                        >
+                          <Text className={`font-bold ${selectedAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500'}`}>
+                            {acc.name}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                      <TouchableOpacity
+                        onPress={() => setSelectedAccountId(null)}
+                        className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
+                          selectedAccountId === null 
+                            ? 'border-indigo-600 bg-indigo-50' 
+                            : 'border-slate-100 bg-white'
+                        }`}
+                      >
+                        <Text className={`font-bold ${selectedAccountId === null ? 'text-indigo-600' : 'text-slate-500'}`}>
+                          None
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
 
                 <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
                 <TextInput

@@ -1,5 +1,6 @@
 export type Category = {
   id: string; // uuid
+  user_id: string; // uuid
   name: string;
   daily_budget: number;
   is_accumulative: boolean;
@@ -16,6 +17,8 @@ export type Transaction = {
   note: string | null;
   tags: string[];
   recurring_id: string | null; // uuid
+  account_id: string | null; // uuid
+  type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
   created_at: string;
 };
 
@@ -26,6 +29,18 @@ export type RecurringTransaction = {
   note: string | null;
   frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   next_date: string; // YYYY-MM-DD
+  account_id: string | null; // uuid
+  type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
+  created_at: string;
+};
+
+export type Account = {
+  id: string; // uuid
+  user_id: string; // uuid
+  name: string;
+  type: 'CASH' | 'BANK' | 'CREDIT';
+  balance: number;
+  color: string | null;
   created_at: string;
 };
 
