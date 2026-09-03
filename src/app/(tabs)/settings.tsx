@@ -16,7 +16,7 @@ const renderIcon = (name: string, color: string, size: number) => {
 };
 
 export default function SettingsScreen() {
-  const { categories, budgetStatuses, refreshData, loading } = useBudget();
+  const { categories, budgetStatuses, refreshData, loading, recurringTransactions } = useBudget();
   const [isAdding, setIsAdding] = useState(false);
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const [newCatName, setNewCatName] = useState('');
@@ -128,6 +128,43 @@ export default function SettingsScreen() {
               onPress: async () => {
                 try {
                   const { error } = await supabase.from('categories').delete().eq('id', id);
+                  if (error) throw error;
+                  await refreshData(true);
+                } catch (err: any) {
+                  safeAlert('Error', err.message);
+                }
+              }
+            }
+          ]
+        );
+      });
+    }
+  };
+
+  const handleDeleteRecurring = async (id: string) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Are you sure you want to cancel this subscription?')) {
+        try {
+          const { error } = await supabase.from('recurring_transactions').delete().eq('id', id);
+          if (error) throw error;
+          await refreshData(true);
+        } catch (err: any) {
+          safeAlert('Error', err.message);
+        }
+      }
+    } else {
+      import('react-native').then(({ Alert }) => {
+        Alert.alert(
+          'Cancel Subscription',
+          'Are you sure you want to cancel this recurring expense?',
+          [
+            { text: 'Keep It', style: 'cancel' },
+            { 
+              text: 'Cancel', 
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  const { error } = await supabase.from('recurring_transactions').delete().eq('id', id);
                   if (error) throw error;
                   await refreshData(true);
                 } catch (err: any) {
@@ -308,6 +345,49 @@ export default function SettingsScreen() {
             </View>
           </View>
         ))
+      )}
+
+      {/* Subscriptions / Recurring List */}
+      <Text className="text-xl font-extrabold text-slate-800 mb-4 mt-8 tracking-tight">Your Subscriptions</Text>
+      
+      {loading && recurringTransactions.length === 0 ? (
+        <ActivityIndicator color="#4f46e5" className="mt-8" size="large" />
+      ) : recurringTransactions.length === 0 ? (
+        <View className="bg-slate-50 rounded-3xl p-6 items-center border border-slate-100">
+          <Text className="text-slate-500 font-medium text-center">No active subscriptions.{'\n'}Add a recurring expense from the home screen.</Text>
+        </View>
+      ) : (
+        recurringTransactions.map((rec) => {
+          const category = categories.find(c => c.id === rec.category_id);
+          if (!category) return null;
+          
+          return (
+            <View key={rec.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 flex-row justify-between items-center">
+              <View style={{ backgroundColor: `${category.color || '#6366f1'}15` }} className="w-12 h-12 rounded-2xl items-center justify-center mr-4">
+                {renderIcon(category.icon || 'Tag', category.color || '#6366f1', 24)}
+              </View>
+              <View className="flex-1 pr-4">
+                <Text className="text-slate-800 font-extrabold text-lg mb-1">{category.name}</Text>
+                <View className="flex-row items-center">
+                  <Text className="text-indigo-500 font-bold mr-2">${rec.amount} / {rec.frequency.toLowerCase()}</Text>
+                  {rec.note && (
+                    <Text className="text-slate-400 font-medium text-xs truncate" numberOfLines={1}>
+                      • {rec.note}
+                    </Text>
+                  )}
+                </View>
+              </View>
+              <View className="flex-row">
+                <TouchableOpacity 
+                  onPress={() => handleDeleteRecurring(rec.id)} 
+                  className="p-3 bg-red-50 rounded-full"
+                >
+                  <Trash2 color="#ef4444" size={20} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          );
+        })
       )}
       
       {/* Sign Out Button */}

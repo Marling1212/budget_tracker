@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ActivityIndicator, Dimensions, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, ActivityIndicator, Dimensions, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView, Switch } from 'react-native';
 import { useBudget } from '../../hooks/useBudget';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -270,6 +270,8 @@ export default function DashboardScreen() {
   const [addCategoryId, setAddCategoryId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [frequency, setFrequency] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>('MONTHLY');
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -336,18 +338,32 @@ export default function DashboardScreen() {
 
     setIsSubmitting(true);
     try {
-      const today = format(new Date(), 'yyyy-MM-dd');
+      const calculatedAmount = evaluateAmount(addAmount);
       
-      const { error } = await supabase
-        .from('transactions')
-        .insert({
-          category_id: addCategoryId,
-          amount: calculatedAmount,
-          date: addDate,
-          note: addNote || null,
-        });
+      if (isRecurring) {
+        const { error } = await supabase
+          .from('recurring_transactions')
+          .insert({
+            category_id: addCategoryId,
+            amount: calculatedAmount,
+            next_date: addDate,
+            note: addNote || null,
+            frequency: frequency,
+          });
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('transactions')
+          .insert({
+            category_id: addCategoryId,
+            amount: calculatedAmount,
+            date: addDate,
+            note: addNote || null,
+          });
+
+        if (error) throw error;
+      }
       
       await refreshData(true);
       
@@ -356,6 +372,8 @@ export default function DashboardScreen() {
       setAddNote('');
       setAddCategoryId(null);
       setAddDate(format(new Date(), 'yyyy-MM-dd'));
+      setIsRecurring(false);
+      setFrequency('MONTHLY');
       setIsAddingExpense(false);
     } catch (err: any) {
       console.error(err);
@@ -626,7 +644,7 @@ export default function DashboardScreen() {
                 />
                 
                 {frequentNotes.length > 0 && (
-                  <View className="flex-row flex-wrap mb-8">
+                  <View className="flex-row flex-wrap mb-6">
                     {frequentNotes.map((note) => (
                       <TouchableOpacity
                         key={note}
@@ -636,6 +654,40 @@ export default function DashboardScreen() {
                         <Text className="text-indigo-600 font-bold text-xs">{note}</Text>
                       </TouchableOpacity>
                     ))}
+                  </View>
+                )}
+
+                <View className="flex-row items-center justify-between mb-4 bg-slate-50 p-4 rounded-2xl">
+                  <View className="flex-1 pr-4">
+                    <Text className="text-slate-800 font-bold text-base mb-1">Recurring Expense</Text>
+                    <Text className="text-slate-500 text-xs font-medium">Automatically add this expense periodically</Text>
+                  </View>
+                  <Switch 
+                    value={isRecurring} 
+                    onValueChange={setIsRecurring} 
+                    trackColor={{ false: '#e2e8f0', true: '#4f46e5' }}
+                    thumbColor="#ffffff"
+                  />
+                </View>
+
+                {isRecurring && (
+                  <View className="mb-8">
+                    <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Frequency</Text>
+                    <View className="flex-row justify-between space-x-2">
+                      {['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].map((freq) => (
+                        <TouchableOpacity
+                          key={freq}
+                          onPress={() => setFrequency(freq as any)}
+                          className={`flex-1 items-center justify-center py-3 rounded-xl border-2 ${
+                            frequency === freq ? 'border-indigo-600 bg-indigo-50' : 'border-slate-100 bg-white'
+                          }`}
+                        >
+                          <Text className={`font-bold text-xs ${frequency === freq ? 'text-indigo-600' : 'text-slate-500'}`}>
+                            {freq}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   </View>
                 )}
 

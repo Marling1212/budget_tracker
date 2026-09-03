@@ -14,6 +14,17 @@ export type Transaction = {
   amount: number;
   date: string; // YYYY-MM-DD
   note: string | null;
+  recurring_id: string | null; // uuid
+  created_at: string;
+};
+
+export type RecurringTransaction = {
+  id: string; // uuid
+  category_id: string; // uuid
+  amount: number;
+  note: string | null;
+  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  next_date: string; // YYYY-MM-DD
   created_at: string;
 };
 
