@@ -36,8 +36,9 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
 
       // 2. Fetch current month's transactions
       const now = new Date();
-      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const firstDayOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+      const firstDayOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const firstDayOfNextMonth = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-01`;
 
       const { data: transactionsData, error: transactionsError } = await supabase
         .from('transactions')
@@ -86,7 +87,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       const expectedMonthlyBudget = dailyBudget * daysInMonth;
       
       const todayRemaining = dailyBudget - spentToday;
-      const totalSaved = (dailyBudget * (currentDayOfMonth - 1)) - spentPast;
+      const totalSaved = (dailyBudget * currentDayOfMonth) - spentThisMonth;
 
       let accumulatedLimit = expectedMonthlyBudget;
       if (category.is_accumulative) {
