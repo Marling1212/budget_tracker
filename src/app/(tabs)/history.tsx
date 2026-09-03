@@ -13,8 +13,14 @@ import {
 import { useBudget } from '../../hooks/useBudget';
 import { supabase } from '../../lib/supabase';
 import { Calendar, Tag, ChevronLeft, Trash2, Edit2, X, Save } from 'lucide-react-native';
+import * as Icons from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Transaction, Category } from '../../types/database';
+
+const renderIcon = (name: string, color: string, size: number) => {
+  const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
+  return <IconComponent color={color} size={size} />;
+};
 
 export default function HistoryScreen() {
   const { categories, transactions, refreshData, loading, budgetStatuses } = useBudget();
@@ -219,12 +225,16 @@ export default function HistoryScreen() {
         }}
         renderItem={({ item }) => {
           const cat = categories.find(c => c.id === item.category_id);
+          const baseColor = cat?.color || '#4f46e5';
           return (
             <TouchableOpacity 
               onPress={() => openEditModal(item)}
               className="bg-white rounded-3xl p-4 mb-3 shadow-sm border border-slate-100 flex-row items-center justify-between"
             >
               <View className="flex-row items-center flex-1">
+                <View style={{ backgroundColor: `${baseColor}15` }} className="w-12 h-12 rounded-2xl items-center justify-center mr-4">
+                  {renderIcon(cat?.icon || 'Tag', baseColor, 24)}
+                </View>
                 <View className="flex-1">
                   <Text className="text-slate-800 font-extrabold text-base">{cat?.name || 'Unknown'}</Text>
                   {item.note ? (

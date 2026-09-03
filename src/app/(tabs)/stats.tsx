@@ -5,6 +5,12 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
 import React, { useEffect } from 'react';
+import * as Icons from 'lucide-react-native';
+
+const renderIcon = (name: string, color: string, size: number) => {
+  const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
+  return <IconComponent color={color} size={size} />;
+};
 
 function ProgressBar({ percentage, color, expectedPercentage }: { percentage: number, color: readonly [string, string, ...string[]], expectedPercentage?: number }) {
   const width = useSharedValue(0);
@@ -109,22 +115,22 @@ export default function StatsScreen() {
           : 0;
         const catIsOver = status.spentThisMonth > status.expectedMonthlyBudget;
         
-        const GRADIENTS = [
-          ['#ec4899', '#f43f5e'], // Pink to Rose
-          ['#10b981', '#059669'], // Emerald
-          ['#f59e0b', '#d97706'], // Amber
-          ['#6366f1', '#4f46e5'], // Indigo
-        ] as const;
-        const color = catIsOver ? ['#ef4444', '#b91c1c'] as const : GRADIENTS[index % GRADIENTS.length];
+        const baseColor = status.category.color || '#4f46e5';
+        const color = catIsOver ? ['#ef4444', '#b91c1c'] as const : [baseColor, baseColor] as const;
 
         return (
           <View key={status.category.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100">
-            <View className="flex-row justify-between items-end mb-3">
-              <View>
-                <Text className="text-slate-800 font-extrabold text-lg">{status.category.name}</Text>
-                <Text className="text-slate-400 font-medium text-xs mt-0.5">
-                  ${status.spentThisMonth.toFixed(0)} / ${status.expectedMonthlyBudget.toFixed(0)}
-                </Text>
+            <View className="flex-row justify-between items-center mb-4">
+              <View className="flex-row items-center flex-1">
+                <View style={{ backgroundColor: `${baseColor}15` }} className="w-10 h-10 rounded-xl items-center justify-center mr-3">
+                  {renderIcon(status.category.icon, baseColor, 20)}
+                </View>
+                <View>
+                  <Text className="text-slate-800 font-extrabold text-lg">{status.category.name}</Text>
+                  <Text className="text-slate-400 font-medium text-xs mt-0.5">
+                    ${status.spentThisMonth.toFixed(0)} / ${status.expectedMonthlyBudget.toFixed(0)}
+                  </Text>
+                </View>
               </View>
               <Text className={`font-bold text-sm ${catIsOver ? 'text-red-500' : 'text-slate-600'}`}>
                 {catPercentage.toFixed(0)}%

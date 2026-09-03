@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { supabase } from '../../lib/supabase';
 import { Plus, X } from 'lucide-react-native';
+import * as Icons from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -18,7 +19,12 @@ import { BudgetStatus } from '../../types/database';
 
 const { width, height } = Dimensions.get('window');
 
-// Colors for the liquid fill based on index
+const renderIcon = (name: string, color: string, size: number) => {
+  const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
+  return <IconComponent color={color} size={size} />;
+};
+
+// Colors for the liquid fill based on index (fallback)
 const GRADIENTS = [
   ['#3b82f6', '#8b5cf6'], // Blue to Purple
   ['#ec4899', '#f43f5e'], // Pink to Rose
@@ -50,7 +56,8 @@ function TwoVesselNode({
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
 
-  const colors = GRADIENTS[index % GRADIENTS.length];
+  const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
+  const colors = [baseColor, baseColor] as const;
   
   // --- Top Container (Daily Glass) ---
   const topIsOverBudget = status.todayRemaining < 0;
@@ -112,7 +119,8 @@ function TwoVesselNode({
         </Animated.View>
 
         <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
-          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
+          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 16)}
+          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center mt-1">
             {status.category.name} Daily
           </Text>
           <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900'} font-black text-2xl mt-1`}>
@@ -182,7 +190,8 @@ function SingleVesselNode({
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
 
-  const colors = GRADIENTS[index % GRADIENTS.length];
+  const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
+  const colors = [baseColor, baseColor] as const;
   
   const remaining = status.expectedMonthlyBudget - status.spentThisMonth;
   const isOverBudget = remaining < 0;
@@ -231,7 +240,8 @@ function SingleVesselNode({
         </Animated.View>
 
         <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
-          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
+          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 16)}
+          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center mt-1">
             {status.category.name}
           </Text>
           <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900'} font-black text-3xl mt-1`}>

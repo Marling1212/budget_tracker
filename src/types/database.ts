@@ -3,6 +3,8 @@ export type Category = {
   name: string;
   daily_budget: number;
   is_accumulative: boolean;
+  icon: string;
+  color: string;
   created_at: string;
 };
 

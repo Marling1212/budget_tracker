@@ -2,10 +2,18 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Switch, Platform } from 'react-native';
 import { useBudget } from '../../hooks/useBudget';
 import { supabase } from '../../lib/supabase';
-import { Trash2, Plus, Edit2 } from 'lucide-react-native';
+import { Trash2, Plus, Edit2, LogOut } from 'lucide-react-native';
+import * as Icons from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
-import { LogOut } from 'lucide-react-native';
+
+const AVAILABLE_ICONS = ['Tag', 'Coffee', 'Car', 'Home', 'ShoppingCart', 'Utensils', 'Smartphone', 'Heart', 'Smile', 'Book', 'Gift', 'Plane'];
+const AVAILABLE_COLORS = ['#6366f1', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+
+const renderIcon = (name: string, color: string, size: number) => {
+  const IconComponent = (Icons as any)[name] || Icons.Tag;
+  return <IconComponent color={color} size={size} />;
+};
 
 export default function SettingsScreen() {
   const { categories, budgetStatuses, refreshData, loading } = useBudget();
@@ -14,6 +22,8 @@ export default function SettingsScreen() {
   const [newCatName, setNewCatName] = useState('');
   const [newCatBudget, setNewCatBudget] = useState('');
   const [isAccumulative, setIsAccumulative] = useState(true);
+  const [newCatIcon, setNewCatIcon] = useState('Tag');
+  const [newCatColor, setNewCatColor] = useState('#6366f1');
   const [isSaving, setIsSaving] = useState(false);
   const { signOut, user } = useAuth();
 
@@ -32,6 +42,8 @@ export default function SettingsScreen() {
     setNewCatName('');
     setNewCatBudget('');
     setIsAccumulative(true);
+    setNewCatIcon('Tag');
+    setNewCatColor('#6366f1');
     setIsAdding(false);
     setEditingCatId(null);
   };
@@ -41,6 +53,8 @@ export default function SettingsScreen() {
     setNewCatName(cat.name);
     setNewCatBudget(String(cat.daily_budget));
     setIsAccumulative(cat.is_accumulative);
+    setNewCatIcon(cat.icon || 'Tag');
+    setNewCatColor(cat.color || '#6366f1');
     setIsAdding(true);
   };
 
@@ -57,6 +71,8 @@ export default function SettingsScreen() {
           name: newCatName.trim(),
           daily_budget: Number(newCatBudget),
           is_accumulative: isAccumulative,
+          icon: newCatIcon,
+          color: newCatColor,
         }).eq('id', editingCatId);
 
         if (error) {
@@ -68,6 +84,8 @@ export default function SettingsScreen() {
           name: newCatName.trim(),
           daily_budget: Number(newCatBudget),
           is_accumulative: isAccumulative,
+          icon: newCatIcon,
+          color: newCatColor,
         });
 
         if (error) {
@@ -184,6 +202,31 @@ export default function SettingsScreen() {
             onChangeText={setNewCatBudget}
           />
 
+          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Color</Text>
+          <View className="flex-row flex-wrap mb-6">
+            {AVAILABLE_COLORS.map(color => (
+              <TouchableOpacity
+                key={color}
+                onPress={() => setNewCatColor(color)}
+                style={{ backgroundColor: color }}
+                className={`w-10 h-10 rounded-full m-1 items-center justify-center ${newCatColor === color ? 'border-4 border-slate-800' : ''}`}
+              />
+            ))}
+          </View>
+
+          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Icon</Text>
+          <View className="flex-row flex-wrap mb-8">
+            {AVAILABLE_ICONS.map(icon => (
+              <TouchableOpacity
+                key={icon}
+                onPress={() => setNewCatIcon(icon)}
+                className={`w-12 h-12 rounded-xl m-1 items-center justify-center ${newCatIcon === icon ? 'bg-slate-800' : 'bg-slate-100'}`}
+              >
+                {renderIcon(icon, newCatIcon === icon ? 'white' : '#64748b', 24)}
+              </TouchableOpacity>
+            ))}
+          </View>
+
           <View className="flex-row items-center justify-between mb-8 bg-slate-50 p-4 rounded-2xl">
             <View className="flex-1 pr-4">
               <Text className="text-slate-800 font-bold text-base mb-1">Accumulative</Text>
@@ -237,6 +280,9 @@ export default function SettingsScreen() {
       ) : (
         categories.map((cat) => (
           <View key={cat.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 flex-row justify-between items-center">
+            <View style={{ backgroundColor: `${cat.color || '#6366f1'}15` }} className="w-12 h-12 rounded-2xl items-center justify-center mr-4">
+              {renderIcon(cat.icon || 'Tag', cat.color || '#6366f1', 24)}
+            </View>
             <View className="flex-1 pr-4">
               <Text className="text-slate-800 font-extrabold text-lg mb-1">{cat.name}</Text>
               <View className="flex-row items-center">
