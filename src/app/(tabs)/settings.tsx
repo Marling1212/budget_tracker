@@ -184,8 +184,19 @@ export default function SettingsScreen() {
     <ScrollView className="flex-1 bg-[#F8FAFC]" contentContainerStyle={{ padding: 20 }}>
       
       <View className="mb-6 mt-2">
-        <Text className="text-4xl font-extrabold text-slate-800 tracking-tight">Settings</Text>
-        <Text className="text-slate-500 font-medium mt-1 text-base">Account: {user?.email}</Text>
+        <Text className="text-4xl font-extrabold text-slate-800 tracking-tight mb-4">Settings</Text>
+        
+        <View className="bg-white rounded-[32px] p-5 flex-row items-center shadow-sm border border-slate-100">
+          <View className="w-14 h-14 bg-indigo-100 rounded-full items-center justify-center mr-4">
+            <Text className="text-indigo-600 font-bold text-xl">
+              {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
+            </Text>
+          </View>
+          <View className="flex-1">
+            <Text className="text-slate-800 font-bold text-lg">My Account</Text>
+            <Text className="text-slate-500 font-medium text-sm">{user?.email}</Text>
+          </View>
+        </View>
       </View>
 
       {/* Monthly Overview Card */}

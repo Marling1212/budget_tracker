@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Lock, Mail } from 'lucide-react-native';
+import { Lock, Mail, Chrome, Smartphone } from 'lucide-react-native';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,9 +10,17 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
+  const safeAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}: ${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   async function handleAuth() {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+      safeAlert('Error', 'Please enter email and password');
       return;
     }
 
@@ -23,90 +31,121 @@ export default function Login() {
         email: email,
         password: password,
       });
-      if (error) Alert.alert('Sign Up Failed', error.message);
-      else Alert.alert('Success', 'Check your email for the confirmation link!');
+      if (error) safeAlert('Sign Up Failed', error.message);
+      else safeAlert('Success', 'Check your email for the confirmation link!');
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
       });
-      if (error) Alert.alert('Sign In Failed', error.message);
+      if (error) safeAlert('Sign In Failed', error.message);
     }
     
     setLoading(false);
   }
 
+  async function handleOAuth(provider: string) {
+    safeAlert('Coming Soon', `OAuth with ${provider} will be available once configured in Supabase.`);
+  }
+
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-slate-950"
+      className="flex-1 bg-[#F8FAFC]"
     >
-      <LinearGradient
-        colors={['#020617', '#0f172a', '#1e293b']}
-        className="flex-1 justify-center px-8"
-      >
-        <View className="mb-12">
-          <Text className="text-4xl font-bold text-white text-center mb-2">
+      <View className="flex-1 justify-center px-6">
+        <View className="mb-10 mt-10">
+          <Text className="text-5xl font-extrabold text-slate-800 text-center mb-3 tracking-tight">
             BudgetTracker
           </Text>
-          <Text className="text-slate-400 text-center text-lg">
-            {isSignUp ? 'Create a new account' : 'Sign in to continue'}
+          <Text className="text-slate-500 font-medium text-center text-lg">
+            {isSignUp ? 'Create a new account' : 'Welcome back'}
           </Text>
         </View>
 
-        <View className="space-y-4">
-          <View className="flex-row items-center bg-slate-800/50 border border-slate-700 rounded-2xl px-4 py-3 h-14">
-            <Mail color="#94a3b8" size={20} />
-            <TextInput
-              className="flex-1 text-white ml-3 text-base"
-              placeholder="Email address"
-              placeholderTextColor="#64748b"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-            />
+        <View className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-8">
+          <View className="mb-6 space-y-4">
+            <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 h-14 mb-4">
+              <Mail color="#94a3b8" size={20} />
+              <TextInput
+                className="flex-1 text-slate-800 ml-3 text-base font-medium"
+                placeholder="Email address"
+                placeholderTextColor="#94a3b8"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+              />
+            </View>
+
+            <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 h-14">
+              <Lock color="#94a3b8" size={20} />
+              <TextInput
+                className="flex-1 text-slate-800 ml-3 text-base font-medium"
+                placeholder="Password"
+                placeholderTextColor="#94a3b8"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+            </View>
           </View>
 
-          <View className="flex-row items-center bg-slate-800/50 border border-slate-700 rounded-2xl px-4 py-3 h-14">
-            <Lock color="#94a3b8" size={20} />
-            <TextInput
-              className="flex-1 text-white ml-3 text-base"
-              placeholder="Password"
-              placeholderTextColor="#64748b"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
+          <TouchableOpacity 
+            onPress={handleAuth}
+            disabled={loading}
+            className="rounded-2xl overflow-hidden shadow-sm items-center justify-center mb-6"
+            style={{ height: 56 }}
+          >
+            <LinearGradient
+              colors={loading ? ['#94a3b8', '#cbd5e1'] : ['#4f46e5', '#6366f1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ position: 'absolute', width: '100%', height: '100%' }}
             />
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white font-extrabold text-lg tracking-wide">
+                {isSignUp ? 'Sign Up' : 'Sign In'}
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <View className="flex-row items-center mb-6">
+            <View className="flex-1 h-px bg-slate-200" />
+            <Text className="mx-4 text-slate-400 font-bold text-xs uppercase tracking-wider">or continue with</Text>
+            <View className="flex-1 h-px bg-slate-200" />
+          </View>
+
+          <View className="flex-row justify-between" style={{ gap: 12 }}>
+            <TouchableOpacity 
+              onPress={() => handleOAuth('Google')}
+              className="flex-1 bg-white border border-slate-200 py-3 rounded-2xl items-center justify-center flex-row shadow-sm"
+            >
+              <Chrome color="#db4437" size={20} />
+              <Text className="ml-2 font-bold text-slate-700">Google</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              onPress={() => handleOAuth('Apple')}
+              className="flex-1 bg-slate-900 border border-slate-800 py-3 rounded-2xl items-center justify-center flex-row shadow-sm"
+            >
+              <Smartphone color="white" size={20} />
+              <Text className="ml-2 font-bold text-white">Apple</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity 
-          onPress={handleAuth}
-          disabled={loading}
-          className="bg-sky-500 rounded-2xl py-4 mt-8 items-center justify-center shadow-lg shadow-sky-500/30"
-        >
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white font-bold text-lg">
-              {isSignUp ? 'Sign Up' : 'Sign In'}
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          onPress={() => setIsSignUp(!isSignUp)}
-          className="mt-6 p-2"
-        >
-          <Text className="text-slate-400 text-center text-base">
+        <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} className="p-4 items-center">
+          <Text className="text-slate-500 font-medium text-base">
             {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
-            <Text className="text-sky-400 font-bold">
+            <Text className="text-indigo-600 font-bold">
               {isSignUp ? 'Sign In' : 'Sign Up'}
             </Text>
           </Text>
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
     </KeyboardAvoidingView>
   );
 }
