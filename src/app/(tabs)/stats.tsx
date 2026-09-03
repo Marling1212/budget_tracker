@@ -1,7 +1,8 @@
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useBudget } from '../../hooks/useBudget';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { format, subMonths, addMonths } from 'date-fns';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
 import React, { useEffect } from 'react';
@@ -44,7 +45,7 @@ function ProgressBar({ percentage, color, expectedPercentage }: { percentage: nu
 }
 
 export default function StatsScreen() {
-  const { budgetStatuses, loading } = useBudget();
+  const { budgetStatuses, loading, currentMonth, setCurrentMonth } = useBudget();
   const router = useRouter();
 
   if (loading) {
@@ -67,16 +68,27 @@ export default function StatsScreen() {
   return (
     <ScrollView className="flex-1 bg-[#F8FAFC]" contentContainerStyle={{ padding: 20 }}>
       {/* Header */}
-      <View className="flex-row items-center mb-8 mt-2">
-        <TouchableOpacity 
-          onPress={() => router.back()}
-          className="bg-white p-3 rounded-full shadow-sm border border-slate-100 mr-4"
-        >
-          <ChevronLeft color="#334155" size={24} />
-        </TouchableOpacity>
-        <View>
-          <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Analysis</Text>
-          <Text className="text-slate-500 font-medium text-sm">Monthly Overview</Text>
+      <View className="flex-row items-center justify-between mb-8 mt-2">
+        <View className="flex-row items-center">
+          <TouchableOpacity 
+            onPress={() => router.back()}
+            className="bg-white p-3 rounded-full shadow-sm border border-slate-100 mr-4"
+          >
+            <ChevronLeft color="#334155" size={24} />
+          </TouchableOpacity>
+          <View>
+            <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Analysis</Text>
+            <Text className="text-slate-500 font-medium text-sm">Monthly Overview</Text>
+          </View>
+        </View>
+        <View className="flex-row items-center bg-white rounded-full px-2 py-1.5 border border-slate-200 shadow-sm">
+          <TouchableOpacity onPress={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1">
+            <ChevronLeft color="#64748b" size={16} />
+          </TouchableOpacity>
+          <Text className="text-slate-800 font-bold mx-1 text-xs">{format(currentMonth, 'MMM yy')}</Text>
+          <TouchableOpacity onPress={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1">
+            <ChevronRight color="#64748b" size={16} />
+          </TouchableOpacity>
         </View>
       </View>
 

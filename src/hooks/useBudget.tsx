@@ -9,6 +9,8 @@ interface BudgetContextType {
   budgetStatuses: BudgetStatus[];
   loading: boolean;
   error: Error | null;
+  currentMonth: Date;
+  setCurrentMonth: (date: Date) => void;
   refreshData: (background?: boolean) => Promise<void>;
 }
 
@@ -20,6 +22,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [budgetStatuses, setBudgetStatuses] = useState<BudgetStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const fetchData = useCallback(async (background: boolean = false) => {
     if (!background) setLoading(true);
@@ -35,7 +38,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       if (categoriesError) throw categoriesError;
 
       // 2. Fetch current month's transactions
-      const now = new Date();
+      const now = currentMonth;
       const firstDayOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
       const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
       const firstDayOfNextMonth = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-01`;
@@ -57,7 +60,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentMonth]);
 
   useEffect(() => {
     fetchData();
@@ -65,15 +68,19 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
 
   // Calculate budget statuses whenever data changes
   useEffect(() => {
-    const now = new Date();
-    const daysInMonth = getDaysInMonth(now);
-    const currentDayOfMonth = getDate(now);
+    const actualNow = new Date();
+    const isCurrentMonth = actualNow.getMonth() === currentMonth.getMonth() && actualNow.getFullYear() === currentMonth.getFullYear();
+    
+    const daysInMonth = getDaysInMonth(currentMonth);
+    const currentDayOfMonth = isCurrentMonth ? getDate(actualNow) : daysInMonth;
 
     const statuses: BudgetStatus[] = categories.map((category) => {
       const categoryTransactions = transactions.filter(t => t.category_id === category.id);
       const spentThisMonth = categoryTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
-      const todayString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const todayString = isCurrentMonth 
+        ? `${actualNow.getFullYear()}-${String(actualNow.getMonth() + 1).padStart(2, '0')}-${String(actualNow.getDate()).padStart(2, '0')}`
+        : 'NOT_TODAY';
 
       const spentToday = categoryTransactions
         .filter(t => t.date === todayString)
@@ -113,7 +120,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     });
 
     setBudgetStatuses(statuses);
-  }, [categories, transactions]);
+  }, [categories, transactions, currentMonth]);
 
   return (
     <BudgetContext.Provider value={{
@@ -122,6 +129,8 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       budgetStatuses,
       loading,
       error,
+      currentMonth,
+      setCurrentMonth,
       refreshData: fetchData,
     }}>
       {children}

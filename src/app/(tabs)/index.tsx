@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { supabase } from '../../lib/supabase';
 import { Plus, X } from 'lucide-react-native';
 import * as Icons from 'lucide-react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -268,6 +269,24 @@ export default function DashboardScreen() {
   const [addDate, setAddDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [addCategoryId, setAddCategoryId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setAddDate(format(selectedDate, 'yyyy-MM-dd'));
+    }
+  };
+
+  const evaluateAmount = (str: string) => {
+    try {
+      const sanitized = str.replace(/[^-()\d/*+.]/g, '');
+      if (!sanitized) return NaN;
+      return Function('"use strict";return (' + sanitized + ')')();
+    } catch(e) {
+      return NaN;
+    }
+  };
 
   // Derive top frequent notes for the selected category
   const frequentNotes = React.useMemo(() => {
@@ -304,8 +323,10 @@ export default function DashboardScreen() {
   }
 
   const handleSaveExpense = async () => {
-    if (!addAmount || isNaN(Number(addAmount))) {
-      safeAlert('Error', 'Please enter a valid amount');
+    const calculatedAmount = evaluateAmount(addAmount);
+    
+    if (isNaN(calculatedAmount) || calculatedAmount <= 0) {
+      safeAlert('Error', 'Please enter a valid amount or formula');
       return;
     }
     if (!addCategoryId) {
@@ -321,7 +342,7 @@ export default function DashboardScreen() {
         .from('transactions')
         .insert({
           category_id: addCategoryId,
-          amount: Number(addAmount),
+          amount: calculatedAmount,
           date: addDate,
           note: addNote || null,
         });
@@ -418,6 +439,8 @@ export default function DashboardScreen() {
   const radius = Math.max(280, calculatedRadius);
   const buttonScale = Math.max(1, radius / 280);
 
+  const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
+
   return (
     <GestureHandlerRootView className="flex-1 bg-[#F8FAFC]">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
@@ -464,10 +487,10 @@ export default function DashboardScreen() {
               style={{ position: 'absolute', width: '100%', height: '100%' }}
             />
             <View className="items-center justify-center p-2">
-              <Text className="text-indigo-600 font-black text-sm text-center tracking-widest">MONTHLY</Text>
-              <Text className="text-indigo-600 font-black text-sm text-center tracking-widest mb-1">STATS</Text>
+              <Text className="text-indigo-600 font-black text-[10px] text-center tracking-widest">REMAINING</Text>
+              <Text className="text-indigo-600 font-black text-xl text-center mb-1">${totalRemainingToday.toFixed(0)}</Text>
               <View className="bg-indigo-600 px-3 py-1 rounded-full">
-                <Text className="text-white font-bold text-[10px] text-center">TAP HERE</Text>
+                <Text className="text-white font-bold text-[10px] text-center">STATS</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -539,20 +562,37 @@ export default function DashboardScreen() {
                     className="flex-1 text-4xl font-black text-slate-800"
                     placeholder="0.00"
                     placeholderTextColor="#cbd5e1"
-                    keyboardType="decimal-pad"
+                    keyboardType="numbers-and-punctuation"
                     value={addAmount}
                     onChangeText={setAddAmount}
                   />
                 </View>
 
-                <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Date (YYYY-MM-DD)</Text>
-                <TextInput
-                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-bold text-lg mb-8"
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#94a3b8"
-                  value={addDate}
-                  onChangeText={setAddDate}
-                />
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
+                  {Platform.OS === 'ios' && showDatePicker && (
+                    <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                      <Text className="text-indigo-600 font-bold">Done</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <TouchableOpacity 
+                  onPress={() => setShowDatePicker(true)}
+                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-8"
+                >
+                  <Text className="text-slate-800 font-bold text-lg">{addDate}</Text>
+                </TouchableOpacity>
+
+                {showDatePicker && (
+                  <View className="mb-8">
+                    <DateTimePicker
+                      value={new Date(addDate)}
+                      mode="date"
+                      display="default"
+                      onChange={onDateChange}
+                    />
+                  </View>
+                )}
 
                 <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
                 <View className="flex-row flex-wrap mb-8">

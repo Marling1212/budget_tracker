@@ -12,10 +12,12 @@ import {
 } from 'react-native';
 import { useBudget } from '../../hooks/useBudget';
 import { supabase } from '../../lib/supabase';
-import { Calendar, Tag, ChevronLeft, Trash2, Edit2, X, Save } from 'lucide-react-native';
+import { Calendar, Tag, ChevronLeft, ChevronRight, Trash2, Edit2, X, Save, Search } from 'lucide-react-native';
 import * as Icons from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Transaction, Category } from '../../types/database';
+import { format, subMonths, addMonths } from 'date-fns';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const renderIcon = (name: string, color: string, size: number) => {
   const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
@@ -23,7 +25,7 @@ const renderIcon = (name: string, color: string, size: number) => {
 };
 
 export default function HistoryScreen() {
-  const { categories, transactions, refreshData, loading, budgetStatuses } = useBudget();
+  const { categories, transactions, refreshData, loading, budgetStatuses, currentMonth, setCurrentMonth } = useBudget();
   
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   
@@ -33,15 +35,39 @@ export default function HistoryScreen() {
   const [editDate, setEditDate] = useState('');
   const [editCategoryId, setEditCategoryId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) setEditDate(format(selectedDate, 'yyyy-MM-dd'));
+  };
+  
+  const evaluateAmount = (str: string) => {
+    try {
+      const sanitized = str.replace(/[^-()\d/*+.]/g, '');
+      if (!sanitized) return NaN;
+      return Function('"use strict";return (' + sanitized + ')')();
+    } catch(e) {
+      return NaN;
+    }
+  };
 
   // Group transactions by date
   const sections = useMemo(() => {
     const groups: { [key: string]: Transaction[] } = {};
     
-    // First filter by category
+    // First filter by category and search
     const categoryFiltered = transactions.filter(t => {
       if (selectedCategory !== 'ALL' && t.category_id !== selectedCategory) {
         return false;
+      }
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const noteMatch = t.note?.toLowerCase().includes(query);
+        const cat = categories.find(c => c.id === t.category_id);
+        const catMatch = cat?.name.toLowerCase().includes(query);
+        if (!noteMatch && !catMatch) return false;
       }
       return true;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -82,8 +108,9 @@ export default function HistoryScreen() {
 
   const handleSaveEdit = async () => {
     if (!editingTransaction) return;
-    if (!editAmount || isNaN(Number(editAmount))) {
-      safeAlert('Error', 'Please enter a valid amount');
+    const calculatedAmount = evaluateAmount(editAmount);
+    if (isNaN(calculatedAmount) || calculatedAmount <= 0) {
+      safeAlert('Error', 'Please enter a valid amount or formula');
       return;
     }
     if (!editDate) {
@@ -96,7 +123,7 @@ export default function HistoryScreen() {
       const { error } = await supabase
         .from('transactions')
         .update({
-          amount: Number(editAmount),
+          amount: calculatedAmount,
           note: editNote.trim(),
           date: editDate,
           category_id: editCategoryId,
@@ -167,12 +194,42 @@ export default function HistoryScreen() {
 
   return (
     <View className="flex-1 bg-[#F8FAFC]">
-      <View className="pt-8 px-5 pb-4 bg-white shadow-sm border-b border-slate-100 z-10">
-        <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">History</Text>
-        <Text className="text-slate-500 font-medium text-sm mt-1">Review and manage your expenses</Text>
+      <View className="pt-12 px-5 pb-4 bg-white shadow-sm border-b border-slate-100 z-10">
+        <View className="flex-row justify-between items-center mb-4">
+          <View>
+            <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">History</Text>
+            <Text className="text-slate-500 font-medium text-sm mt-1">Review and manage your expenses</Text>
+          </View>
+          <View className="flex-row items-center bg-slate-50 rounded-full px-3 py-1.5 border border-slate-200">
+            <TouchableOpacity onPress={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1">
+              <ChevronLeft color="#64748b" size={20} />
+            </TouchableOpacity>
+            <Text className="text-slate-800 font-bold mx-2">{format(currentMonth, 'MMM yyyy')}</Text>
+            <TouchableOpacity onPress={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1">
+              <ChevronRight color="#64748b" size={20} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Search Bar */}
+        <View className="flex-row items-center bg-slate-50 rounded-2xl px-4 py-3 border border-slate-200">
+          <Search color="#94a3b8" size={20} className="mr-2" />
+          <TextInput
+            className="flex-1 text-slate-800 font-medium"
+            placeholder="Search notes or categories..."
+            placeholderTextColor="#94a3b8"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <X color="#94a3b8" size={16} />
+            </TouchableOpacity>
+          )}
+        </View>
         
         {/* Category Filter */}
-        <View className="mt-6 flex-row items-center">
+        <View className="mt-4 flex-row items-center">
           <Tag color="#94a3b8" size={16} className="mr-3" />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-1">
             <TouchableOpacity 
@@ -265,21 +322,40 @@ export default function HistoryScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount ($)</Text>
               <TextInput
                 className="border-b-2 border-slate-100 py-2 mb-6 text-3xl font-black text-slate-800"
-                keyboardType="decimal-pad"
+                keyboardType="numbers-and-punctuation"
                 value={editAmount}
                 onChangeText={setEditAmount}
               />
 
-              <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Date (YYYY-MM-DD)</Text>
-              <TextInput
-                className="border-b-2 border-slate-100 py-2 mb-6 text-xl font-bold text-slate-800"
-                value={editDate}
-                onChangeText={setEditDate}
-              />
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
+                {Platform.OS === 'ios' && showDatePicker && (
+                  <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                    <Text className="text-indigo-600 font-bold">Done</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <TouchableOpacity 
+                onPress={() => setShowDatePicker(true)}
+                className="border-b-2 border-slate-100 py-2 mb-6"
+              >
+                <Text className="text-xl font-bold text-slate-800">{editDate}</Text>
+              </TouchableOpacity>
+
+              {showDatePicker && (
+                <View className="mb-6">
+                  <DateTimePicker
+                    value={new Date(editDate || new Date())}
+                    mode="date"
+                    display="default"
+                    onChange={onDateChange}
+                  />
+                </View>
+              )}
 
               <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Note (Optional)</Text>
               <TextInput
