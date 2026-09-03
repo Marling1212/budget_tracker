@@ -14,6 +14,7 @@ export type Transaction = {
   amount: number;
   date: string; // YYYY-MM-DD
   note: string | null;
+  tags: string[];
   recurring_id: string | null; // uuid
   created_at: string;
 };

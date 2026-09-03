@@ -266,6 +266,7 @@ export default function DashboardScreen() {
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [addAmount, setAddAmount] = useState('');
   const [addNote, setAddNote] = useState('');
+  const [addTagsInput, setAddTagsInput] = useState('');
   const [addDate, setAddDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [addCategoryId, setAddCategoryId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -339,6 +340,7 @@ export default function DashboardScreen() {
     setIsSubmitting(true);
     try {
       const calculatedAmount = evaluateAmount(addAmount);
+      const parsedTags = addTagsInput.split(',').map(t => t.trim()).filter(t => t);
       
       if (isRecurring) {
         const { error } = await supabase
@@ -360,6 +362,7 @@ export default function DashboardScreen() {
             amount: calculatedAmount,
             date: addDate,
             note: addNote || null,
+            tags: parsedTags,
           });
 
         if (error) throw error;
@@ -370,6 +373,7 @@ export default function DashboardScreen() {
       // Reset form
       setAddAmount('');
       setAddNote('');
+      setAddTagsInput('');
       setAddCategoryId(null);
       setAddDate(format(new Date(), 'yyyy-MM-dd'));
       setIsRecurring(false);
@@ -656,6 +660,15 @@ export default function DashboardScreen() {
                     ))}
                   </View>
                 )}
+
+                <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Tags (Optional)</Text>
+                <TextInput
+                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-medium text-base mb-8"
+                  placeholder="e.g. vacation, coffee (comma separated)"
+                  placeholderTextColor="#94a3b8"
+                  value={addTagsInput}
+                  onChangeText={setAddTagsInput}
+                />
 
                 <View className="flex-row items-center justify-between mb-4 bg-slate-50 p-4 rounded-2xl">
                   <View className="flex-1 pr-4">

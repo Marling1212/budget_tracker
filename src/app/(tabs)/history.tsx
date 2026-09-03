@@ -32,6 +32,7 @@ export default function HistoryScreen() {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [editAmount, setEditAmount] = useState('');
   const [editNote, setEditNote] = useState('');
+  const [editTagsInput, setEditTagsInput] = useState('');
   const [editDate, setEditDate] = useState('');
   const [editCategoryId, setEditCategoryId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -67,7 +68,8 @@ export default function HistoryScreen() {
         const noteMatch = t.note?.toLowerCase().includes(query);
         const cat = categories.find(c => c.id === t.category_id);
         const catMatch = cat?.name.toLowerCase().includes(query);
-        if (!noteMatch && !catMatch) return false;
+        const tagMatch = t.tags && t.tags.some(tag => tag.toLowerCase().includes(query));
+        if (!noteMatch && !catMatch && !tagMatch) return false;
       }
       return true;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -91,6 +93,7 @@ export default function HistoryScreen() {
     setEditingTransaction(tx);
     setEditAmount(String(tx.amount));
     setEditNote(tx.note || '');
+    setEditTagsInput(tx.tags ? tx.tags.join(', ') : '');
     setEditDate(tx.date);
     setEditCategoryId(tx.category_id);
   };
@@ -127,6 +130,7 @@ export default function HistoryScreen() {
           note: editNote.trim(),
           date: editDate,
           category_id: editCategoryId,
+          tags: editTagsInput.split(',').map(t => t.trim()).filter(t => t),
         })
         .eq('id', editingTransaction.id);
 
@@ -216,7 +220,7 @@ export default function HistoryScreen() {
           <Search color="#94a3b8" size={20} className="mr-2" />
           <TextInput
             className="flex-1 text-slate-800 font-medium"
-            placeholder="Search notes or categories..."
+            placeholder="Search notes, categories, tags..."
             placeholderTextColor="#94a3b8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -297,6 +301,13 @@ export default function HistoryScreen() {
                   {item.note ? (
                     <Text className="text-slate-500 font-medium text-xs mt-0.5">{item.note}</Text>
                   ) : null}
+                  {item.tags && item.tags.length > 0 && (
+                    <View className="flex-row flex-wrap mt-1">
+                      {item.tags.map(tag => (
+                        <Text key={tag} className="text-indigo-500 font-bold text-[10px] bg-indigo-50 px-1.5 py-0.5 rounded mr-1">#{tag}</Text>
+                      ))}
+                    </View>
+                  )}
                 </View>
               </View>
               <Text className="text-slate-900 font-black text-xl">
@@ -359,9 +370,18 @@ export default function HistoryScreen() {
 
               <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Note (Optional)</Text>
               <TextInput
-                className="border-b-2 border-slate-100 py-2 mb-8 text-xl font-bold text-slate-800"
+                className="border-b-2 border-slate-100 py-2 mb-6 text-xl font-bold text-slate-800"
                 value={editNote}
                 onChangeText={setEditNote}
+              />
+
+              <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Tags (Optional)</Text>
+              <TextInput
+                className="border-b-2 border-slate-100 py-2 mb-8 text-xl font-bold text-slate-800"
+                placeholder="e.g. vacation, coffee"
+                placeholderTextColor="#cbd5e1"
+                value={editTagsInput}
+                onChangeText={setEditTagsInput}
               />
 
               <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
