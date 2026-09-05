@@ -6,6 +6,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import { useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { supabase } from '../../lib/supabase';
+import { useTranslation } from 'react-i18next';
 import { Plus, X } from 'lucide-react-native';
 import * as Icons from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -45,6 +46,7 @@ function TwoVesselNode({
   totalNodes: number;
   onDoubleTap: (categoryId: string) => void;
 }) {
+  const { t } = useTranslation();
   const CANVAS_CENTER = 1500;
   
   // Calculate node position on a circle
@@ -128,7 +130,7 @@ function TwoVesselNode({
             {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
           </Text>
           <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
-            {topIsOverBudget ? 'OVERSPENT' : 'REMAINING TODAY'}
+            {topIsOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday')}
           </Text>
         </View>
       </View>
@@ -161,7 +163,7 @@ function TwoVesselNode({
             {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
           </Text>
           <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
-            {bottomIsNegative ? 'DEFICIT' : 'TOTAL SAVED'}
+            {bottomIsNegative ? t('dashboard.deficit') : t('dashboard.totalSaved')}
           </Text>
         </View>
       </View>
@@ -181,6 +183,7 @@ function SingleVesselNode({
   totalNodes: number;
   onDoubleTap: (categoryId: string) => void;
 }) {
+  const { t } = useTranslation();
   const CANVAS_CENTER = 1500;
   
   const minSpacing = 320;
@@ -249,7 +252,7 @@ function SingleVesselNode({
             {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
           </Text>
           <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1 text-center`}>
-            {isOverBudget ? 'OVERSPENT' : 'REMAINING\nMONTHLY'}
+            {isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingMonthly')}
           </Text>
         </View>
       </View>
@@ -259,6 +262,7 @@ function SingleVesselNode({
 }
 
 export default function DashboardScreen() {
+  const { t } = useTranslation();
   const { categories, budgetStatuses, refreshData, loading, error, transactions, accounts, netWorth } = useBudget();
   const router = useRouter();
   
@@ -482,7 +486,7 @@ export default function DashboardScreen() {
   if (error) {
     return (
       <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950 p-4">
-        <Text className="text-red-500 text-center font-bold">Failed to load data: {error.message || JSON.stringify(error)}</Text>
+        <Text className="text-red-500 text-center font-bold">{t('dashboard.failedToLoad')} {error.message || JSON.stringify(error)}</Text>
       </View>
     );
   }
@@ -491,8 +495,8 @@ export default function DashboardScreen() {
     return (
       <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950 p-4">
         <View className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-800">
-          <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">No categories yet</Text>
-          <Text className="text-slate-600 dark:text-slate-300 text-center">Head over to Settings to create your first budget category!</Text>
+          <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">{t('dashboard.noCategories')}</Text>
+          <Text className="text-slate-600 dark:text-slate-300 text-center">{t('dashboard.noCategoriesDesc')}</Text>
         </View>
       </View>
     );
@@ -503,9 +507,9 @@ export default function DashboardScreen() {
   return (
     <GestureHandlerRootView className="flex-1 bg-[#F8FAFC] dark:bg-slate-950">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
-        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">Net Worth</Text>
+        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.netWorth')}</Text>
         <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">${netWorth.toFixed(0)}</Text>
-        <Text className="text-slate-600 dark:text-slate-300 font-bold mt-1 text-xs">Pinch to zoom, drag to pan</Text>
+        <Text className="text-slate-600 dark:text-slate-300 font-bold mt-1 text-xs">{t('dashboard.pinchToZoom')}</Text>
       </View>
 
       <GestureDetector gesture={composedGestures}>
@@ -547,10 +551,10 @@ export default function DashboardScreen() {
               style={{ position: 'absolute', width: '100%', height: '100%' }}
             />
             <View className="items-center justify-center p-2">
-              <Text className="text-indigo-600 font-black text-[10px] text-center tracking-widest">REMAINING</Text>
+              <Text className="text-indigo-600 font-black text-[10px] text-center tracking-widest">{t('dashboard.remaining')}</Text>
               <Text className="text-indigo-600 font-black text-xl text-center mb-1">${totalRemainingToday.toFixed(0)}</Text>
               <View className="bg-indigo-600 px-3 py-1 rounded-full">
-                <Text className="text-white font-bold text-[10px] text-center">STATS</Text>
+                <Text className="text-white font-bold text-[10px] text-center">{t('dashboard.stats')}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -604,7 +608,7 @@ export default function DashboardScreen() {
         <View className="flex-1 justify-end bg-slate-900/50 dark:bg-slate-950/80">
           <View className="bg-white dark:bg-slate-900 rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[90%]">
             <View className="flex-row justify-between items-center mb-8">
-              <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">Add Expense</Text>
+              <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">{t('expenseModal.addExpense')}</Text>
               <TouchableOpacity onPress={() => setIsAddingExpense(false)} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
                 <X color="#64748b" size={24} />
               </TouchableOpacity>
@@ -620,17 +624,17 @@ export default function DashboardScreen() {
                     onPress={() => setAddType('EXPENSE')}
                     className={`flex-1 py-3 rounded-lg items-center ${addType === 'EXPENSE' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
                   >
-                    <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Expense</Text>
+                    <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>{t('expenseModal.expense')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setAddType('INCOME')}
                     className={`flex-1 py-3 rounded-lg items-center ${addType === 'INCOME' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
                   >
-                    <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Income</Text>
+                    <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>{t('expenseModal.income')}</Text>
                   </TouchableOpacity>
                 </View>
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">{t('expenseModal.amount')}</Text>
                 <View className="flex-row items-center border-b-2 border-slate-100 dark:border-slate-800 pb-2 mb-8">
                   <Text className="text-4xl font-black text-slate-800 dark:text-slate-200 mr-2">$</Text>
                   <TextInput
@@ -644,10 +648,10 @@ export default function DashboardScreen() {
                 </View>
 
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">{t('expenseModal.date')}</Text>
                   {Platform.OS === 'ios' && showDatePicker && (
                     <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                      <Text className="text-indigo-600 font-bold">Done</Text>
+                      <Text className="text-indigo-600 font-bold">{t('expenseModal.done')}</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -683,7 +687,12 @@ export default function DashboardScreen() {
                     {showDatePicker && (
                       <View className="mb-8">
                         <DateTimePicker
-                          value={new Date(addDate)}
+                          value={
+                            (() => {
+                              const [year, month, day] = addDate.split('-');
+                              return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                            })()
+                          }
                           mode="date"
                           display="default"
                           onChange={onDateChange}
@@ -693,7 +702,7 @@ export default function DashboardScreen() {
                   </>
                 )}
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">{t('expenseModal.category')}</Text>
                 <View className="flex-row flex-wrap mb-8">
                   {categories.map((cat) => (
                     <TouchableOpacity
@@ -711,13 +720,13 @@ export default function DashboardScreen() {
                     </TouchableOpacity>
                   ))}
                   {categories.length === 0 && (
-                    <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 italic">No categories available. Please add one in settings.</Text>
+                    <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 italic">{t('expenseModal.noCategoriesAvail')}</Text>
                   )}
                 </View>
 
                 {accounts.length > 0 && (
                   <>
-                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">{t('expenseModal.account')}</Text>
                     <View className="flex-row flex-wrap mb-8">
                       {accounts.map((acc) => (
                         <TouchableOpacity
@@ -743,17 +752,17 @@ export default function DashboardScreen() {
                         }`}
                       >
                         <Text className={`font-bold ${selectedAccountId === null ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
-                          None
+                          {t('expenseModal.none')}
                         </Text>
                       </TouchableOpacity>
                     </View>
                   </>
                 )}
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">{t('expenseModal.noteOpt')}</Text>
                 <TextInput
                   className={`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base ${frequentNotes.length > 0 ? 'mb-3' : 'mb-8'}`}
-                  placeholder="What was this for?"
+                  placeholder={t('expenseModal.notePlaceholder')}
                   placeholderTextColor="#94a3b8"
                   value={addNote}
                   onChangeText={setAddNote}
@@ -773,10 +782,10 @@ export default function DashboardScreen() {
                   </View>
                 )}
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Tags (Optional)</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">{t('expenseModal.tagsOpt')}</Text>
                 <TextInput
                   className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base mb-8"
-                  placeholder="e.g. vacation, coffee (comma separated)"
+                  placeholder={t('expenseModal.tagsPlaceholder')}
                   placeholderTextColor="#94a3b8"
                   value={addTagsInput}
                   onChangeText={setAddTagsInput}
@@ -784,8 +793,8 @@ export default function DashboardScreen() {
 
                 <View className="flex-row items-center justify-between mb-4 bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
                   <View className="flex-1 pr-4">
-                    <Text className="text-slate-800 dark:text-slate-200 font-bold text-base mb-1">Recurring Expense</Text>
-                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 text-xs font-medium">Automatically add this expense periodically</Text>
+                    <Text className="text-slate-800 dark:text-slate-200 font-bold text-base mb-1">{t('expenseModal.recurring')}</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 text-xs font-medium">{t('expenseModal.recurringDesc')}</Text>
                   </View>
                   <Switch 
                     value={isRecurring} 
@@ -797,7 +806,7 @@ export default function DashboardScreen() {
 
                 {isRecurring && (
                   <View className="mb-8">
-                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Frequency</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">{t('expenseModal.frequency')}</Text>
                     <View className="flex-row justify-between space-x-2">
                       {['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].map((freq) => (
                         <TouchableOpacity
