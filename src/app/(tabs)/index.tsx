@@ -485,7 +485,7 @@ export default function DashboardScreen() {
         savedScale.value = fitScale;
       }
     }
-  }, [totalNodes, radius]);
+  }, [totalNodes, radius, width, height]);
 
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
