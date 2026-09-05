@@ -469,6 +469,24 @@ export default function DashboardScreen() {
   const radius = Math.max(280, calculatedRadius);
   const buttonScale = Math.max(1, radius / 280);
 
+  // Auto-zoom to fit all nodes on screen upon load
+  React.useEffect(() => {
+    if (totalNodes > 0) {
+      const requiredExtent = radius + 200; // node half-height (145) + padding
+      const fitScale = Math.min(
+        width / (requiredExtent * 2),
+        height / (requiredExtent * 2),
+        1
+      );
+      
+      // Only auto-zoom if the user hasn't manually pinched yet (savedScale is still 1)
+      if (savedScale.value === 1) {
+        scale.value = withSpring(fitScale, { damping: 20, stiffness: 90 });
+        savedScale.value = fitScale;
+      }
+    }
+  }, [totalNodes, radius]);
+
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
   return (

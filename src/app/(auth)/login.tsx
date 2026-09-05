@@ -3,12 +3,14 @@ import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform
 import { supabase } from '../../lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Lock, Mail, Globe, Smartphone } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const { t } = useTranslation();
 
   const safeAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -20,7 +22,7 @@ export default function Login() {
 
   async function handleAuth() {
     if (!email || !password) {
-      safeAlert('Error', 'Please enter email and password');
+      safeAlert(t('alerts.error'), t('alerts.enterCredentials'));
       return;
     }
 
@@ -31,21 +33,21 @@ export default function Login() {
         email: email,
         password: password,
       });
-      if (error) safeAlert('Sign Up Failed', error.message);
-      else safeAlert('Success', 'Check your email for the confirmation link!');
+      if (error) safeAlert(t('alerts.signUpFailed'), error.message);
+      else safeAlert(t('alerts.success'), t('alerts.checkEmail'));
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password,
       });
-      if (error) safeAlert('Sign In Failed', error.message);
+      if (error) safeAlert(t('alerts.signInFailed'), error.message);
     }
     
     setLoading(false);
   }
 
   async function handleOAuth(provider: string) {
-    safeAlert('Coming Soon', `OAuth with ${provider} will be available once configured in Supabase.`);
+    safeAlert(t('alerts.comingSoon'), t('alerts.oauthComingSoon', { provider }));
   }
 
   return (
@@ -56,10 +58,10 @@ export default function Login() {
       <View className="flex-1 justify-center px-6">
         <View className="mb-10 mt-10">
           <Text className="text-5xl font-extrabold text-slate-800 text-center mb-3 tracking-tight">
-            BudgetTracker
+            {t('auth.appName')}
           </Text>
           <Text className="text-slate-500 font-medium text-center text-lg">
-            {isSignUp ? 'Create a new account' : 'Welcome back'}
+            {isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
           </Text>
         </View>
 
@@ -69,7 +71,7 @@ export default function Login() {
               <Mail color="#94a3b8" size={20} />
               <TextInput
                 className="flex-1 text-slate-800 ml-3 text-base font-medium"
-                placeholder="Email address"
+                placeholder={t('auth.emailPlaceholder')}
                 placeholderTextColor="#94a3b8"
                 autoCapitalize="none"
                 keyboardType="email-address"
@@ -82,7 +84,7 @@ export default function Login() {
               <Lock color="#94a3b8" size={20} />
               <TextInput
                 className="flex-1 text-slate-800 ml-3 text-base font-medium"
-                placeholder="Password"
+                placeholder={t('auth.passwordPlaceholder')}
                 placeholderTextColor="#94a3b8"
                 secureTextEntry
                 value={password}
@@ -107,14 +109,14 @@ export default function Login() {
               <ActivityIndicator color="white" />
             ) : (
               <Text className="text-white font-extrabold text-lg tracking-wide">
-                {isSignUp ? 'Sign Up' : 'Sign In'}
+                {isSignUp ? t('auth.signUp') : t('auth.signIn')}
               </Text>
             )}
           </TouchableOpacity>
 
           <View className="flex-row items-center mb-6">
             <View className="flex-1 h-px bg-slate-200" />
-            <Text className="mx-4 text-slate-400 font-bold text-xs uppercase tracking-wider">or continue with</Text>
+            <Text className="mx-4 text-slate-400 font-bold text-xs uppercase tracking-wider">{t('auth.orContinueWith')}</Text>
             <View className="flex-1 h-px bg-slate-200" />
           </View>
 
@@ -139,9 +141,9 @@ export default function Login() {
 
         <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} className="p-4 items-center">
           <Text className="text-slate-500 font-medium text-base">
-            {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+            {isSignUp ? t('auth.alreadyHaveAccount') : t('auth.dontHaveAccount')}
             <Text className="text-indigo-600 font-bold">
-              {isSignUp ? 'Sign In' : 'Sign Up'}
+              {isSignUp ? t('auth.signIn') : t('auth.signUp')}
             </Text>
           </Text>
         </TouchableOpacity>

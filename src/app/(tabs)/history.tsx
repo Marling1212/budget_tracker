@@ -97,7 +97,7 @@ export default function HistoryScreen() {
         title: date,
         data: groups[date]
       }));
-  }, [transactions, selectedCategory]);
+  }, [transactions, selectedCategory, searchQuery, categories]);
 
   const openEditModal = (tx: Transaction) => {
     setEditingTransaction(tx);
