@@ -18,7 +18,7 @@ export type Transaction = {
   tags: string[];
   recurring_id: string | null; // uuid
   account_id: string | null; // uuid
-  type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
+  type: 'EXPENSE' | 'INCOME';
   created_at: string;
 };
 
@@ -30,7 +30,7 @@ export type RecurringTransaction = {
   frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   next_date: string; // YYYY-MM-DD
   account_id: string | null; // uuid
-  type: 'EXPENSE' | 'INCOME' | 'TRANSFER';
+  type: 'EXPENSE' | 'INCOME';
   created_at: string;
 };
 

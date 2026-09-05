@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Lock, Mail, Chrome, Smartphone } from 'lucide-react-native';
+import { Lock, Mail, Globe, Smartphone } from 'lucide-react-native';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -123,7 +123,7 @@ export default function Login() {
               onPress={() => handleOAuth('Google')}
               className="flex-1 bg-white border border-slate-200 py-3 rounded-2xl items-center justify-center flex-row shadow-sm"
             >
-              <Chrome color="#db4437" size={20} />
+              <Globe color="#db4437" size={20} />
               <Text className="ml-2 font-bold text-slate-700">Google</Text>
             </TouchableOpacity>
             

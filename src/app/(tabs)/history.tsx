@@ -8,7 +8,8 @@ import {
   ScrollView, 
   Modal, 
   TextInput,
-  Platform
+  Platform,
+  Keyboard
 } from 'react-native';
 import { useBudget } from '../../hooks/useBudget';
 import { supabase } from '../../lib/supabase';
@@ -25,7 +26,7 @@ const renderIcon = (name: string, color: string, size: number) => {
 };
 
 export default function HistoryScreen() {
-  const { categories, transactions, refreshData, loading, budgetStatuses, currentMonth, setCurrentMonth } = useBudget();
+  const { categories, transactions, refreshData, loading, budgetStatuses, currentMonth, setCurrentMonth, accounts } = useBudget();
   
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   
@@ -35,6 +36,8 @@ export default function HistoryScreen() {
   const [editTagsInput, setEditTagsInput] = useState('');
   const [editDate, setEditDate] = useState('');
   const [editCategoryId, setEditCategoryId] = useState('');
+  const [editType, setEditType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE');
+  const [editAccountId, setEditAccountId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -103,6 +106,8 @@ export default function HistoryScreen() {
     setEditTagsInput(tx.tags ? tx.tags.join(', ') : '');
     setEditDate(tx.date);
     setEditCategoryId(tx.category_id);
+    setEditType(tx.type || 'EXPENSE');
+    setEditAccountId(tx.account_id || null);
   };
 
   const safeAlert = (title: string, message: string) => {
@@ -138,6 +143,8 @@ export default function HistoryScreen() {
           date: editDate,
           category_id: editCategoryId,
           tags: editTagsInput.split(',').map(t => t.trim()).filter(t => t),
+          type: editType,
+          account_id: editAccountId
         })
         .eq('id', editingTransaction.id);
 
@@ -231,6 +238,8 @@ export default function HistoryScreen() {
             placeholderTextColor="#94a3b8"
             value={searchQuery}
             onChangeText={setSearchQuery}
+            returnKeyType="search"
+            onSubmitEditing={() => Keyboard.dismiss()}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
@@ -317,8 +326,8 @@ export default function HistoryScreen() {
                   )}
                 </View>
               </View>
-              <Text className="text-slate-900 font-black text-xl">
-                ${Number(item.amount).toFixed(0)}
+              <Text className={`font-black text-xl ${item.type === 'INCOME' ? 'text-green-500' : 'text-slate-900'}`}>
+                {item.type === 'INCOME' ? '+' : ''}${Number(item.amount).toFixed(0)}
               </Text>
             </TouchableOpacity>
           );
@@ -341,6 +350,21 @@ export default function HistoryScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <View className="flex-row bg-slate-100 p-1 rounded-xl mb-6">
+                <TouchableOpacity
+                  onPress={() => setEditType('EXPENSE')}
+                  className={`flex-1 py-3 rounded-lg items-center ${editType === 'EXPENSE' ? 'bg-white shadow-sm' : ''}`}
+                >
+                  <Text className={`font-bold ${editType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500'}`}>Expense</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setEditType('INCOME')}
+                  className={`flex-1 py-3 rounded-lg items-center ${editType === 'INCOME' ? 'bg-white shadow-sm' : ''}`}
+                >
+                  <Text className={`font-bold ${editType === 'INCOME' ? 'text-green-500' : 'text-slate-500'}`}>Income</Text>
+                </TouchableOpacity>
+              </View>
+
               <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount ($)</Text>
               <TextInput
                 className="border-b-2 border-slate-100 py-2 mb-6 text-3xl font-black text-slate-800"
@@ -409,6 +433,41 @@ export default function HistoryScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
+
+              {accounts.length > 0 && (
+                <>
+                  <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
+                  <View className="flex-row flex-wrap mb-8">
+                    {accounts.map((acc) => (
+                      <TouchableOpacity
+                        key={acc.id}
+                        onPress={() => setEditAccountId(acc.id)}
+                        className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
+                          editAccountId === acc.id 
+                            ? 'border-indigo-600 bg-indigo-50' 
+                            : 'border-slate-100 bg-white'
+                        }`}
+                      >
+                        <Text className={`font-bold ${editAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500'}`}>
+                          {acc.name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                    <TouchableOpacity
+                      onPress={() => setEditAccountId(null)}
+                      className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
+                        editAccountId === null 
+                          ? 'border-indigo-600 bg-indigo-50' 
+                          : 'border-slate-100 bg-white'
+                      }`}
+                    >
+                      <Text className={`font-bold ${editAccountId === null ? 'text-indigo-600' : 'text-slate-500'}`}>
+                        None
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
 
               <View className="flex-row space-x-4 mt-4">
                 <TouchableOpacity 

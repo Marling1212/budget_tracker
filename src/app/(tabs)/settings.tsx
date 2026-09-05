@@ -300,6 +300,7 @@ export default function SettingsScreen() {
         document.body.removeChild(link);
       } else {
         const fileName = `BudgetTracker_Export_${new Date().getTime()}.csv`;
+        // @ts-ignore - documentDirectory missing in types for some Expo versions
         const fileUri = `${FileSystem.documentDirectory}${fileName}`;
         
         await FileSystem.writeAsStringAsync(fileUri, csvContent, { encoding: FileSystem.EncodingType.UTF8 });
