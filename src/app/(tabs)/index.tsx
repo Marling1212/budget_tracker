@@ -435,6 +435,31 @@ export default function DashboardScreen() {
     };
   });
 
+  // Calculate radius to scale the center button proportionally
+  const totalNodes = budgetStatuses.length;
+  const minSpacing = 320;
+  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
+  const radius = Math.max(280, calculatedRadius);
+  const buttonScale = Math.max(1, radius / 280);
+
+  // Auto-zoom to fit all nodes on screen upon load
+  React.useEffect(() => {
+    if (totalNodes > 0) {
+      const requiredExtent = radius + 200; // node half-height (145) + padding
+      const fitScale = Math.min(
+        width / (requiredExtent * 2),
+        height / (requiredExtent * 2),
+        1
+      );
+      
+      // Only auto-zoom if the user hasn't manually pinched yet (savedScale is still 1)
+      if (savedScale.value === 1) {
+        scale.value = withSpring(fitScale, { damping: 20, stiffness: 90 });
+        savedScale.value = fitScale;
+      }
+    }
+  }, [totalNodes, radius, width, height, scale, savedScale]);
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-[#F8FAFC]">
@@ -461,31 +486,6 @@ export default function DashboardScreen() {
       </View>
     );
   }
-
-  // Calculate radius to scale the center button proportionally
-  const totalNodes = budgetStatuses.length;
-  const minSpacing = 320;
-  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(280, calculatedRadius);
-  const buttonScale = Math.max(1, radius / 280);
-
-  // Auto-zoom to fit all nodes on screen upon load
-  React.useEffect(() => {
-    if (totalNodes > 0) {
-      const requiredExtent = radius + 200; // node half-height (145) + padding
-      const fitScale = Math.min(
-        width / (requiredExtent * 2),
-        height / (requiredExtent * 2),
-        1
-      );
-      
-      // Only auto-zoom if the user hasn't manually pinched yet (savedScale is still 1)
-      if (savedScale.value === 1) {
-        scale.value = withSpring(fitScale, { damping: 20, stiffness: 90 });
-        savedScale.value = fitScale;
-      }
-    }
-  }, [totalNodes, radius, width, height]);
 
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
