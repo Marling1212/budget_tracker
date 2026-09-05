@@ -6,6 +6,8 @@ import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { useEffect } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useColorScheme } from 'nativewind';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,13 +49,17 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const { colorScheme } = useColorScheme();
+  
   useEffect(() => {
     SplashScreen.hideAsync();
   }, []);
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

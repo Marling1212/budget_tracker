@@ -337,7 +337,7 @@ export default function SettingsScreen() {
   const totalMonthlyExpected = budgetStatuses.reduce((sum, status) => sum + status.expectedMonthlyBudget, 0);
 
   return (
-    <ScrollView className="flex-1 bg-[#F8FAFC] dark:bg-slate-900" contentContainerStyle={{ padding: 20 }}>
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900" contentContainerStyle={{ padding: 20 }}>
       
       <View className="mb-6 mt-2">
         <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight mb-4">Settings</Text>

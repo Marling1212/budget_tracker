@@ -53,7 +53,7 @@ export default function Login() {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-[#F8FAFC] dark:bg-slate-900"
+      className="flex-1 bg-slate-50 dark:bg-slate-900"
     >
       <View className="flex-1 justify-center px-6">
         <View className="mb-10 mt-10">

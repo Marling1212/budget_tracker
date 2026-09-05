@@ -477,7 +477,7 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900">
+      <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-slate-900">
         <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
@@ -485,7 +485,7 @@ export default function DashboardScreen() {
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900 p-4">
+      <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-slate-900 p-4">
         <Text className="text-red-500 text-center font-bold">{t('dashboard.failedToLoad')} {error.message || JSON.stringify(error)}</Text>
       </View>
     );
@@ -493,7 +493,7 @@ export default function DashboardScreen() {
 
   if (budgetStatuses.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900 p-4">
+      <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-slate-900 p-4">
         <View className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-700">
           <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">{t('dashboard.noCategories')}</Text>
           <Text className="text-slate-600 dark:text-slate-300 text-center">{t('dashboard.noCategoriesDesc')}</Text>
@@ -505,7 +505,7 @@ export default function DashboardScreen() {
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
   return (
-    <GestureHandlerRootView className="flex-1 bg-[#F8FAFC] dark:bg-slate-900">
+    <GestureHandlerRootView className="flex-1 bg-slate-50 dark:bg-slate-900">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
         <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.netWorth')}</Text>
         <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">${netWorth.toFixed(0)}</Text>

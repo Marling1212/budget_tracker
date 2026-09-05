@@ -50,7 +50,7 @@ export default function StatsScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900">
+      <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-slate-900">
         <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
@@ -66,7 +66,7 @@ export default function StatsScreen() {
   const timePercentage = firstStatus ? (firstStatus.currentDayOfMonth / firstStatus.daysInMonth) * 100 : 0;
 
   return (
-    <ScrollView className="flex-1 bg-[#F8FAFC] dark:bg-slate-900" contentContainerStyle={{ padding: 20 }}>
+    <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900" contentContainerStyle={{ padding: 20 }}>
       {/* Header */}
       <View className="flex-row items-center justify-between mb-8 mt-2">
         <View className="flex-row items-center">

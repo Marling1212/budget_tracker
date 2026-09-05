@@ -204,14 +204,14 @@ export default function HistoryScreen() {
 
   if (loading && transactions.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900">
+      <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-slate-900">
         <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-[#F8FAFC] dark:bg-slate-900">
+    <View className="flex-1 bg-slate-50 dark:bg-slate-900">
       <View className="pt-12 px-5 pb-4 bg-white dark:bg-slate-800 shadow-sm border-b border-slate-100 dark:border-slate-700 z-10">
         <View className="flex-row justify-between items-center mb-4">
           <View>
@@ -293,7 +293,7 @@ export default function HistoryScreen() {
             : title;
           
           return (
-            <View className="bg-[#F8FAFC] dark:bg-slate-900 py-2 mb-2 mt-4">
+            <View className="bg-slate-50 dark:bg-slate-900 py-2 mb-2 mt-4">
               <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm tracking-wider uppercase">
                 {formattedDate}
               </Text>
