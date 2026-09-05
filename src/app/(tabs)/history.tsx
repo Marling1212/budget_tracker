@@ -64,12 +64,19 @@ export default function HistoryScreen() {
         return false;
       }
       if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase();
-        const noteMatch = t.note?.toLowerCase().includes(query);
+        const query = searchQuery.toLowerCase().trim();
+        const searchTerms = query.split(/\s+/);
+        
+        const noteText = t.note?.toLowerCase() || '';
         const cat = categories.find(c => c.id === t.category_id);
-        const catMatch = cat?.name.toLowerCase().includes(query);
-        const tagMatch = t.tags && t.tags.some(tag => tag.toLowerCase().includes(query));
-        if (!noteMatch && !catMatch && !tagMatch) return false;
+        const catName = cat?.name.toLowerCase() || '';
+        const tagsText = t.tags ? t.tags.join(' ').toLowerCase() : '';
+        
+        const combinedText = `${noteText} ${catName} ${tagsText}`;
+        
+        // Ensure every word the user typed is found somewhere in this transaction
+        const matchesAll = searchTerms.every(term => combinedText.includes(term));
+        if (!matchesAll) return false;
       }
       return true;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
