@@ -78,7 +78,7 @@ export default function StatsScreen() {
           </TouchableOpacity>
           <View>
             <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">Analysis</Text>
-            <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm">Monthly Overview</Text>
+            <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm">Monthly Overview</Text>
           </View>
         </View>
         <View className="flex-row items-center bg-white dark:bg-slate-900 rounded-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -94,13 +94,13 @@ export default function StatsScreen() {
 
       {/* Main KPI Card */}
       <View className="bg-white dark:bg-slate-900 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-800">
-        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 text-center">
+        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 text-center">
           Total Spent This Month
         </Text>
         <Text className="text-slate-900 dark:text-slate-100 font-black text-5xl text-center mb-1">
           ${totalSpent.toFixed(0)}
         </Text>
-        <Text className="text-slate-400 dark:text-slate-500 font-medium text-sm text-center mb-6">
+        <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm text-center mb-6">
           of ${totalExpected.toFixed(0)} expected
         </Text>
 
@@ -111,8 +111,8 @@ export default function StatsScreen() {
         />
         
         <View className="flex-row justify-between mt-3">
-          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs">0%</Text>
-          <Text className={`font-bold text-xs ${isOverTotal ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs">0%</Text>
+          <Text className={`font-bold text-xs ${isOverTotal ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
             {totalPercentage.toFixed(1)}%
           </Text>
         </View>
@@ -139,7 +139,7 @@ export default function StatsScreen() {
                 </View>
                 <View>
                   <Text className="text-slate-800 dark:text-slate-200 font-extrabold text-lg">{status.category.name}</Text>
-                  <Text className="text-slate-400 dark:text-slate-500 font-medium text-xs mt-0.5">
+                  <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-xs mt-0.5">
                     ${status.spentThisMonth.toFixed(0)} / ${status.expectedMonthlyBudget.toFixed(0)}
                   </Text>
                 </View>

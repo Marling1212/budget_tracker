@@ -284,8 +284,10 @@ export default function DashboardScreen() {
   }, [accounts]);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (selectedDate) {
+    if (Platform.OS !== 'ios') {
+      setShowDatePicker(false);
+    }
+    if (selectedDate && event.type !== 'dismissed') {
       setAddDate(format(selectedDate, 'yyyy-MM-dd'));
     }
   };
@@ -501,7 +503,7 @@ export default function DashboardScreen() {
   return (
     <GestureHandlerRootView className="flex-1 bg-[#F8FAFC] dark:bg-slate-950">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
-        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">Net Worth</Text>
+        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">Net Worth</Text>
         <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">${netWorth.toFixed(0)}</Text>
         <Text className="text-slate-600 dark:text-slate-300 font-bold mt-1 text-xs">Pinch to zoom, drag to pan</Text>
       </View>
@@ -618,17 +620,17 @@ export default function DashboardScreen() {
                     onPress={() => setAddType('EXPENSE')}
                     className={`flex-1 py-3 rounded-lg items-center ${addType === 'EXPENSE' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
                   >
-                    <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Expense</Text>
+                    <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Expense</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setAddType('INCOME')}
                     className={`flex-1 py-3 rounded-lg items-center ${addType === 'INCOME' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
                   >
-                    <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Income</Text>
+                    <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Income</Text>
                   </TouchableOpacity>
                 </View>
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
                 <View className="flex-row items-center border-b-2 border-slate-100 dark:border-slate-800 pb-2 mb-8">
                   <Text className="text-4xl font-black text-slate-800 dark:text-slate-200 mr-2">$</Text>
                   <TextInput
@@ -642,32 +644,56 @@ export default function DashboardScreen() {
                 </View>
 
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
                   {Platform.OS === 'ios' && showDatePicker && (
                     <TouchableOpacity onPress={() => setShowDatePicker(false)}>
                       <Text className="text-indigo-600 font-bold">Done</Text>
                     </TouchableOpacity>
                   )}
                 </View>
-                <TouchableOpacity 
-                  onPress={() => setShowDatePicker(true)}
-                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-8"
-                >
-                  <Text className="text-slate-800 dark:text-slate-200 font-bold text-lg">{addDate}</Text>
-                </TouchableOpacity>
 
-                {showDatePicker && (
-                  <View className="mb-8">
-                    <DateTimePicker
-                      value={new Date(addDate)}
-                      mode="date"
-                      display="default"
-                      onChange={onDateChange}
-                    />
-                  </View>
+                {Platform.OS === 'web' ? (
+                  // @ts-ignore
+                  <input
+                    type="date"
+                    value={addDate}
+                    onChange={(e: any) => setAddDate(e.target.value)}
+                    style={{ 
+                      padding: '16px', 
+                      borderRadius: '16px', 
+                      border: '1px solid #e2e8f0', 
+                      fontSize: '18px',
+                      width: '100%',
+                      marginBottom: '32px',
+                      backgroundColor: '#f8fafc',
+                      color: '#1e293b',
+                      outline: 'none',
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                ) : (
+                  <>
+                    <TouchableOpacity 
+                      onPress={() => setShowDatePicker(true)}
+                      className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-8"
+                    >
+                      <Text className="text-slate-800 dark:text-slate-200 font-bold text-lg">{addDate}</Text>
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                      <View className="mb-8">
+                        <DateTimePicker
+                          value={new Date(addDate)}
+                          mode="date"
+                          display="default"
+                          onChange={onDateChange}
+                        />
+                      </View>
+                    )}
+                  </>
                 )}
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
                 <View className="flex-row flex-wrap mb-8">
                   {categories.map((cat) => (
                     <TouchableOpacity
@@ -679,19 +705,19 @@ export default function DashboardScreen() {
                           : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                       }`}
                     >
-                      <Text className={`font-bold ${addCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                      <Text className={`font-bold ${addCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                         {cat.name}
                       </Text>
                     </TouchableOpacity>
                   ))}
                   {categories.length === 0 && (
-                    <Text className="text-slate-400 dark:text-slate-500 italic">No categories available. Please add one in settings.</Text>
+                    <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 italic">No categories available. Please add one in settings.</Text>
                   )}
                 </View>
 
                 {accounts.length > 0 && (
                   <>
-                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
                     <View className="flex-row flex-wrap mb-8">
                       {accounts.map((acc) => (
                         <TouchableOpacity
@@ -703,7 +729,7 @@ export default function DashboardScreen() {
                               : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                           }`}
                         >
-                          <Text className={`font-bold ${selectedAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                          <Text className={`font-bold ${selectedAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                             {acc.name}
                           </Text>
                         </TouchableOpacity>
@@ -716,7 +742,7 @@ export default function DashboardScreen() {
                             : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                         }`}
                       >
-                        <Text className={`font-bold ${selectedAccountId === null ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                        <Text className={`font-bold ${selectedAccountId === null ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                           None
                         </Text>
                       </TouchableOpacity>
@@ -724,7 +750,7 @@ export default function DashboardScreen() {
                   </>
                 )}
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
                 <TextInput
                   className={`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base ${frequentNotes.length > 0 ? 'mb-3' : 'mb-8'}`}
                   placeholder="What was this for?"
@@ -747,7 +773,7 @@ export default function DashboardScreen() {
                   </View>
                 )}
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Tags (Optional)</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Tags (Optional)</Text>
                 <TextInput
                   className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base mb-8"
                   placeholder="e.g. vacation, coffee (comma separated)"
@@ -759,7 +785,7 @@ export default function DashboardScreen() {
                 <View className="flex-row items-center justify-between mb-4 bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
                   <View className="flex-1 pr-4">
                     <Text className="text-slate-800 dark:text-slate-200 font-bold text-base mb-1">Recurring Expense</Text>
-                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-xs font-medium">Automatically add this expense periodically</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 text-xs font-medium">Automatically add this expense periodically</Text>
                   </View>
                   <Switch 
                     value={isRecurring} 
@@ -771,7 +797,7 @@ export default function DashboardScreen() {
 
                 {isRecurring && (
                   <View className="mb-8">
-                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Frequency</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Frequency</Text>
                     <View className="flex-row justify-between space-x-2">
                       {['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].map((freq) => (
                         <TouchableOpacity
@@ -781,7 +807,7 @@ export default function DashboardScreen() {
                             frequency === freq ? 'border-indigo-600 bg-indigo-50' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                           }`}
                         >
-                          <Text className={`font-bold text-xs ${frequency === freq ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                          <Text className={`font-bold text-xs ${frequency === freq ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                             {freq}
                           </Text>
                         </TouchableOpacity>

@@ -60,7 +60,7 @@ export default function Login() {
           <Text className="text-5xl font-extrabold text-slate-800 dark:text-slate-200 text-center mb-3 tracking-tight">
             {t('auth.appName')}
           </Text>
-          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-center text-lg">
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-center text-lg">
             {isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
           </Text>
         </View>
@@ -116,7 +116,7 @@ export default function Login() {
 
           <View className="flex-row items-center mb-6">
             <View className="flex-1 h-px bg-slate-200" />
-            <Text className="mx-4 text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider">{t('auth.orContinueWith')}</Text>
+            <Text className="mx-4 text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider">{t('auth.orContinueWith')}</Text>
             <View className="flex-1 h-px bg-slate-200" />
           </View>
 
@@ -140,7 +140,7 @@ export default function Login() {
         </View>
 
         <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} className="p-4 items-center">
-          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-base">
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-base">
             {isSignUp ? t('auth.alreadyHaveAccount') : t('auth.dontHaveAccount')}
             <Text className="text-indigo-600 font-bold">
               {isSignUp ? t('auth.signIn') : t('auth.signUp')}
