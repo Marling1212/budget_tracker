@@ -216,7 +216,7 @@ export default function HistoryScreen() {
         <View className="flex-row justify-between items-center mb-4">
           <View>
             <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">History</Text>
-            <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm mt-1">Review and manage your expenses</Text>
+            <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm mt-1">Review and manage your expenses</Text>
           </View>
           <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700">
             <TouchableOpacity onPress={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1">
@@ -283,7 +283,7 @@ export default function HistoryScreen() {
         stickySectionHeadersEnabled={true}
         ListEmptyComponent={
           <View className="items-center justify-center py-20">
-            <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-lg">No transactions found</Text>
+            <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 font-bold text-lg">No transactions found</Text>
           </View>
         }
         renderSectionHeader={({ section: { title } }) => {
@@ -294,7 +294,7 @@ export default function HistoryScreen() {
           
           return (
             <View className="bg-[#F8FAFC] dark:bg-slate-950 py-2 mb-2 mt-4">
-              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm tracking-wider uppercase">
+              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm tracking-wider uppercase">
                 {formattedDate}
               </Text>
             </View>
@@ -315,7 +315,7 @@ export default function HistoryScreen() {
                 <View className="flex-1">
                   <Text className="text-slate-800 dark:text-slate-200 font-extrabold text-base">{cat?.name || 'Unknown'}</Text>
                   {item.note ? (
-                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-xs mt-0.5">{item.note}</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-xs mt-0.5">{item.note}</Text>
                   ) : null}
                   {item.tags && item.tags.length > 0 && (
                     <View className="flex-row flex-wrap mt-1">
@@ -365,7 +365,7 @@ export default function HistoryScreen() {
                 </TouchableOpacity>
               </View>
 
-              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount ($)</Text>
+              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount ($)</Text>
               <TextInput
                 className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-6 text-3xl font-black text-slate-800 dark:text-slate-200"
                 keyboardType="numbers-and-punctuation"
@@ -374,7 +374,7 @@ export default function HistoryScreen() {
               />
 
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
                 {Platform.OS === 'ios' && showDatePicker && (
                   <TouchableOpacity onPress={() => setShowDatePicker(false)}>
                     <Text className="text-indigo-600 font-bold">Done</Text>
@@ -399,14 +399,14 @@ export default function HistoryScreen() {
                 </View>
               )}
 
-              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Note (Optional)</Text>
+              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Note (Optional)</Text>
               <TextInput
                 className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-6 text-xl font-bold text-slate-800 dark:text-slate-200"
                 value={editNote}
                 onChangeText={setEditNote}
               />
 
-              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Tags (Optional)</Text>
+              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Tags (Optional)</Text>
               <TextInput
                 className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-8 text-xl font-bold text-slate-800 dark:text-slate-200"
                 placeholder="e.g. vacation, coffee"
@@ -415,7 +415,7 @@ export default function HistoryScreen() {
                 onChangeText={setEditTagsInput}
               />
 
-              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
+              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
               <View className="flex-row flex-wrap mb-8">
                 {categories.map((cat) => (
                   <TouchableOpacity
@@ -436,7 +436,7 @@ export default function HistoryScreen() {
 
               {accounts.length > 0 && (
                 <>
-                  <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
                   <View className="flex-row flex-wrap mb-8">
                     {accounts.map((acc) => (
                       <TouchableOpacity
