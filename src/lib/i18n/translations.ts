@@ -33,6 +33,7 @@ export const resources = {
       },
       expenseModal: {
         addExpense: 'Add Expense',
+        addIncome: 'Add Income',
         expense: 'Expense',
         income: 'Income',
         amount: 'Amount',
@@ -96,6 +97,7 @@ export const resources = {
       },
       expenseModal: {
         addExpense: '新增紀錄',
+        addIncome: '新增收入',
         expense: '支出',
         income: '收入',
         amount: '金額',

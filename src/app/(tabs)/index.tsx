@@ -121,7 +121,7 @@ function TwoVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-800/50 dark:bg-slate-900/80 p-2">
+        <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
           {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
           <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
             {status.category.name} Daily
@@ -155,7 +155,7 @@ function TwoVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-800/50 dark:bg-slate-900/80 p-2">
+        <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
           <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center">
             Vault
           </Text>
@@ -243,7 +243,7 @@ function SingleVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-800/50 dark:bg-slate-900/80 p-2">
+        <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
           {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
           <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
             {status.category.name}
@@ -608,7 +608,9 @@ export default function DashboardScreen() {
         <View className="flex-1 justify-end bg-slate-900/50 dark:bg-slate-900/80">
           <View className="bg-white dark:bg-slate-800 rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[90%]">
             <View className="flex-row justify-between items-center mb-8">
-              <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">{t('expenseModal.addExpense')}</Text>
+              <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">
+                {addType === 'INCOME' ? t('expenseModal.addIncome') : t('expenseModal.addExpense')}
+              </Text>
               <TouchableOpacity onPress={() => setIsAddingExpense(false)} className="p-3 bg-slate-100 dark:bg-slate-700 rounded-full">
                 <X color="#64748b" size={24} />
               </TouchableOpacity>
