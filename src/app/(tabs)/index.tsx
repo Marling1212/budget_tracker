@@ -103,8 +103,8 @@ function TwoVesselNode({
         className="items-center justify-between"
       >
       {/* Top Container: Daily Glass */}
-      <View className="w-full h-[140px] bg-white rounded-t-[70px] rounded-b-3xl shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50" />
+      <View className="w-full h-[140px] bg-white dark:bg-slate-900 rounded-t-[70px] rounded-b-3xl shadow-sm border-4 border-slate-100 dark:border-slate-800 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-800" />
         <Animated.View 
           style={[
             { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
@@ -119,15 +119,15 @@ function TwoVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
-          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 16)}
-          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center mt-1">
+        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-900/50 dark:bg-slate-950/80 p-2">
+          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
+          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
             {status.category.name} Daily
           </Text>
-          <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900'} font-black text-2xl mt-1`}>
+          <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>
             {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
           </Text>
-          <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800'} font-bold text-[10px] mt-1`}>
+          <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
             {topIsOverBudget ? 'OVERSPENT' : 'REMAINING TODAY'}
           </Text>
         </View>
@@ -137,8 +137,8 @@ function TwoVesselNode({
       <View className="w-3 h-[10px] bg-slate-200 rounded-full" />
 
       {/* Bottom Container: Savings Vault */}
-      <View className="w-full h-[140px] bg-white rounded-b-[70px] rounded-t-3xl shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50" />
+      <View className="w-full h-[140px] bg-white dark:bg-slate-900 rounded-b-[70px] rounded-t-3xl shadow-sm border-4 border-slate-100 dark:border-slate-800 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-800" />
         <Animated.View 
           style={[
             { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
@@ -153,14 +153,14 @@ function TwoVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
-          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center">
+        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-900/50 dark:bg-slate-950/80 p-2">
+          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center">
             Vault
           </Text>
-          <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900'} font-black text-2xl mt-1`}>
+          <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>
             {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
           </Text>
-          <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800'} font-bold text-[10px] mt-1`}>
+          <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
             {bottomIsNegative ? 'DEFICIT' : 'TOTAL SAVED'}
           </Text>
         </View>
@@ -224,8 +224,8 @@ function SingleVesselNode({
         }}
         className="items-center justify-center"
       >
-      <View className="w-full h-full bg-white rounded-[70px] shadow-sm border-4 border-slate-100 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50" />
+      <View className="w-full h-full bg-white dark:bg-slate-900 rounded-[70px] shadow-sm border-4 border-slate-100 dark:border-slate-800 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-800" />
         <Animated.View 
           style={[
             { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
@@ -240,15 +240,15 @@ function SingleVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white/50 p-2">
-          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 16)}
-          <Text className="text-slate-900 font-extrabold text-xs uppercase tracking-wider text-center mt-1">
+        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-900/50 dark:bg-slate-950/80 p-2">
+          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
+          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
             {status.category.name}
           </Text>
-          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900'} font-black text-3xl mt-1`}>
+          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-3xl mt-1`}>
             {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
           </Text>
-          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800'} font-bold text-[10px] mt-1 text-center`}>
+          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1 text-center`}>
             {isOverBudget ? 'OVERSPENT' : 'REMAINING\nMONTHLY'}
           </Text>
         </View>
@@ -275,6 +275,13 @@ export default function DashboardScreen() {
   const [frequency, setFrequency] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>('MONTHLY');
   const [addType, setAddType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE');
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+
+  // Set default account when accounts load or when modal opens
+  React.useEffect(() => {
+    if (accounts.length > 0 && selectedAccountId === null) {
+      setSelectedAccountId(accounts[0].id);
+    }
+  }, [accounts]);
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
@@ -313,6 +320,8 @@ export default function DashboardScreen() {
 
   const handleNodeDoubleTap = (categoryId: string) => {
     setAddCategoryId(categoryId);
+    setAddType('EXPENSE');
+    if (accounts.length > 0) setSelectedAccountId(accounts[0].id);
     setIsAddingExpense(true);
   };
 
@@ -385,7 +394,7 @@ export default function DashboardScreen() {
       setIsRecurring(false);
       setFrequency('MONTHLY');
       setAddType('EXPENSE');
-      setSelectedAccountId(null);
+      setSelectedAccountId(accounts.length > 0 ? accounts[0].id : null);
       setIsAddingExpense(false);
     } catch (err: any) {
       console.error(err);
@@ -462,7 +471,7 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC]">
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950">
         <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
@@ -470,7 +479,7 @@ export default function DashboardScreen() {
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] p-4">
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950 p-4">
         <Text className="text-red-500 text-center font-bold">Failed to load data: {error.message || JSON.stringify(error)}</Text>
       </View>
     );
@@ -478,10 +487,10 @@ export default function DashboardScreen() {
 
   if (budgetStatuses.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] p-4">
-        <View className="bg-white p-8 rounded-3xl shadow-sm items-center border border-slate-100">
-          <Text className="text-slate-800 text-center text-lg font-bold mb-2">No categories yet</Text>
-          <Text className="text-slate-600 text-center">Head over to Settings to create your first budget category!</Text>
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950 p-4">
+        <View className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-800">
+          <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">No categories yet</Text>
+          <Text className="text-slate-600 dark:text-slate-300 text-center">Head over to Settings to create your first budget category!</Text>
         </View>
       </View>
     );
@@ -490,11 +499,11 @@ export default function DashboardScreen() {
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
   return (
-    <GestureHandlerRootView className="flex-1 bg-[#F8FAFC]">
+    <GestureHandlerRootView className="flex-1 bg-[#F8FAFC] dark:bg-slate-950">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
-        <Text className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">Net Worth</Text>
-        <Text className="text-4xl font-extrabold text-slate-800 tracking-tight">${netWorth.toFixed(0)}</Text>
-        <Text className="text-slate-600 font-bold mt-1 text-xs">Pinch to zoom, drag to pan</Text>
+        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">Net Worth</Text>
+        <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">${netWorth.toFixed(0)}</Text>
+        <Text className="text-slate-600 dark:text-slate-300 font-bold mt-1 text-xs">Pinch to zoom, drag to pan</Text>
       </View>
 
       <GestureDetector gesture={composedGestures}>
@@ -520,7 +529,7 @@ export default function DashboardScreen() {
           <TouchableOpacity 
             // @ts-ignore
             onPress={() => router.push('/stats')}
-            className="absolute bg-white rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
+            className="absolute bg-white dark:bg-slate-900 rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
             style={{ 
               top: 1500 - 60, 
               left: 1500 - 60, 
@@ -590,11 +599,11 @@ export default function DashboardScreen() {
         animationType="slide"
         transparent={true}
       >
-        <View className="flex-1 justify-end bg-slate-900/50">
-          <View className="bg-white rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[90%]">
+        <View className="flex-1 justify-end bg-slate-900/50 dark:bg-slate-950/80">
+          <View className="bg-white dark:bg-slate-900 rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[90%]">
             <View className="flex-row justify-between items-center mb-8">
-              <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Add Expense</Text>
-              <TouchableOpacity onPress={() => setIsAddingExpense(false)} className="p-3 bg-slate-100 rounded-full">
+              <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">Add Expense</Text>
+              <TouchableOpacity onPress={() => setIsAddingExpense(false)} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
                 <X color="#64748b" size={24} />
               </TouchableOpacity>
             </View>
@@ -604,26 +613,26 @@ export default function DashboardScreen() {
               className="flex-1"
             >
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                <View className="flex-row bg-slate-100 p-1 rounded-xl mb-6">
+                <View className="flex-row bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
                   <TouchableOpacity
                     onPress={() => setAddType('EXPENSE')}
-                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'EXPENSE' ? 'bg-white shadow-sm' : ''}`}
+                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'EXPENSE' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
                   >
-                    <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500'}`}>Expense</Text>
+                    <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Expense</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setAddType('INCOME')}
-                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'INCOME' ? 'bg-white shadow-sm' : ''}`}
+                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'INCOME' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
                   >
-                    <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500'}`}>Income</Text>
+                    <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Income</Text>
                   </TouchableOpacity>
                 </View>
 
-                <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
-                <View className="flex-row items-center border-b-2 border-slate-100 pb-2 mb-8">
-                  <Text className="text-4xl font-black text-slate-800 mr-2">$</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount</Text>
+                <View className="flex-row items-center border-b-2 border-slate-100 dark:border-slate-800 pb-2 mb-8">
+                  <Text className="text-4xl font-black text-slate-800 dark:text-slate-200 mr-2">$</Text>
                   <TextInput
-                    className="flex-1 text-4xl font-black text-slate-800"
+                    className="flex-1 text-4xl font-black text-slate-800 dark:text-slate-200"
                     placeholder="0.00"
                     placeholderTextColor="#cbd5e1"
                     keyboardType="numbers-and-punctuation"
@@ -633,7 +642,7 @@ export default function DashboardScreen() {
                 </View>
 
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">Date</Text>
                   {Platform.OS === 'ios' && showDatePicker && (
                     <TouchableOpacity onPress={() => setShowDatePicker(false)}>
                       <Text className="text-indigo-600 font-bold">Done</Text>
@@ -642,9 +651,9 @@ export default function DashboardScreen() {
                 </View>
                 <TouchableOpacity 
                   onPress={() => setShowDatePicker(true)}
-                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-8"
+                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-8"
                 >
-                  <Text className="text-slate-800 font-bold text-lg">{addDate}</Text>
+                  <Text className="text-slate-800 dark:text-slate-200 font-bold text-lg">{addDate}</Text>
                 </TouchableOpacity>
 
                 {showDatePicker && (
@@ -658,7 +667,7 @@ export default function DashboardScreen() {
                   </View>
                 )}
 
-                <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Category</Text>
                 <View className="flex-row flex-wrap mb-8">
                   {categories.map((cat) => (
                     <TouchableOpacity
@@ -667,22 +676,22 @@ export default function DashboardScreen() {
                       className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                         addCategoryId === cat.id 
                           ? 'border-indigo-600 bg-indigo-50' 
-                          : 'border-slate-100 bg-white'
+                          : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                       }`}
                     >
-                      <Text className={`font-bold ${addCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500'}`}>
+                      <Text className={`font-bold ${addCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                         {cat.name}
                       </Text>
                     </TouchableOpacity>
                   ))}
                   {categories.length === 0 && (
-                    <Text className="text-slate-400 italic">No categories available. Please add one in settings.</Text>
+                    <Text className="text-slate-400 dark:text-slate-500 italic">No categories available. Please add one in settings.</Text>
                   )}
                 </View>
 
                 {accounts.length > 0 && (
                   <>
-                    <Text className="text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">Account</Text>
                     <View className="flex-row flex-wrap mb-8">
                       {accounts.map((acc) => (
                         <TouchableOpacity
@@ -691,10 +700,10 @@ export default function DashboardScreen() {
                           className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                             selectedAccountId === acc.id 
                               ? 'border-indigo-600 bg-indigo-50' 
-                              : 'border-slate-100 bg-white'
+                              : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                           }`}
                         >
-                          <Text className={`font-bold ${selectedAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500'}`}>
+                          <Text className={`font-bold ${selectedAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                             {acc.name}
                           </Text>
                         </TouchableOpacity>
@@ -704,10 +713,10 @@ export default function DashboardScreen() {
                         className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                           selectedAccountId === null 
                             ? 'border-indigo-600 bg-indigo-50' 
-                            : 'border-slate-100 bg-white'
+                            : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                         }`}
                       >
-                        <Text className={`font-bold ${selectedAccountId === null ? 'text-indigo-600' : 'text-slate-500'}`}>
+                        <Text className={`font-bold ${selectedAccountId === null ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                           None
                         </Text>
                       </TouchableOpacity>
@@ -715,9 +724,9 @@ export default function DashboardScreen() {
                   </>
                 )}
 
-                <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Note (Optional)</Text>
                 <TextInput
-                  className={`bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-medium text-base ${frequentNotes.length > 0 ? 'mb-3' : 'mb-8'}`}
+                  className={`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base ${frequentNotes.length > 0 ? 'mb-3' : 'mb-8'}`}
                   placeholder="What was this for?"
                   placeholderTextColor="#94a3b8"
                   value={addNote}
@@ -738,19 +747,19 @@ export default function DashboardScreen() {
                   </View>
                 )}
 
-                <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Tags (Optional)</Text>
+                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Tags (Optional)</Text>
                 <TextInput
-                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-800 font-medium text-base mb-8"
+                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base mb-8"
                   placeholder="e.g. vacation, coffee (comma separated)"
                   placeholderTextColor="#94a3b8"
                   value={addTagsInput}
                   onChangeText={setAddTagsInput}
                 />
 
-                <View className="flex-row items-center justify-between mb-4 bg-slate-50 p-4 rounded-2xl">
+                <View className="flex-row items-center justify-between mb-4 bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
                   <View className="flex-1 pr-4">
-                    <Text className="text-slate-800 font-bold text-base mb-1">Recurring Expense</Text>
-                    <Text className="text-slate-500 text-xs font-medium">Automatically add this expense periodically</Text>
+                    <Text className="text-slate-800 dark:text-slate-200 font-bold text-base mb-1">Recurring Expense</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-xs font-medium">Automatically add this expense periodically</Text>
                   </View>
                   <Switch 
                     value={isRecurring} 
@@ -762,17 +771,17 @@ export default function DashboardScreen() {
 
                 {isRecurring && (
                   <View className="mb-8">
-                    <Text className="text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Frequency</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">Frequency</Text>
                     <View className="flex-row justify-between space-x-2">
                       {['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'].map((freq) => (
                         <TouchableOpacity
                           key={freq}
                           onPress={() => setFrequency(freq as any)}
                           className={`flex-1 items-center justify-center py-3 rounded-xl border-2 ${
-                            frequency === freq ? 'border-indigo-600 bg-indigo-50' : 'border-slate-100 bg-white'
+                            frequency === freq ? 'border-indigo-600 bg-indigo-50' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
                           }`}
                         >
-                          <Text className={`font-bold text-xs ${frequency === freq ? 'text-indigo-600' : 'text-slate-500'}`}>
+                          <Text className={`font-bold text-xs ${frequency === freq ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
                             {freq}
                           </Text>
                         </TouchableOpacity>

@@ -8,7 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-
+import { useTranslation } from 'react-i18next';
+import { useColorScheme } from 'nativewind';
 const AVAILABLE_ICONS = ['Tag', 'Coffee', 'Car', 'Home', 'ShoppingCart', 'Utensils', 'Smartphone', 'Heart', 'Smile', 'Book', 'Gift', 'Plane'];
 const AVAILABLE_COLORS = ['#6366f1', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
 
@@ -18,6 +19,15 @@ const renderIcon = (name: string, color: string, size: number) => {
 };
 
 export default function SettingsScreen() {
+  const { t, i18n } = useTranslation();
+  
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith('en') ? 'zh-TW' : 'en';
+    i18n.changeLanguage(newLang);
+  };
+
+  const { colorScheme, setColorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const { categories, budgetStatuses, refreshData, loading, recurringTransactions } = useBudget();
   const [isAdding, setIsAdding] = useState(false);
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
@@ -327,29 +337,43 @@ export default function SettingsScreen() {
   const totalMonthlyExpected = budgetStatuses.reduce((sum, status) => sum + status.expectedMonthlyBudget, 0);
 
   return (
-    <ScrollView className="flex-1 bg-[#F8FAFC]" contentContainerStyle={{ padding: 20 }}>
+    <ScrollView className="flex-1 bg-[#F8FAFC] dark:bg-slate-950" contentContainerStyle={{ padding: 20 }}>
       
       <View className="mb-6 mt-2">
-        <Text className="text-4xl font-extrabold text-slate-800 tracking-tight mb-4">Settings</Text>
+        <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight mb-4">Settings</Text>
         
-        <View className="bg-white rounded-[32px] p-5 flex-row items-center shadow-sm border border-slate-100">
+        <View className="bg-white dark:bg-slate-900 rounded-[32px] p-5 flex-row items-center shadow-sm border border-slate-100 dark:border-slate-800">
           <View className="w-14 h-14 bg-indigo-100 rounded-full items-center justify-center mr-4">
             <Text className="text-indigo-600 font-bold text-xl">
               {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
             </Text>
           </View>
           <View className="flex-1">
-            <Text className="text-slate-800 font-bold text-lg">My Account</Text>
-            <Text className="text-slate-500 font-medium text-sm">{user?.email}</Text>
+            <Text className="text-slate-800 dark:text-slate-200 font-bold text-lg">My Account</Text>
+            <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm">{user?.email}</Text>
           </View>
         </View>
       </View>
 
-      {/* Monthly Overview Card */}
-      <View className="bg-white rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 flex-row justify-between items-center">
+      {/* Dark Mode Toggle */}
+      <View className="bg-white dark:bg-slate-900 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-800 flex-row justify-between items-center">
         <View>
-          <Text className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Expected Monthly Total</Text>
-          <Text className="text-slate-900 font-black text-3xl">${totalMonthlyExpected.toFixed(0)}</Text>
+          <Text className="text-slate-800 dark:text-slate-200 font-extrabold text-lg mb-1">Dark Mode</Text>
+          <Text className="text-slate-500 dark:text-slate-400 font-medium text-xs">Switch to dark appearance</Text>
+        </View>
+        <Switch 
+          value={isDarkMode} 
+          onValueChange={(val) => setColorScheme(val ? 'dark' : 'light')} 
+          trackColor={{ false: '#e2e8f0', true: '#4f46e5' }}
+          thumbColor="#ffffff"
+        />
+      </View>
+
+      {/* Monthly Overview Card */}
+      <View className="bg-white dark:bg-slate-900 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-800 flex-row justify-between items-center">
+        <View>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Expected Monthly Total</Text>
+          <Text className="text-slate-900 dark:text-slate-100 font-black text-3xl">${totalMonthlyExpected.toFixed(0)}</Text>
         </View>
         <View className="bg-indigo-50 px-3 py-1.5 rounded-full">
           <Text className="text-indigo-600 font-bold text-xs">{categories.length} Categories</Text>
@@ -369,33 +393,33 @@ export default function SettingsScreen() {
           </View>
         </TouchableOpacity>
       ) : (
-        <View className="bg-white rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100">
-          <Text className="text-xl font-extrabold text-slate-800 mb-6">{editingAccId ? 'Edit Account' : 'New Account'}</Text>
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Account Name</Text>
+        <View className="bg-white dark:bg-slate-900 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-800">
+          <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-6">{editingAccId ? 'Edit Account' : 'New Account'}</Text>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Account Name</Text>
           <TextInput
-            className="border-b-2 border-slate-100 py-2 mb-6 text-2xl font-bold text-slate-800"
+            className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-6 text-2xl font-bold text-slate-800 dark:text-slate-200"
             placeholder="e.g. Chase Bank, Cash"
             placeholderTextColor="#cbd5e1"
             value={newAccName}
             onChangeText={setNewAccName}
           />
 
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Type</Text>
-          <View className="flex-row bg-slate-100 p-1 rounded-xl mb-6">
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Type</Text>
+          <View className="flex-row bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
             {['CASH', 'BANK', 'CREDIT'].map((type) => (
               <TouchableOpacity
                 key={type}
                 onPress={() => setNewAccType(type as any)}
-                className={`flex-1 py-2 rounded-lg items-center ${newAccType === type ? 'bg-white shadow-sm' : ''}`}
+                className={`flex-1 py-2 rounded-lg items-center ${newAccType === type ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
               >
-                <Text className={`font-bold ${newAccType === type ? 'text-indigo-600' : 'text-slate-500'}`}>{type}</Text>
+                <Text className={`font-bold ${newAccType === type ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>{type}</Text>
               </TouchableOpacity>
             ))}
           </View>
           
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Balance ($)</Text>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Balance ($)</Text>
           <TextInput
-            className="border-b-2 border-slate-100 py-2 mb-8 text-2xl font-bold text-slate-800"
+            className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-8 text-2xl font-bold text-slate-800 dark:text-slate-200"
             placeholder="0.00"
             placeholderTextColor="#cbd5e1"
             keyboardType="decimal-pad"
@@ -403,7 +427,7 @@ export default function SettingsScreen() {
             onChangeText={setNewAccBalance}
           />
 
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Color</Text>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Color</Text>
           <View className="flex-row flex-wrap mb-8">
             {AVAILABLE_COLORS.map(color => (
               <TouchableOpacity
@@ -418,9 +442,9 @@ export default function SettingsScreen() {
           <View className="flex-row space-x-4">
             <TouchableOpacity 
               onPress={resetAccForm}
-              className="flex-1 bg-slate-100 py-4 rounded-2xl items-center"
+              className="flex-1 bg-slate-100 dark:bg-slate-800 py-4 rounded-2xl items-center"
             >
-              <Text className="text-slate-600 font-bold text-base">Cancel</Text>
+              <Text className="text-slate-600 dark:text-slate-300 font-bold text-base">Cancel</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -440,32 +464,32 @@ export default function SettingsScreen() {
       )}
 
       {/* Existing Accounts List */}
-      <Text className="text-xl font-extrabold text-slate-800 mb-4 tracking-tight">Your Accounts</Text>
+      <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-4 tracking-tight">Your Accounts</Text>
       
       {loading && accounts.length === 0 ? (
         <ActivityIndicator color="#4f46e5" className="mt-4 mb-8" size="large" />
       ) : accounts.length === 0 ? (
-        <View className="bg-slate-50 rounded-3xl p-6 items-center border border-slate-100 mb-8">
-          <Text className="text-slate-500 font-medium text-center">No accounts created.</Text>
+        <View className="bg-slate-50 dark:bg-slate-800 rounded-3xl p-6 items-center border border-slate-100 dark:border-slate-800 mb-8">
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-center">No accounts created.</Text>
         </View>
       ) : (
         <View className="mb-8">
           {accounts.map((acc) => (
-            <View key={acc.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 flex-row justify-between items-center">
+            <View key={acc.id} className="bg-white dark:bg-slate-900 rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 dark:border-slate-800 flex-row justify-between items-center">
               <View style={{ backgroundColor: `${acc.color || '#6366f1'}15` }} className="w-12 h-12 rounded-2xl items-center justify-center mr-4">
                 {renderIcon(acc.type === 'CASH' ? 'DollarSign' : acc.type === 'CREDIT' ? 'CreditCard' : 'Building', acc.color || '#6366f1', 24)}
               </View>
               <View className="flex-1 pr-4">
-                <Text className="text-slate-800 font-extrabold text-lg mb-1">{acc.name}</Text>
+                <Text className="text-slate-800 dark:text-slate-200 font-extrabold text-lg mb-1">{acc.name}</Text>
                 <View className="flex-row items-center">
                   <Text className={`font-bold mr-2 ${acc.balance < 0 ? 'text-red-500' : 'text-green-500'}`}>${acc.balance}</Text>
-                  <Text className="text-slate-400 font-medium text-xs">
+                  <Text className="text-slate-400 dark:text-slate-500 font-medium text-xs">
                     • {acc.type}
                   </Text>
                 </View>
               </View>
               <View className="flex-row">
-                <TouchableOpacity onPress={() => handleEditAccount(acc)} className="p-3 bg-slate-100 rounded-full mr-2">
+                <TouchableOpacity onPress={() => handleEditAccount(acc)} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full mr-2">
                   <Edit2 color="#64748b" size={20} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleDeleteAccount(acc.id)} className="p-3 bg-red-50 rounded-full">
@@ -496,20 +520,20 @@ export default function SettingsScreen() {
           </View>
         </TouchableOpacity>
       ) : (
-        <View className="bg-white rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100">
-          <Text className="text-xl font-extrabold text-slate-800 mb-6">{editingCatId ? 'Edit Category' : 'New Category'}</Text>
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Category Name</Text>
+        <View className="bg-white dark:bg-slate-900 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-800">
+          <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-6">{editingCatId ? 'Edit Category' : 'New Category'}</Text>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Category Name</Text>
           <TextInput
-            className="border-b-2 border-slate-100 py-2 mb-6 text-2xl font-bold text-slate-800"
+            className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-6 text-2xl font-bold text-slate-800 dark:text-slate-200"
             placeholder="e.g. Food, Transport"
             placeholderTextColor="#cbd5e1"
             value={newCatName}
             onChangeText={setNewCatName}
           />
           
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Daily Budget ($)</Text>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Daily Budget ($)</Text>
           <TextInput
-            className="border-b-2 border-slate-100 py-2 mb-8 text-2xl font-bold text-slate-800"
+            className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-8 text-2xl font-bold text-slate-800 dark:text-slate-200"
             placeholder="300"
             placeholderTextColor="#cbd5e1"
             keyboardType="decimal-pad"
@@ -517,7 +541,7 @@ export default function SettingsScreen() {
             onChangeText={setNewCatBudget}
           />
 
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Color</Text>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Color</Text>
           <View className="flex-row flex-wrap mb-6">
             {AVAILABLE_COLORS.map(color => (
               <TouchableOpacity
@@ -529,23 +553,23 @@ export default function SettingsScreen() {
             ))}
           </View>
 
-          <Text className="text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Icon</Text>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Icon</Text>
           <View className="flex-row flex-wrap mb-8">
             {AVAILABLE_ICONS.map(icon => (
               <TouchableOpacity
                 key={icon}
                 onPress={() => setNewCatIcon(icon)}
-                className={`w-12 h-12 rounded-xl m-1 items-center justify-center ${newCatIcon === icon ? 'bg-slate-800' : 'bg-slate-100'}`}
+                className={`w-12 h-12 rounded-xl m-1 items-center justify-center ${newCatIcon === icon ? 'bg-slate-800' : 'bg-slate-100 dark:bg-slate-800'}`}
               >
                 {renderIcon(icon, newCatIcon === icon ? 'white' : '#64748b', 24)}
               </TouchableOpacity>
             ))}
           </View>
 
-          <View className="flex-row items-center justify-between mb-8 bg-slate-50 p-4 rounded-2xl">
+          <View className="flex-row items-center justify-between mb-8 bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
             <View className="flex-1 pr-4">
-              <Text className="text-slate-800 font-bold text-base mb-1">Accumulative</Text>
-              <Text className="text-slate-500 text-xs font-medium">Unspent daily quota rolls over to the next day</Text>
+              <Text className="text-slate-800 dark:text-slate-200 font-bold text-base mb-1">Accumulative</Text>
+              <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-xs font-medium">Unspent daily quota rolls over to the next day</Text>
             </View>
             <Switch 
               value={isAccumulative} 
@@ -558,9 +582,9 @@ export default function SettingsScreen() {
           <View className="flex-row space-x-4">
             <TouchableOpacity 
               onPress={resetForm}
-              className="flex-1 bg-slate-100 py-4 rounded-2xl items-center"
+              className="flex-1 bg-slate-100 dark:bg-slate-800 py-4 rounded-2xl items-center"
             >
-              <Text className="text-slate-600 font-bold text-base">Cancel</Text>
+              <Text className="text-slate-600 dark:text-slate-300 font-bold text-base">Cancel</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -588,21 +612,21 @@ export default function SettingsScreen() {
       )}
 
       {/* Existing Categories List */}
-      <Text className="text-xl font-extrabold text-slate-800 mb-4 tracking-tight">Your Categories</Text>
+      <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-4 tracking-tight">Your Categories</Text>
       
       {loading && categories.length === 0 ? (
         <ActivityIndicator color="#4f46e5" className="mt-8" size="large" />
       ) : (
         categories.map((cat) => (
-          <View key={cat.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 flex-row justify-between items-center">
+          <View key={cat.id} className="bg-white dark:bg-slate-900 rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 dark:border-slate-800 flex-row justify-between items-center">
             <View style={{ backgroundColor: `${cat.color || '#6366f1'}15` }} className="w-12 h-12 rounded-2xl items-center justify-center mr-4">
               {renderIcon(cat.icon || 'Tag', cat.color || '#6366f1', 24)}
             </View>
             <View className="flex-1 pr-4">
-              <Text className="text-slate-800 font-extrabold text-lg mb-1">{cat.name}</Text>
+              <Text className="text-slate-800 dark:text-slate-200 font-extrabold text-lg mb-1">{cat.name}</Text>
               <View className="flex-row items-center">
                 <Text className="text-indigo-500 font-bold mr-2">${cat.daily_budget}/day</Text>
-                <Text className="text-slate-400 font-medium text-xs">
+                <Text className="text-slate-400 dark:text-slate-500 font-medium text-xs">
                   • {cat.is_accumulative ? 'Accumulates' : 'Fixed'}
                 </Text>
               </View>
@@ -610,7 +634,7 @@ export default function SettingsScreen() {
             <View className="flex-row">
               <TouchableOpacity 
                 onPress={() => handleEditCategory(cat)} 
-                className="p-3 bg-slate-100 rounded-full mr-2"
+                className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full mr-2"
               >
                 <Edit2 color="#64748b" size={20} />
               </TouchableOpacity>
@@ -626,13 +650,13 @@ export default function SettingsScreen() {
       )}
 
       {/* Subscriptions / Recurring List */}
-      <Text className="text-xl font-extrabold text-slate-800 mb-4 mt-8 tracking-tight">Your Subscriptions</Text>
+      <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-4 mt-8 tracking-tight">Your Subscriptions</Text>
       
       {loading && recurringTransactions.length === 0 ? (
         <ActivityIndicator color="#4f46e5" className="mt-8" size="large" />
       ) : recurringTransactions.length === 0 ? (
-        <View className="bg-slate-50 rounded-3xl p-6 items-center border border-slate-100">
-          <Text className="text-slate-500 font-medium text-center">No active subscriptions.{'\n'}Add a recurring expense from the home screen.</Text>
+        <View className="bg-slate-50 dark:bg-slate-800 rounded-3xl p-6 items-center border border-slate-100 dark:border-slate-800">
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-center">No active subscriptions.{'\n'}Add a recurring expense from the home screen.</Text>
         </View>
       ) : (
         recurringTransactions.map((rec) => {
@@ -640,16 +664,16 @@ export default function SettingsScreen() {
           if (!category) return null;
           
           return (
-            <View key={rec.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 flex-row justify-between items-center">
+            <View key={rec.id} className="bg-white dark:bg-slate-900 rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 dark:border-slate-800 flex-row justify-between items-center">
               <View style={{ backgroundColor: `${category.color || '#6366f1'}15` }} className="w-12 h-12 rounded-2xl items-center justify-center mr-4">
                 {renderIcon(category.icon || 'Tag', category.color || '#6366f1', 24)}
               </View>
               <View className="flex-1 pr-4">
-                <Text className="text-slate-800 font-extrabold text-lg mb-1">{category.name}</Text>
+                <Text className="text-slate-800 dark:text-slate-200 font-extrabold text-lg mb-1">{category.name}</Text>
                 <View className="flex-row items-center">
                   <Text className="text-indigo-500 font-bold mr-2">${rec.amount} / {rec.frequency.toLowerCase()}</Text>
                   {rec.note && (
-                    <Text className="text-slate-400 font-medium text-xs truncate" numberOfLines={1}>
+                    <Text className="text-slate-400 dark:text-slate-500 font-medium text-xs truncate" numberOfLines={1}>
                       • {rec.note}
                     </Text>
                   )}
@@ -669,8 +693,16 @@ export default function SettingsScreen() {
       )}
       
       {/* Actions */}
-      <Text className="text-xl font-extrabold text-slate-800 mb-4 mt-8 tracking-tight">Actions</Text>
+      <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-4 mt-8 tracking-tight">Actions</Text>
       
+      <TouchableOpacity 
+        onPress={toggleLanguage}
+        className="mb-4 bg-slate-100 dark:bg-slate-800 rounded-2xl py-4 flex-row justify-center items-center"
+      >
+        <Icons.Globe color="#64748b" size={20} className="mr-2" />
+        <Text className="text-slate-600 dark:text-slate-300 font-bold text-lg">{t('settings.switchLanguage')} ({t('settings.currentLanguage')})</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity 
         onPress={handleExportCSV}
         disabled={isExporting}
@@ -686,10 +718,10 @@ export default function SettingsScreen() {
 
       <TouchableOpacity 
         onPress={signOut}
-        className="mb-4 bg-slate-100 rounded-2xl py-4 flex-row justify-center items-center"
+        className="mb-4 bg-slate-100 dark:bg-slate-800 rounded-2xl py-4 flex-row justify-center items-center"
       >
         <LogOut color="#64748b" size={20} className="mr-2" />
-        <Text className="text-slate-600 font-bold text-lg">Sign Out</Text>
+        <Text className="text-slate-600 dark:text-slate-300 font-bold text-lg">Sign Out</Text>
       </TouchableOpacity>
 
       <View className="h-24" />

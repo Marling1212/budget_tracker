@@ -50,7 +50,7 @@ export default function StatsScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC]">
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950">
         <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
@@ -66,26 +66,26 @@ export default function StatsScreen() {
   const timePercentage = firstStatus ? (firstStatus.currentDayOfMonth / firstStatus.daysInMonth) * 100 : 0;
 
   return (
-    <ScrollView className="flex-1 bg-[#F8FAFC]" contentContainerStyle={{ padding: 20 }}>
+    <ScrollView className="flex-1 bg-[#F8FAFC] dark:bg-slate-950" contentContainerStyle={{ padding: 20 }}>
       {/* Header */}
       <View className="flex-row items-center justify-between mb-8 mt-2">
         <View className="flex-row items-center">
           <TouchableOpacity 
             onPress={() => router.back()}
-            className="bg-white p-3 rounded-full shadow-sm border border-slate-100 mr-4"
+            className="bg-white dark:bg-slate-900 p-3 rounded-full shadow-sm border border-slate-100 dark:border-slate-800 mr-4"
           >
             <ChevronLeft color="#334155" size={24} />
           </TouchableOpacity>
           <View>
-            <Text className="text-3xl font-extrabold text-slate-800 tracking-tight">Analysis</Text>
-            <Text className="text-slate-500 font-medium text-sm">Monthly Overview</Text>
+            <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">Analysis</Text>
+            <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm">Monthly Overview</Text>
           </View>
         </View>
-        <View className="flex-row items-center bg-white rounded-full px-2 py-1.5 border border-slate-200 shadow-sm">
+        <View className="flex-row items-center bg-white dark:bg-slate-900 rounded-full px-2 py-1.5 border border-slate-200 dark:border-slate-700 shadow-sm">
           <TouchableOpacity onPress={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1">
             <ChevronLeft color="#64748b" size={16} />
           </TouchableOpacity>
-          <Text className="text-slate-800 font-bold mx-1 text-xs">{format(currentMonth, 'MMM yy')}</Text>
+          <Text className="text-slate-800 dark:text-slate-200 font-bold mx-1 text-xs">{format(currentMonth, 'MMM yy')}</Text>
           <TouchableOpacity onPress={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1">
             <ChevronRight color="#64748b" size={16} />
           </TouchableOpacity>
@@ -93,14 +93,14 @@ export default function StatsScreen() {
       </View>
 
       {/* Main KPI Card */}
-      <View className="bg-white rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100">
-        <Text className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 text-center">
+      <View className="bg-white dark:bg-slate-900 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-800">
+        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider mb-2 text-center">
           Total Spent This Month
         </Text>
-        <Text className="text-slate-900 font-black text-5xl text-center mb-1">
+        <Text className="text-slate-900 dark:text-slate-100 font-black text-5xl text-center mb-1">
           ${totalSpent.toFixed(0)}
         </Text>
-        <Text className="text-slate-400 font-medium text-sm text-center mb-6">
+        <Text className="text-slate-400 dark:text-slate-500 font-medium text-sm text-center mb-6">
           of ${totalExpected.toFixed(0)} expected
         </Text>
 
@@ -111,15 +111,15 @@ export default function StatsScreen() {
         />
         
         <View className="flex-row justify-between mt-3">
-          <Text className="text-slate-500 font-bold text-xs">0%</Text>
-          <Text className={`font-bold text-xs ${isOverTotal ? 'text-red-500' : 'text-slate-500'}`}>
+          <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-xs">0%</Text>
+          <Text className={`font-bold text-xs ${isOverTotal ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
             {totalPercentage.toFixed(1)}%
           </Text>
         </View>
       </View>
 
       {/* Category Breakdown */}
-      <Text className="text-xl font-extrabold text-slate-800 mb-4 tracking-tight">Category Breakdown</Text>
+      <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-4 tracking-tight">Category Breakdown</Text>
       
       {budgetStatuses.map((status, index) => {
         const catPercentage = status.expectedMonthlyBudget > 0 
@@ -131,20 +131,20 @@ export default function StatsScreen() {
         const color = catIsOver ? ['#ef4444', '#b91c1c'] as const : [baseColor, baseColor] as const;
 
         return (
-          <View key={status.category.id} className="bg-white rounded-3xl p-5 mb-4 shadow-sm border border-slate-100">
+          <View key={status.category.id} className="bg-white dark:bg-slate-900 rounded-3xl p-5 mb-4 shadow-sm border border-slate-100 dark:border-slate-800">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-row items-center flex-1">
                 <View style={{ backgroundColor: `${baseColor}15` }} className="w-10 h-10 rounded-xl items-center justify-center mr-3">
                   {renderIcon(status.category.icon, baseColor, 20)}
                 </View>
                 <View>
-                  <Text className="text-slate-800 font-extrabold text-lg">{status.category.name}</Text>
-                  <Text className="text-slate-400 font-medium text-xs mt-0.5">
+                  <Text className="text-slate-800 dark:text-slate-200 font-extrabold text-lg">{status.category.name}</Text>
+                  <Text className="text-slate-400 dark:text-slate-500 font-medium text-xs mt-0.5">
                     ${status.spentThisMonth.toFixed(0)} / ${status.expectedMonthlyBudget.toFixed(0)}
                   </Text>
                 </View>
               </View>
-              <Text className={`font-bold text-sm ${catIsOver ? 'text-red-500' : 'text-slate-600'}`}>
+              <Text className={`font-bold text-sm ${catIsOver ? 'text-red-500' : 'text-slate-600 dark:text-slate-300'}`}>
                 {catPercentage.toFixed(0)}%
               </Text>
             </View>

@@ -13,6 +13,10 @@ export const resources = {
         alreadyHaveAccount: 'Already have an account? ',
         dontHaveAccount: "Don't have an account? ",
       },
+      settings: {
+        switchLanguage: 'Switch Language',
+        currentLanguage: 'Current: English',
+      },
       alerts: {
         error: 'Error',
         enterCredentials: 'Please enter email and password',
@@ -38,6 +42,10 @@ export const resources = {
         orContinueWith: '或使用以下方式繼續',
         alreadyHaveAccount: '已經有帳號？ ',
         dontHaveAccount: '還沒有帳號？ ',
+      },
+      settings: {
+        switchLanguage: '切換語言',
+        currentLanguage: '目前：中文',
       },
       alerts: {
         error: '錯誤',
