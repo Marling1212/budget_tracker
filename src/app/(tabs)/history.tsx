@@ -70,7 +70,7 @@ export default function HistoryScreen() {
         const noteText = t.note?.toLowerCase() || '';
         const cat = categories.find(c => c.id === t.category_id);
         const catName = cat?.name.toLowerCase() || '';
-        const tagsText = t.tags ? t.tags.join(' ').toLowerCase() : '';
+        const tagsText = t.tags && Array.isArray(t.tags) ? t.tags.map(tag => '#' + tag).join(' ').toLowerCase() : '';
         
         const combinedText = `${noteText} ${catName} ${tagsText}`;
         
