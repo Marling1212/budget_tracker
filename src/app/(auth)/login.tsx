@@ -53,7 +53,7 @@ export default function Login() {
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-[#F8FAFC] dark:bg-slate-950"
+      className="flex-1 bg-[#F8FAFC] dark:bg-slate-900"
     >
       <View className="flex-1 justify-center px-6">
         <View className="mb-10 mt-10">
@@ -65,9 +65,9 @@ export default function Login() {
           </Text>
         </View>
 
-        <View className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 mb-8">
+        <View className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-8">
           <View className="mb-6 space-y-4">
-            <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 h-14 mb-4">
+            <View className="flex-row items-center bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 h-14 mb-4">
               <Mail color="#94a3b8" size={20} />
               <TextInput
                 className="flex-1 text-slate-800 dark:text-slate-200 ml-3 text-base font-medium"
@@ -80,7 +80,7 @@ export default function Login() {
               />
             </View>
 
-            <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 h-14">
+            <View className="flex-row items-center bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 h-14">
               <Lock color="#94a3b8" size={20} />
               <TextInput
                 className="flex-1 text-slate-800 dark:text-slate-200 ml-3 text-base font-medium"
@@ -123,7 +123,7 @@ export default function Login() {
           <View className="flex-row justify-between" style={{ gap: 12 }}>
             <TouchableOpacity 
               onPress={() => handleOAuth('Google')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 py-3 rounded-2xl items-center justify-center flex-row shadow-sm"
+              className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-3 rounded-2xl items-center justify-center flex-row shadow-sm"
             >
               <Globe color="#db4437" size={20} />
               <Text className="ml-2 font-bold text-slate-700">Google</Text>

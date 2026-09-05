@@ -11,7 +11,7 @@ export type Category = {
 
 export type Transaction = {
   id: string; // uuid
-  category_id: string; // uuid
+  category_id: string | null; // uuid
   amount: number;
   date: string; // YYYY-MM-DD
   note: string | null;
@@ -24,7 +24,7 @@ export type Transaction = {
 
 export type RecurringTransaction = {
   id: string; // uuid
-  category_id: string; // uuid
+  category_id: string | null; // uuid
   amount: number;
   note: string | null;
   frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';

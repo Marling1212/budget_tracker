@@ -204,21 +204,21 @@ export default function HistoryScreen() {
 
   if (loading && transactions.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950">
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900">
         <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-[#F8FAFC] dark:bg-slate-950">
-      <View className="pt-12 px-5 pb-4 bg-white dark:bg-slate-900 shadow-sm border-b border-slate-100 dark:border-slate-800 z-10">
+    <View className="flex-1 bg-[#F8FAFC] dark:bg-slate-900">
+      <View className="pt-12 px-5 pb-4 bg-white dark:bg-slate-800 shadow-sm border-b border-slate-100 dark:border-slate-700 z-10">
         <View className="flex-row justify-between items-center mb-4">
           <View>
             <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">History</Text>
             <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium text-sm mt-1">Review and manage your expenses</Text>
           </View>
-          <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700">
+          <View className="flex-row items-center bg-slate-50 dark:bg-slate-700 rounded-full px-3 py-1.5 border border-slate-200 dark:border-slate-700">
             <TouchableOpacity onPress={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1">
               <ChevronLeft color="#64748b" size={20} />
             </TouchableOpacity>
@@ -230,7 +230,7 @@ export default function HistoryScreen() {
         </View>
 
         {/* Search Bar */}
-        <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 rounded-2xl px-4 py-3 border border-slate-200 dark:border-slate-700">
+        <View className="flex-row items-center bg-slate-50 dark:bg-slate-700 rounded-2xl px-4 py-3 border border-slate-200 dark:border-slate-700">
           <Search color="#94a3b8" size={20} className="mr-2" />
           <TextInput
             className="flex-1 text-slate-800 dark:text-slate-200 font-medium"
@@ -254,7 +254,7 @@ export default function HistoryScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-1">
             <TouchableOpacity 
               onPress={() => setSelectedCategory('ALL')}
-              className={`px-4 py-2 rounded-full mr-2 ${selectedCategory === 'ALL' ? 'bg-indigo-600' : 'bg-slate-100 dark:bg-slate-800'}`}
+              className={`px-4 py-2 rounded-full mr-2 ${selectedCategory === 'ALL' ? 'bg-indigo-600' : 'bg-slate-100 dark:bg-slate-700'}`}
             >
               <Text className={`font-bold text-xs ${selectedCategory === 'ALL' ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>
                 All Categories
@@ -264,7 +264,7 @@ export default function HistoryScreen() {
               <TouchableOpacity 
                 key={cat.id}
                 onPress={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-full mr-2 ${selectedCategory === cat.id ? 'bg-indigo-600' : 'bg-slate-100 dark:bg-slate-800'}`}
+                className={`px-4 py-2 rounded-full mr-2 ${selectedCategory === cat.id ? 'bg-indigo-600' : 'bg-slate-100 dark:bg-slate-700'}`}
               >
                 <Text className={`font-bold text-xs ${selectedCategory === cat.id ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>
                   {cat.name}
@@ -293,7 +293,7 @@ export default function HistoryScreen() {
             : title;
           
           return (
-            <View className="bg-[#F8FAFC] dark:bg-slate-950 py-2 mb-2 mt-4">
+            <View className="bg-[#F8FAFC] dark:bg-slate-900 py-2 mb-2 mt-4">
               <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm tracking-wider uppercase">
                 {formattedDate}
               </Text>
@@ -306,7 +306,7 @@ export default function HistoryScreen() {
           return (
             <TouchableOpacity 
               onPress={() => openEditModal(item)}
-              className="bg-white dark:bg-slate-900 rounded-3xl p-4 mb-3 shadow-sm border border-slate-100 dark:border-slate-800 flex-row items-center justify-between"
+              className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-3 shadow-sm border border-slate-100 dark:border-slate-700 flex-row items-center justify-between"
             >
               <View className="flex-row items-center flex-1">
                 <View style={{ backgroundColor: `${baseColor}15` }} className="w-12 h-12 rounded-2xl items-center justify-center mr-4">
@@ -340,26 +340,26 @@ export default function HistoryScreen() {
         animationType="slide"
         transparent={true}
       >
-        <View className="flex-1 justify-end bg-slate-900/50 dark:bg-slate-950/80">
-          <View className="bg-white dark:bg-slate-900 rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[85%]">
+        <View className="flex-1 justify-end bg-slate-900/50 dark:bg-slate-900/80">
+          <View className="bg-white dark:bg-slate-800 rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[85%]">
             <View className="flex-row justify-between items-center mb-8">
               <Text className="text-2xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">Edit Transaction</Text>
-              <TouchableOpacity onPress={() => setEditingTransaction(null)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full">
+              <TouchableOpacity onPress={() => setEditingTransaction(null)} className="p-2 bg-slate-100 dark:bg-slate-700 rounded-full">
                 <X color="#64748b" size={20} />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              <View className="flex-row bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
+              <View className="flex-row bg-slate-100 dark:bg-slate-700 p-1 rounded-xl mb-6">
                 <TouchableOpacity
                   onPress={() => setEditType('EXPENSE')}
-                  className={`flex-1 py-3 rounded-lg items-center ${editType === 'EXPENSE' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
+                  className={`flex-1 py-3 rounded-lg items-center ${editType === 'EXPENSE' ? 'bg-white dark:bg-slate-800 shadow-sm' : ''}`}
                 >
                   <Text className={`font-bold ${editType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Expense</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setEditType('INCOME')}
-                  className={`flex-1 py-3 rounded-lg items-center ${editType === 'INCOME' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
+                  className={`flex-1 py-3 rounded-lg items-center ${editType === 'INCOME' ? 'bg-white dark:bg-slate-800 shadow-sm' : ''}`}
                 >
                   <Text className={`font-bold ${editType === 'INCOME' ? 'text-green-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>Income</Text>
                 </TouchableOpacity>
@@ -367,7 +367,7 @@ export default function HistoryScreen() {
 
               <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Amount ($)</Text>
               <TextInput
-                className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-6 text-3xl font-black text-slate-800 dark:text-slate-200"
+                className="border-b-2 border-slate-100 dark:border-slate-700 py-2 mb-6 text-3xl font-black text-slate-800 dark:text-slate-200"
                 keyboardType="numbers-and-punctuation"
                 value={editAmount}
                 onChangeText={setEditAmount}
@@ -383,7 +383,7 @@ export default function HistoryScreen() {
               </View>
               <TouchableOpacity 
                 onPress={() => setShowDatePicker(true)}
-                className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-6"
+                className="border-b-2 border-slate-100 dark:border-slate-700 py-2 mb-6"
               >
                 <Text className="text-xl font-bold text-slate-800 dark:text-slate-200">{editDate}</Text>
               </TouchableOpacity>
@@ -401,14 +401,14 @@ export default function HistoryScreen() {
 
               <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Note (Optional)</Text>
               <TextInput
-                className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-6 text-xl font-bold text-slate-800 dark:text-slate-200"
+                className="border-b-2 border-slate-100 dark:border-slate-700 py-2 mb-6 text-xl font-bold text-slate-800 dark:text-slate-200"
                 value={editNote}
                 onChangeText={setEditNote}
               />
 
               <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">Tags (Optional)</Text>
               <TextInput
-                className="border-b-2 border-slate-100 dark:border-slate-800 py-2 mb-8 text-xl font-bold text-slate-800 dark:text-slate-200"
+                className="border-b-2 border-slate-100 dark:border-slate-700 py-2 mb-8 text-xl font-bold text-slate-800 dark:text-slate-200"
                 placeholder="e.g. vacation, coffee"
                 placeholderTextColor="#cbd5e1"
                 value={editTagsInput}
@@ -424,7 +424,7 @@ export default function HistoryScreen() {
                     className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                       editCategoryId === cat.id 
                         ? 'border-indigo-600 bg-indigo-50' 
-                        : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
+                        : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800'
                     }`}
                   >
                     <Text className={`font-bold ${editCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
@@ -445,7 +445,7 @@ export default function HistoryScreen() {
                         className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                           editAccountId === acc.id 
                             ? 'border-indigo-600 bg-indigo-50' 
-                            : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
+                            : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800'
                         }`}
                       >
                         <Text className={`font-bold ${editAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
@@ -458,7 +458,7 @@ export default function HistoryScreen() {
                       className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                         editAccountId === null 
                           ? 'border-indigo-600 bg-indigo-50' 
-                          : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
+                          : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800'
                       }`}
                     >
                       <Text className={`font-bold ${editAccountId === null ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>

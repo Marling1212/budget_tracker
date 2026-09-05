@@ -105,8 +105,8 @@ function TwoVesselNode({
         className="items-center justify-between"
       >
       {/* Top Container: Daily Glass */}
-      <View className="w-full h-[140px] bg-white dark:bg-slate-900 rounded-t-[70px] rounded-b-3xl shadow-sm border-4 border-slate-100 dark:border-slate-800 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-800" />
+      <View className="w-full h-[140px] bg-white dark:bg-slate-800 rounded-t-[70px] rounded-b-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View 
           style={[
             { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
@@ -121,7 +121,7 @@ function TwoVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-900/50 dark:bg-slate-950/80 p-2">
+        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-800/50 dark:bg-slate-900/80 p-2">
           {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
           <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
             {status.category.name} Daily
@@ -139,8 +139,8 @@ function TwoVesselNode({
       <View className="w-3 h-[10px] bg-slate-200 rounded-full" />
 
       {/* Bottom Container: Savings Vault */}
-      <View className="w-full h-[140px] bg-white dark:bg-slate-900 rounded-b-[70px] rounded-t-3xl shadow-sm border-4 border-slate-100 dark:border-slate-800 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-800" />
+      <View className="w-full h-[140px] bg-white dark:bg-slate-800 rounded-b-[70px] rounded-t-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View 
           style={[
             { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
@@ -155,7 +155,7 @@ function TwoVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-900/50 dark:bg-slate-950/80 p-2">
+        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-800/50 dark:bg-slate-900/80 p-2">
           <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center">
             Vault
           </Text>
@@ -227,8 +227,8 @@ function SingleVesselNode({
         }}
         className="items-center justify-center"
       >
-      <View className="w-full h-full bg-white dark:bg-slate-900 rounded-[70px] shadow-sm border-4 border-slate-100 dark:border-slate-800 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-800" />
+      <View className="w-full h-full bg-white dark:bg-slate-800 rounded-[70px] shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View 
           style={[
             { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
@@ -243,7 +243,7 @@ function SingleVesselNode({
           />
         </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-900/50 dark:bg-slate-950/80 p-2">
+        <View className="absolute inset-0 items-center justify-center bg-white dark:bg-slate-800/50 dark:bg-slate-900/80 p-2">
           {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
           <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
             {status.category.name}
@@ -349,7 +349,7 @@ export default function DashboardScreen() {
       safeAlert('Error', 'Please enter a valid amount or formula');
       return;
     }
-    if (!addCategoryId) {
+    if (!addCategoryId && addType === 'EXPENSE') {
       safeAlert('Error', 'Please select a category');
       return;
     }
@@ -363,7 +363,7 @@ export default function DashboardScreen() {
         const { error } = await supabase
           .from('recurring_transactions')
           .insert({
-            category_id: addCategoryId,
+            category_id: addCategoryId || null,
             amount: calculatedAmount,
             next_date: addDate,
             note: addNote || null,
@@ -377,7 +377,7 @@ export default function DashboardScreen() {
         const { error } = await supabase
           .from('transactions')
           .insert({
-            category_id: addCategoryId,
+            category_id: addCategoryId || null,
             amount: calculatedAmount,
             date: addDate,
             note: addNote || null,
@@ -477,7 +477,7 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950">
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900">
         <ActivityIndicator size="large" color="#0ea5e9" />
       </View>
     );
@@ -485,7 +485,7 @@ export default function DashboardScreen() {
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950 p-4">
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900 p-4">
         <Text className="text-red-500 text-center font-bold">{t('dashboard.failedToLoad')} {error.message || JSON.stringify(error)}</Text>
       </View>
     );
@@ -493,8 +493,8 @@ export default function DashboardScreen() {
 
   if (budgetStatuses.length === 0) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-950 p-4">
-        <View className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-800">
+      <View className="flex-1 items-center justify-center bg-[#F8FAFC] dark:bg-slate-900 p-4">
+        <View className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-700">
           <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">{t('dashboard.noCategories')}</Text>
           <Text className="text-slate-600 dark:text-slate-300 text-center">{t('dashboard.noCategoriesDesc')}</Text>
         </View>
@@ -505,7 +505,7 @@ export default function DashboardScreen() {
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
   return (
-    <GestureHandlerRootView className="flex-1 bg-[#F8FAFC] dark:bg-slate-950">
+    <GestureHandlerRootView className="flex-1 bg-[#F8FAFC] dark:bg-slate-900">
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
         <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.netWorth')}</Text>
         <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">${netWorth.toFixed(0)}</Text>
@@ -535,7 +535,7 @@ export default function DashboardScreen() {
           <TouchableOpacity 
             // @ts-ignore
             onPress={() => router.push('/stats')}
-            className="absolute bg-white dark:bg-slate-900 rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
+            className="absolute bg-white dark:bg-slate-800 rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
             style={{ 
               top: 1500 - 60, 
               left: 1500 - 60, 
@@ -605,11 +605,11 @@ export default function DashboardScreen() {
         animationType="slide"
         transparent={true}
       >
-        <View className="flex-1 justify-end bg-slate-900/50 dark:bg-slate-950/80">
-          <View className="bg-white dark:bg-slate-900 rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[90%]">
+        <View className="flex-1 justify-end bg-slate-900/50 dark:bg-slate-900/80">
+          <View className="bg-white dark:bg-slate-800 rounded-t-[40px] p-6 pt-8 pb-12 shadow-xl h-[90%]">
             <View className="flex-row justify-between items-center mb-8">
               <Text className="text-3xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">{t('expenseModal.addExpense')}</Text>
-              <TouchableOpacity onPress={() => setIsAddingExpense(false)} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
+              <TouchableOpacity onPress={() => setIsAddingExpense(false)} className="p-3 bg-slate-100 dark:bg-slate-700 rounded-full">
                 <X color="#64748b" size={24} />
               </TouchableOpacity>
             </View>
@@ -619,23 +619,23 @@ export default function DashboardScreen() {
               className="flex-1"
             >
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                <View className="flex-row bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
+                <View className="flex-row bg-slate-100 dark:bg-slate-700 p-1 rounded-xl mb-6">
                   <TouchableOpacity
                     onPress={() => setAddType('EXPENSE')}
-                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'EXPENSE' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
+                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'EXPENSE' ? 'bg-white dark:bg-slate-800 shadow-sm' : ''}`}
                   >
                     <Text className={`font-bold ${addType === 'EXPENSE' ? 'text-red-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>{t('expenseModal.expense')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setAddType('INCOME')}
-                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'INCOME' ? 'bg-white dark:bg-slate-900 shadow-sm' : ''}`}
+                    className={`flex-1 py-3 rounded-lg items-center ${addType === 'INCOME' ? 'bg-white dark:bg-slate-800 shadow-sm' : ''}`}
                   >
                     <Text className={`font-bold ${addType === 'INCOME' ? 'text-green-500' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>{t('expenseModal.income')}</Text>
                   </TouchableOpacity>
                 </View>
 
                 <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-2 text-sm uppercase tracking-wider">{t('expenseModal.amount')}</Text>
-                <View className="flex-row items-center border-b-2 border-slate-100 dark:border-slate-800 pb-2 mb-8">
+                <View className="flex-row items-center border-b-2 border-slate-100 dark:border-slate-700 pb-2 mb-8">
                   <Text className="text-4xl font-black text-slate-800 dark:text-slate-200 mr-2">$</Text>
                   <TextInput
                     className="flex-1 text-4xl font-black text-slate-800 dark:text-slate-200"
@@ -679,7 +679,7 @@ export default function DashboardScreen() {
                   <>
                     <TouchableOpacity 
                       onPress={() => setShowDatePicker(true)}
-                      className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-8"
+                      className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 mb-8"
                     >
                       <Text className="text-slate-800 dark:text-slate-200 font-bold text-lg">{addDate}</Text>
                     </TouchableOpacity>
@@ -702,27 +702,31 @@ export default function DashboardScreen() {
                   </>
                 )}
 
-                <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">{t('expenseModal.category')}</Text>
-                <View className="flex-row flex-wrap mb-8">
-                  {categories.map((cat) => (
-                    <TouchableOpacity
-                      key={cat.id}
-                      onPress={() => setAddCategoryId(cat.id)}
-                      className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
-                        addCategoryId === cat.id 
-                          ? 'border-indigo-600 bg-indigo-50' 
-                          : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
-                      }`}
-                    >
-                      <Text className={`font-bold ${addCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
-                        {cat.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                  {categories.length === 0 && (
-                    <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 italic">{t('expenseModal.noCategoriesAvail')}</Text>
-                  )}
-                </View>
+                {addType === 'EXPENSE' && (
+                  <>
+                    <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-4 text-sm uppercase tracking-wider">{t('expenseModal.category')}</Text>
+                    <View className="flex-row flex-wrap mb-8">
+                      {categories.map((cat) => (
+                        <TouchableOpacity
+                          key={cat.id}
+                          onPress={() => setAddCategoryId(cat.id)}
+                          className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
+                            addCategoryId === cat.id 
+                              ? 'border-indigo-600 bg-indigo-50' 
+                              : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800'
+                          }`}
+                        >
+                          <Text className={`font-bold ${addCategoryId === cat.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
+                            {cat.name}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                      {categories.length === 0 && (
+                        <Text className="text-slate-400 dark:text-slate-500 dark:text-slate-400 italic">{t('expenseModal.noCategoriesAvail')}</Text>
+                      )}
+                    </View>
+                  </>
+                )}
 
                 {accounts.length > 0 && (
                   <>
@@ -735,7 +739,7 @@ export default function DashboardScreen() {
                           className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                             selectedAccountId === acc.id 
                               ? 'border-indigo-600 bg-indigo-50' 
-                              : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
+                              : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800'
                           }`}
                         >
                           <Text className={`font-bold ${selectedAccountId === acc.id ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
@@ -748,7 +752,7 @@ export default function DashboardScreen() {
                         className={`px-5 py-3 rounded-full mr-3 mb-3 border-2 ${
                           selectedAccountId === null 
                             ? 'border-indigo-600 bg-indigo-50' 
-                            : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
+                            : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800'
                         }`}
                       >
                         <Text className={`font-bold ${selectedAccountId === null ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
@@ -761,7 +765,7 @@ export default function DashboardScreen() {
 
                 <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">{t('expenseModal.noteOpt')}</Text>
                 <TextInput
-                  className={`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base ${frequentNotes.length > 0 ? 'mb-3' : 'mb-8'}`}
+                  className={`bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base ${frequentNotes.length > 0 ? 'mb-3' : 'mb-8'}`}
                   placeholder={t('expenseModal.notePlaceholder')}
                   placeholderTextColor="#94a3b8"
                   value={addNote}
@@ -784,14 +788,14 @@ export default function DashboardScreen() {
 
                 <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold mb-3 text-sm uppercase tracking-wider">{t('expenseModal.tagsOpt')}</Text>
                 <TextInput
-                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base mb-8"
+                  className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-slate-800 dark:text-slate-200 font-medium text-base mb-8"
                   placeholder={t('expenseModal.tagsPlaceholder')}
                   placeholderTextColor="#94a3b8"
                   value={addTagsInput}
                   onChangeText={setAddTagsInput}
                 />
 
-                <View className="flex-row items-center justify-between mb-4 bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
+                <View className="flex-row items-center justify-between mb-4 bg-slate-50 dark:bg-slate-700 p-4 rounded-2xl">
                   <View className="flex-1 pr-4">
                     <Text className="text-slate-800 dark:text-slate-200 font-bold text-base mb-1">{t('expenseModal.recurring')}</Text>
                     <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 text-xs font-medium">{t('expenseModal.recurringDesc')}</Text>
@@ -813,7 +817,7 @@ export default function DashboardScreen() {
                           key={freq}
                           onPress={() => setFrequency(freq as any)}
                           className={`flex-1 items-center justify-center py-3 rounded-xl border-2 ${
-                            frequency === freq ? 'border-indigo-600 bg-indigo-50' : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900'
+                            frequency === freq ? 'border-indigo-600 bg-indigo-50' : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800'
                           }`}
                         >
                           <Text className={`font-bold text-xs ${frequency === freq ? 'text-indigo-600' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500 dark:text-slate-400 dark:text-slate-500'}`}>
