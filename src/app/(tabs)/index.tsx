@@ -35,29 +35,17 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'], // Indigo
 ] as const;
 
-function TwoVesselNode({ 
+
+function TwoVesselCard({ 
   status, 
   index, 
-  totalNodes,
   onDoubleTap
 }: { 
   status: BudgetStatus; 
   index: number; 
-  totalNodes: number;
   onDoubleTap: (categoryId: string) => void;
 }) {
   const { t } = useTranslation();
-  const CANVAS_CENTER = 1500;
-  
-  // Calculate node position on a circle
-  // Dynamically increase radius if there are many nodes so they don't overlap
-  const minSpacing = 280; // Minimum arc length per node
-  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(240, calculatedRadius); // Base radius of 280
-  
-  const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2; // Start from top (-90 deg)
-  const x = Math.cos(angle) * radius;
-  const y = Math.sin(angle) * radius;
 
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
@@ -66,20 +54,18 @@ function TwoVesselNode({
   const topIsOverBudget = status.todayRemaining < 0;
   const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
   const topFillPercentage = Math.max(0, Math.min(100, (status.todayRemaining / status.dailyBudget) * 100)) || 0;
-  const topTargetHeight = (topFillPercentage / 100) * 165;
+  const topTargetHeight = (topFillPercentage / 100) * 105;
   const topFillHeight = useSharedValue(0);
 
   // --- Bottom Container (Savings Vault) ---
   const bottomIsNegative = status.totalSaved < 0;
   const bottomColors = bottomIsNegative ? ['#ef4444', '#b91c1c'] as const : colors;
-  // Cap at 100% just for animation scale
   const bottomFillPercentage = Math.max(0, Math.min(100, (status.totalSaved / status.expectedMonthlyBudget) * 100)) || 0;
-  const bottomTargetHeight = (bottomFillPercentage / 100) * 165;
+  const bottomTargetHeight = (bottomFillPercentage / 100) * 105;
   const bottomFillHeight = useSharedValue(0);
 
   React.useEffect(() => {
     topFillHeight.value = withTiming(topTargetHeight, { duration: 1500 });
-    // Add a slight delay for the vault animation so it feels like a sequence
     setTimeout(() => {
       bottomFillHeight.value = withTiming(bottomTargetHeight, { duration: 1500 });
     }, 300);
@@ -94,106 +80,83 @@ function TwoVesselNode({
 
   return (
     <GestureDetector gesture={doubleTap}>
-      <Animated.View 
-        style={{
-          position: 'absolute',
-          top: CANVAS_CENTER + y - 170, // half of total height 340
-          left: CANVAS_CENTER + x - 90, // half of width 180
-          width: 180,
-          height: 340,
-        }}
-        className="items-center justify-between"
-      >
-      {/* Top Container: Daily Glass */}
-      <View className="w-full h-[165px] bg-white dark:bg-slate-800 rounded-t-[90px] rounded-b-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
-        <Animated.View 
-          style={[
-            { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
-            topAnimatedStyle
-          ]}
-        >
-          <LinearGradient
-            colors={topColors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 165 }}
-          />
-        </Animated.View>
+      <View style={{ width: '48%' }} className="h-[220px] mb-4 flex-col justify-between">
+        {/* Top Container: Daily Glass */}
+        <View className="w-full h-[106px] bg-white dark:bg-slate-800 rounded-t-3xl rounded-b-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
+          <Animated.View 
+            style={[
+              { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
+              topAnimatedStyle
+            ]}
+          >
+            <LinearGradient
+              colors={topColors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 105 }}
+            />
+          </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 56)}
-          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-lg uppercase tracking-wider text-center mt-1">
-            {status.category.name} Daily
-          </Text>
-          <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-4xl mt-1`}>
-            {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
-          </Text>
-          <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1`}>
-            {topIsOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday')}
-          </Text>
+          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
+            {renderIcon(status.category.icon, status.category.color || '#4f46e5', 24)}
+            <Text className="text-slate-900 dark:text-slate-100 font-bold text-xs uppercase tracking-wider text-center mt-1">
+              {status.category.name} Daily
+            </Text>
+            <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-xl mt-1`}>
+              {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
+            </Text>
+            <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
+              {topIsOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday')}
+            </Text>
+          </View>
+        </View>
+
+        {/* Bottom Container: Savings Vault */}
+        <View className="w-full h-[106px] bg-white dark:bg-slate-800 rounded-b-3xl rounded-t-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center mt-2">
+          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
+          <Animated.View 
+            style={[
+              { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
+              bottomAnimatedStyle
+            ]}
+          >
+            <LinearGradient
+              colors={bottomColors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 105 }}
+            />
+          </Animated.View>
+
+          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
+            <Text className="text-slate-900 dark:text-slate-100 font-bold text-xs uppercase tracking-wider text-center">
+              Vault
+            </Text>
+            <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-xl mt-1`}>
+              {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
+            </Text>
+            <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
+              {bottomIsNegative ? t('dashboard.deficit') : t('dashboard.totalSaved')}
+            </Text>
+          </View>
         </View>
       </View>
-
-      {/* Spacer / Pipe connector */}
-      <View className="w-3 h-[10px] bg-slate-200 rounded-full" />
-
-      {/* Bottom Container: Savings Vault */}
-      <View className="w-full h-[165px] bg-white dark:bg-slate-800 rounded-b-[90px] rounded-t-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
-        <Animated.View 
-          style={[
-            { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
-            bottomAnimatedStyle
-          ]}
-        >
-          <LinearGradient
-            colors={bottomColors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 165 }}
-          />
-        </Animated.View>
-
-        <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-lg uppercase tracking-wider text-center">
-            Vault
-          </Text>
-          <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-4xl mt-1`}>
-            {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
-          </Text>
-          <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1`}>
-            {bottomIsNegative ? t('dashboard.deficit') : t('dashboard.totalSaved')}
-          </Text>
-        </View>
-      </View>
-    </Animated.View>
     </GestureDetector>
   );
 }
 
-function SingleVesselNode({ 
+function SingleVesselCard({ 
   status, 
   index, 
-  totalNodes,
   onDoubleTap
 }: { 
   status: BudgetStatus; 
   index: number; 
-  totalNodes: number;
   onDoubleTap: (categoryId: string) => void;
 }) {
   const { t } = useTranslation();
-  const CANVAS_CENTER = 1500;
   
-  const minSpacing = 280;
-  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(240, calculatedRadius);
-  
-  const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2;
-  const x = Math.cos(angle) * radius;
-  const y = Math.sin(angle) * radius;
-
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
   
@@ -202,7 +165,7 @@ function SingleVesselNode({
   const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
   
   const fillPercentage = Math.max(0, Math.min(100, (remaining / status.expectedMonthlyBudget) * 100)) || 0;
-  const targetHeight = (fillPercentage / 100) * 340;
+  const targetHeight = (fillPercentage / 100) * 220;
   const fillHeight = useSharedValue(0);
 
   React.useEffect(() => {
@@ -217,46 +180,37 @@ function SingleVesselNode({
 
   return (
     <GestureDetector gesture={doubleTap}>
-      <Animated.View 
-        style={{
-          position: 'absolute',
-          top: CANVAS_CENTER + y - 170,
-          left: CANVAS_CENTER + x - 90,
-          width: 180,
-          height: 340,
-        }}
-        className="items-center justify-center"
-      >
-      <View className="w-full h-full bg-white dark:bg-slate-800 rounded-[90px] shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
-        <Animated.View 
-          style={[
-            { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
-            animatedStyle
-          ]}
-        >
-          <LinearGradient
-            colors={fillColors}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 340 }}
-          />
-        </Animated.View>
+      <View style={{ width: '48%' }} className="h-[220px] mb-4">
+        <View className="w-full h-full bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
+          <Animated.View 
+            style={[
+              { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
+              animatedStyle
+            ]}
+          >
+            <LinearGradient
+              colors={fillColors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 220 }}
+            />
+          </Animated.View>
 
-        <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 56)}
-          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-lg uppercase tracking-wider text-center mt-1">
-            {status.category.name}
-          </Text>
-          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-4xl mt-1`}>
-            {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
-          </Text>
-          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1 text-center`}>
-            {isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingMonthly')}
-          </Text>
+          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
+            {renderIcon(status.category.icon, status.category.color || '#4f46e5', 40)}
+            <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-2">
+              {status.category.name}
+            </Text>
+            <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>
+              {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
+            </Text>
+            <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1 text-center`}>
+              {isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingMonthly')}
+            </Text>
+          </View>
         </View>
       </View>
-    </Animated.View>
     </GestureDetector>
   );
 }
@@ -410,71 +364,6 @@ export default function DashboardScreen() {
     }
   };
 
-  // Gesture handling state
-  const scale = useSharedValue(1);
-  const savedScale = useSharedValue(1);
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const savedTranslateX = useSharedValue(0);
-  const savedTranslateY = useSharedValue(0);
-
-  const pinchGesture = Gesture.Pinch()
-    .onUpdate((e) => {
-      scale.value = savedScale.value * e.scale;
-    })
-    .onEnd(() => {
-      if (scale.value < 0.3) scale.value = withSpring(0.3);
-      if (scale.value > 3) scale.value = withSpring(3);
-      savedScale.value = scale.value;
-    });
-
-  const panGesture = Gesture.Pan()
-    .onUpdate((e) => {
-      translateX.value = savedTranslateX.value + e.translationX;
-      translateY.value = savedTranslateY.value + e.translationY;
-    })
-    .onEnd(() => {
-      savedTranslateX.value = translateX.value;
-      savedTranslateY.value = translateY.value;
-    });
-
-  const composedGestures = Gesture.Simultaneous(pinchGesture, panGesture);
-
-  const animatedCanvasStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { translateX: translateX.value },
-        { translateY: translateY.value },
-        { scale: scale.value },
-      ],
-    };
-  });
-
-  // Calculate radius to scale the center button proportionally
-  const totalNodes = budgetStatuses.length;
-  const minSpacing = 280;
-  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(240, calculatedRadius);
-  const buttonScale = Math.max(1, radius / 240);
-
-  // Auto-zoom to fit all nodes on screen upon load
-  React.useEffect(() => {
-    if (totalNodes > 0) {
-      const requiredExtent = radius + 200; // node half-height (145) + padding
-      const fitScale = Math.min(
-        width / (requiredExtent * 2),
-        height / (requiredExtent * 2),
-        1
-      );
-      
-      // Only auto-zoom if the user hasn't manually pinched yet (savedScale is still 1)
-      if (savedScale.value === 1) {
-        scale.value = withSpring(fitScale, { damping: 20, stiffness: 90 });
-        savedScale.value = fitScale;
-      }
-    }
-  }, [totalNodes, radius, width, height, scale, savedScale]);
-
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-slate-900">
@@ -491,103 +380,68 @@ export default function DashboardScreen() {
     );
   }
 
-  if (budgetStatuses.length === 0) {
-    return (
-      <View className="flex-1 items-center justify-center bg-slate-50 dark:bg-slate-900 p-4">
-        <View className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-700">
-          <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">{t('dashboard.noCategories')}</Text>
-          <Text className="text-slate-600 dark:text-slate-300 text-center">{t('dashboard.noCategoriesDesc')}</Text>
-        </View>
-      </View>
-    );
-  }
-
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
   return (
     <GestureHandlerRootView className="flex-1 bg-slate-50 dark:bg-slate-900">
-      <View className="absolute z-10 top-12 left-6" pointerEvents="none">
-        <Text className="text-slate-500 dark:text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.netWorth')}</Text>
-        <Text className="text-4xl font-extrabold text-slate-800 dark:text-slate-200 tracking-tight">${netWorth.toFixed(0)}</Text>
-        <Text className="text-slate-600 dark:text-slate-300 font-bold mt-1 text-xs">{t('dashboard.pinchToZoom')}</Text>
-      </View>
-
-      <GestureDetector gesture={composedGestures}>
-        <Animated.View 
-          style={[
-            {
-              position: 'absolute',
-              width: 3000,
-              height: 3000,
-              top: '50%',
-              left: '50%',
-              marginTop: -1500,
-              marginLeft: -1500,
-              backgroundColor: 'transparent',
-              // @ts-ignore (for web cursor)
-              cursor: 'grab' as any,
-              userSelect: 'none' as any
-            },
-            animatedCanvasStyle
-          ]}
-        >
-          {/* Center reference point for aesthetics and routing */}
-          <TouchableOpacity 
-            // @ts-ignore
-            onPress={() => router.push('/stats')}
-            className="absolute bg-white dark:bg-slate-800 rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
-            style={{ 
-              top: 1500 - 80, 
-              left: 1500 - 80, 
-              width: 160, 
-              height: 160,
-              transform: [{ scale: buttonScale }]
-            }}
-          >
-            <LinearGradient
-              colors={['#e0e7ff', '#ffffff']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ position: 'absolute', width: '100%', height: '100%' }}
-            />
-            <View className="items-center justify-center p-2">
-              <Text className="text-indigo-600 font-black text-sm text-center tracking-widest">{t('dashboard.remaining')}</Text>
-              <Text className="text-indigo-600 font-black text-3xl text-center mb-1">${totalRemainingToday.toFixed(0)}</Text>
-              <View className="bg-indigo-600 px-3 py-1 rounded-full">
-                <Text className="text-white font-bold text-xs text-center">{t('dashboard.stats')}</Text>
-              </View>
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
+        
+        {/* Hero Header */}
+        <View className="px-6 pt-16 pb-8 bg-indigo-600 rounded-b-[40px] shadow-lg mb-6">
+          <Text className="text-indigo-200 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.netWorth')}</Text>
+          <Text className="text-5xl font-extrabold text-white tracking-tight">${netWorth.toFixed(0)}</Text>
+          
+          <View className="mt-8 flex-row justify-between items-end">
+            <View>
+              <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{t('dashboard.remainingToday')}</Text>
+              <Text className="text-3xl font-black text-white">${totalRemainingToday.toFixed(0)}</Text>
             </View>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => router.push('/stats')} 
+              className="bg-white/20 rounded-full px-5 py-3 flex-row items-center"
+            >
+              <Text className="text-white font-extrabold text-sm uppercase tracking-wider">{t('dashboard.stats')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-          {budgetStatuses.map((status, index) => {
-            if (status.category.is_accumulative) {
-              return (
-                <TwoVesselNode 
-                  key={status.category.id}
-                  status={status}
-                  index={index}
-                  totalNodes={budgetStatuses.length}
-                  onDoubleTap={handleNodeDoubleTap}
-                />
-              );
-            } else {
-              return (
-                <SingleVesselNode 
-                  key={status.category.id}
-                  status={status}
-                  index={index}
-                  totalNodes={budgetStatuses.length}
-                  onDoubleTap={handleNodeDoubleTap}
-                />
-              );
-            }
-          })}
-        </Animated.View>
-      </GestureDetector>
+        {budgetStatuses.length === 0 ? (
+          <View className="px-6">
+            <View className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-700">
+              <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">{t('dashboard.noCategories')}</Text>
+              <Text className="text-slate-600 dark:text-slate-300 text-center">{t('dashboard.noCategoriesDesc')}</Text>
+            </View>
+          </View>
+        ) : (
+          <View className="px-6 flex-row flex-wrap justify-between">
+            {budgetStatuses.map((status, index) => {
+              if (status.category.is_accumulative) {
+                return (
+                  <TwoVesselCard 
+                    key={status.category.id}
+                    status={status}
+                    index={index}
+                    onDoubleTap={handleNodeDoubleTap}
+                  />
+                );
+              } else {
+                return (
+                  <SingleVesselCard 
+                    key={status.category.id}
+                    status={status}
+                    index={index}
+                    onDoubleTap={handleNodeDoubleTap}
+                  />
+                );
+              }
+            })}
+          </View>
+        )}
+      </ScrollView>
 
       {/* Floating Action Button (FAB) */}
       <TouchableOpacity
-        className="absolute bottom-8 right-6 w-16 h-16 rounded-full shadow-lg shadow-indigo-200 z-50 overflow-hidden items-center justify-center bg-indigo-500"
+        className="absolute bottom-8 right-6 w-16 h-16 rounded-full shadow-lg shadow-indigo-200 dark:shadow-slate-800 z-50 overflow-hidden items-center justify-center bg-indigo-500"
         onPress={() => setIsAddingExpense(true)}
       >
         <LinearGradient
@@ -599,7 +453,7 @@ export default function DashboardScreen() {
         <Plus color="white" size={32} style={{ zIndex: 10 }} />
       </TouchableOpacity>
 
-      {/* Add Expense Modal */}
+            {/* Add Expense Modal */}
       <Modal
         visible={isAddingExpense}
         animationType="slide"
