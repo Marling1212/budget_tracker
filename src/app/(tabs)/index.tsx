@@ -51,9 +51,9 @@ function TwoVesselNode({
   
   // Calculate node position on a circle
   // Dynamically increase radius if there are many nodes so they don't overlap
-  const minSpacing = 320; // Minimum arc length per node
+  const minSpacing = 440; // Minimum arc length per node
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(280, calculatedRadius); // Base radius of 280
+  const radius = Math.max(340, calculatedRadius); // Base radius of 280
   
   const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2; // Start from top (-90 deg)
   const x = Math.cos(angle) * radius;
@@ -66,7 +66,7 @@ function TwoVesselNode({
   const topIsOverBudget = status.todayRemaining < 0;
   const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
   const topFillPercentage = Math.max(0, Math.min(100, (status.todayRemaining / status.dailyBudget) * 100)) || 0;
-  const topTargetHeight = (topFillPercentage / 100) * 140;
+  const topTargetHeight = (topFillPercentage / 100) * 165;
   const topFillHeight = useSharedValue(0);
 
   // --- Bottom Container (Savings Vault) ---
@@ -74,7 +74,7 @@ function TwoVesselNode({
   const bottomColors = bottomIsNegative ? ['#ef4444', '#b91c1c'] as const : colors;
   // Cap at 100% just for animation scale
   const bottomFillPercentage = Math.max(0, Math.min(100, (status.totalSaved / status.expectedMonthlyBudget) * 100)) || 0;
-  const bottomTargetHeight = (bottomFillPercentage / 100) * 140;
+  const bottomTargetHeight = (bottomFillPercentage / 100) * 165;
   const bottomFillHeight = useSharedValue(0);
 
   React.useEffect(() => {
@@ -97,15 +97,15 @@ function TwoVesselNode({
       <Animated.View 
         style={{
           position: 'absolute',
-          top: CANVAS_CENTER + y - 145, // half of total height 290
-          left: CANVAS_CENTER + x - 70, // half of width 140
-          width: 140,
-          height: 290,
+          top: CANVAS_CENTER + y - 170, // half of total height 340
+          left: CANVAS_CENTER + x - 90, // half of width 180
+          width: 180,
+          height: 340,
         }}
         className="items-center justify-between"
       >
       {/* Top Container: Daily Glass */}
-      <View className="w-full h-[140px] bg-white dark:bg-slate-800 rounded-t-[70px] rounded-b-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+      <View className="w-full h-[165px] bg-white dark:bg-slate-800 rounded-t-[90px] rounded-b-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View 
           style={[
@@ -117,19 +117,19 @@ function TwoVesselNode({
             colors={topColors}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', bottom: 0, left: 0, width: 140, height: 140 }}
+            style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 165 }}
           />
         </Animated.View>
 
         <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
-          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
+          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 56)}
+          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-lg uppercase tracking-wider text-center mt-1">
             {status.category.name} Daily
           </Text>
-          <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>
+          <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-4xl mt-1`}>
             {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
           </Text>
-          <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
+          <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1`}>
             {topIsOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday')}
           </Text>
         </View>
@@ -139,7 +139,7 @@ function TwoVesselNode({
       <View className="w-3 h-[10px] bg-slate-200 rounded-full" />
 
       {/* Bottom Container: Savings Vault */}
-      <View className="w-full h-[140px] bg-white dark:bg-slate-800 rounded-b-[70px] rounded-t-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+      <View className="w-full h-[165px] bg-white dark:bg-slate-800 rounded-b-[90px] rounded-t-3xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View 
           style={[
@@ -151,18 +151,18 @@ function TwoVesselNode({
             colors={bottomColors}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', bottom: 0, left: 0, width: 140, height: 140 }}
+            style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 165 }}
           />
         </Animated.View>
 
         <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center">
+          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-lg uppercase tracking-wider text-center">
             Vault
           </Text>
-          <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>
+          <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-4xl mt-1`}>
             {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
           </Text>
-          <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
+          <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1`}>
             {bottomIsNegative ? t('dashboard.deficit') : t('dashboard.totalSaved')}
           </Text>
         </View>
@@ -186,9 +186,9 @@ function SingleVesselNode({
   const { t } = useTranslation();
   const CANVAS_CENTER = 1500;
   
-  const minSpacing = 320;
+  const minSpacing = 440;
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(280, calculatedRadius);
+  const radius = Math.max(340, calculatedRadius);
   
   const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2;
   const x = Math.cos(angle) * radius;
@@ -202,7 +202,7 @@ function SingleVesselNode({
   const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
   
   const fillPercentage = Math.max(0, Math.min(100, (remaining / status.expectedMonthlyBudget) * 100)) || 0;
-  const targetHeight = (fillPercentage / 100) * 290;
+  const targetHeight = (fillPercentage / 100) * 340;
   const fillHeight = useSharedValue(0);
 
   React.useEffect(() => {
@@ -220,14 +220,14 @@ function SingleVesselNode({
       <Animated.View 
         style={{
           position: 'absolute',
-          top: CANVAS_CENTER + y - 145,
-          left: CANVAS_CENTER + x - 70,
-          width: 140,
-          height: 290,
+          top: CANVAS_CENTER + y - 170,
+          left: CANVAS_CENTER + x - 90,
+          width: 180,
+          height: 340,
         }}
         className="items-center justify-center"
       >
-      <View className="w-full h-full bg-white dark:bg-slate-800 rounded-[70px] shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+      <View className="w-full h-full bg-white dark:bg-slate-800 rounded-[90px] shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View 
           style={[
@@ -239,19 +239,19 @@ function SingleVesselNode({
             colors={fillColors}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', bottom: 0, left: 0, width: 140, height: 290 }}
+            style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 340 }}
           />
         </Animated.View>
 
         <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 36)}
-          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">
+          {renderIcon(status.category.icon, status.category.color || '#4f46e5', 56)}
+          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-lg uppercase tracking-wider text-center mt-1">
             {status.category.name}
           </Text>
-          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-3xl mt-1`}>
+          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-4xl mt-1`}>
             {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
           </Text>
-          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1 text-center`}>
+          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1 text-center`}>
             {isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingMonthly')}
           </Text>
         </View>
@@ -452,10 +452,10 @@ export default function DashboardScreen() {
 
   // Calculate radius to scale the center button proportionally
   const totalNodes = budgetStatuses.length;
-  const minSpacing = 320;
+  const minSpacing = 440;
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(280, calculatedRadius);
-  const buttonScale = Math.max(1, radius / 280);
+  const radius = Math.max(340, calculatedRadius);
+  const buttonScale = Math.max(1, radius / 340);
 
   // Auto-zoom to fit all nodes on screen upon load
   React.useEffect(() => {
@@ -537,10 +537,10 @@ export default function DashboardScreen() {
             onPress={() => router.push('/stats')}
             className="absolute bg-white dark:bg-slate-800 rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
             style={{ 
-              top: 1500 - 60, 
-              left: 1500 - 60, 
-              width: 120, 
-              height: 120,
+              top: 1500 - 80, 
+              left: 1500 - 80, 
+              width: 160, 
+              height: 160,
               transform: [{ scale: buttonScale }]
             }}
           >
@@ -551,10 +551,10 @@ export default function DashboardScreen() {
               style={{ position: 'absolute', width: '100%', height: '100%' }}
             />
             <View className="items-center justify-center p-2">
-              <Text className="text-indigo-600 font-black text-[10px] text-center tracking-widest">{t('dashboard.remaining')}</Text>
-              <Text className="text-indigo-600 font-black text-xl text-center mb-1">${totalRemainingToday.toFixed(0)}</Text>
+              <Text className="text-indigo-600 font-black text-sm text-center tracking-widest">{t('dashboard.remaining')}</Text>
+              <Text className="text-indigo-600 font-black text-3xl text-center mb-1">${totalRemainingToday.toFixed(0)}</Text>
               <View className="bg-indigo-600 px-3 py-1 rounded-full">
-                <Text className="text-white font-bold text-[10px] text-center">{t('dashboard.stats')}</Text>
+                <Text className="text-white font-bold text-xs text-center">{t('dashboard.stats')}</Text>
               </View>
             </View>
           </TouchableOpacity>
