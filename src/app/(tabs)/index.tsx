@@ -51,9 +51,9 @@ function TwoVesselNode({
   
   // Calculate node position on a circle
   // Dynamically increase radius if there are many nodes so they don't overlap
-  const minSpacing = 440; // Minimum arc length per node
+  const minSpacing = 280; // Minimum arc length per node
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(340, calculatedRadius); // Base radius of 280
+  const radius = Math.max(240, calculatedRadius); // Base radius of 280
   
   const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2; // Start from top (-90 deg)
   const x = Math.cos(angle) * radius;
@@ -186,9 +186,9 @@ function SingleVesselNode({
   const { t } = useTranslation();
   const CANVAS_CENTER = 1500;
   
-  const minSpacing = 440;
+  const minSpacing = 280;
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(340, calculatedRadius);
+  const radius = Math.max(240, calculatedRadius);
   
   const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2;
   const x = Math.cos(angle) * radius;
@@ -452,10 +452,10 @@ export default function DashboardScreen() {
 
   // Calculate radius to scale the center button proportionally
   const totalNodes = budgetStatuses.length;
-  const minSpacing = 440;
+  const minSpacing = 280;
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
-  const radius = Math.max(340, calculatedRadius);
-  const buttonScale = Math.max(1, radius / 340);
+  const radius = Math.max(240, calculatedRadius);
+  const buttonScale = Math.max(1, radius / 240);
 
   // Auto-zoom to fit all nodes on screen upon load
   React.useEffect(() => {
