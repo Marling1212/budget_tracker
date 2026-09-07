@@ -36,8 +36,8 @@ function CategoryNode({ status, index, totalNodes, onDoubleTap, maxBudget }: { s
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
 
-  const baseScale = 0.45;
-  const maxScale = 1.65;
+  const baseScale = 0.55;
+  const maxScale = 1.45;
   const relativeBudget = maxBudget > 0 ? status.expectedMonthlyBudget / maxBudget : 1;
   const nodeScale = baseScale + (maxScale - baseScale) * relativeBudget;
 
