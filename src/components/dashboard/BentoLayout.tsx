@@ -39,11 +39,11 @@ function CategoryCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
           dailyQuota={status.dailyBudget}
           remainingToday={remaining}
         >
-          <View className="absolute inset-0 items-center justify-center p-2 pointer-events-none">
+          <View className="absolute inset-0 items-center justify-center bg-white/30 dark:bg-slate-900/40 p-2 pointer-events-none">
             {renderIcon(status.category.icon, status.category.color || '#4f46e5', 40)}
-            <Text className="text-white font-extrabold text-sm uppercase tracking-wider text-center mt-2">{status.category.name}</Text>
-            <Text className={`${isOverBudget ? 'text-red-300' : 'text-white'} font-black text-2xl mt-1`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
-            <Text className={`${isOverBudget ? 'text-red-200' : 'text-slate-100'} font-bold text-xs mt-1 text-center`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
+            <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-2">{status.category.name}</Text>
+            <Text className={`${isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
+            <Text className={`${isOverBudget ? 'text-red-500 dark:text-red-300' : 'text-slate-700 dark:text-slate-300'} font-bold text-xs mt-1 text-center`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
           </View>
         </LiquidAntigravityGlass>
       </View>
