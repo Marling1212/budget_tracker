@@ -1,224 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Dimensions, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView, Switch } from 'react-native';
 import { useBudget } from '../../hooks/useBudget';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from 'react-i18next';
-import { Plus, X } from 'lucide-react-native';
-import * as Icons from 'lucide-react-native';
+import { Plus, X, LayoutTemplate } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming, 
-  withSpring,
-  runOnJS
-} from 'react-native-reanimated';
-import { BudgetStatus } from '../../types/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const { width, height } = Dimensions.get('window');
+import CanvasLayout from '../../components/dashboard/CanvasLayout';
+import BentoLayout from '../../components/dashboard/BentoLayout';
+import ListLayout from '../../components/dashboard/ListLayout';
+import CarouselLayout from '../../components/dashboard/CarouselLayout';
 
-const renderIcon = (name: string, color: string, size: number) => {
-  const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
-  return <IconComponent color={color} size={size} />;
-};
-
-// Colors for the liquid fill based on index (fallback)
-const GRADIENTS = [
-  ['#3b82f6', '#8b5cf6'], // Blue to Purple
-  ['#ec4899', '#f43f5e'], // Pink to Rose
-  ['#10b981', '#059669'], // Emerald
-  ['#f59e0b', '#d97706'], // Amber
-  ['#6366f1', '#4f46e5'], // Indigo
-] as const;
-
-
-function TwoVesselCard({ 
-  status, 
-  index, 
-  onDoubleTap
-}: { 
-  status: BudgetStatus; 
-  index: number; 
-  onDoubleTap: (categoryId: string) => void;
-}) {
-  const { t } = useTranslation();
-
-  const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
-  const colors = [baseColor, baseColor] as const;
-  
-  // --- Top Container (Daily Glass) ---
-  const topIsOverBudget = status.todayRemaining < 0;
-  const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
-  const topFillPercentage = Math.max(0, Math.min(100, (status.todayRemaining / status.dailyBudget) * 100)) || 0;
-  const topTargetHeight = (topFillPercentage / 100) * 105;
-  const topFillHeight = useSharedValue(0);
-
-  // --- Bottom Container (Savings Vault) ---
-  const bottomIsNegative = status.totalSaved < 0;
-  const bottomColors = bottomIsNegative ? ['#ef4444', '#b91c1c'] as const : colors;
-  const bottomFillPercentage = Math.max(0, Math.min(100, (status.totalSaved / status.expectedMonthlyBudget) * 100)) || 0;
-  const bottomTargetHeight = (bottomFillPercentage / 100) * 105;
-  const bottomFillHeight = useSharedValue(0);
-
-  React.useEffect(() => {
-    topFillHeight.value = withTiming(topTargetHeight, { duration: 1500 });
-    setTimeout(() => {
-      bottomFillHeight.value = withTiming(bottomTargetHeight, { duration: 1500 });
-    }, 300);
-  }, [topTargetHeight, bottomTargetHeight]);
-
-  const topAnimatedStyle = useAnimatedStyle(() => ({ height: topFillHeight.value }));
-  const bottomAnimatedStyle = useAnimatedStyle(() => ({ height: bottomFillHeight.value }));
-
-  const doubleTap = Gesture.Tap().numberOfTaps(2).onEnd(() => {
-    runOnJS(onDoubleTap)(status.category.id);
-  });
-
-  return (
-    <GestureDetector gesture={doubleTap}>
-      <View style={{ width: '48%' }} className="h-[220px] mb-4 flex-col justify-between">
-        {/* Top Container: Daily Glass */}
-        <View className="w-full h-[106px] bg-white dark:bg-slate-800 rounded-t-3xl rounded-b-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
-          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
-          <Animated.View 
-            style={[
-              { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
-              topAnimatedStyle
-            ]}
-          >
-            <LinearGradient
-              colors={topColors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 105 }}
-            />
-          </Animated.View>
-
-          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-            {renderIcon(status.category.icon, status.category.color || '#4f46e5', 24)}
-            <Text className="text-slate-900 dark:text-slate-100 font-bold text-xs uppercase tracking-wider text-center mt-1">
-              {status.category.name} Daily
-            </Text>
-            <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-xl mt-1`}>
-              {topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}
-            </Text>
-            <Text className={`${topIsOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
-              {topIsOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday')}
-            </Text>
-          </View>
-        </View>
-
-        {/* Bottom Container: Savings Vault */}
-        <View className="w-full h-[106px] bg-white dark:bg-slate-800 rounded-b-3xl rounded-t-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center mt-2">
-          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
-          <Animated.View 
-            style={[
-              { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
-              bottomAnimatedStyle
-            ]}
-          >
-            <LinearGradient
-              colors={bottomColors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 105 }}
-            />
-          </Animated.View>
-
-          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-            <Text className="text-slate-900 dark:text-slate-100 font-bold text-xs uppercase tracking-wider text-center">
-              Vault
-            </Text>
-            <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-xl mt-1`}>
-              {bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}
-            </Text>
-            <Text className={`${bottomIsNegative ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-[10px] mt-1`}>
-              {bottomIsNegative ? t('dashboard.deficit') : t('dashboard.totalSaved')}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </GestureDetector>
-  );
-}
-
-function SingleVesselCard({ 
-  status, 
-  index, 
-  onDoubleTap
-}: { 
-  status: BudgetStatus; 
-  index: number; 
-  onDoubleTap: (categoryId: string) => void;
-}) {
-  const { t } = useTranslation();
-  
-  const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
-  const colors = [baseColor, baseColor] as const;
-  
-  const remaining = status.expectedMonthlyBudget - status.spentThisMonth;
-  const isOverBudget = remaining < 0;
-  const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
-  
-  const fillPercentage = Math.max(0, Math.min(100, (remaining / status.expectedMonthlyBudget) * 100)) || 0;
-  const targetHeight = (fillPercentage / 100) * 220;
-  const fillHeight = useSharedValue(0);
-
-  React.useEffect(() => {
-    fillHeight.value = withTiming(targetHeight, { duration: 1500 });
-  }, [targetHeight]);
-
-  const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
-
-  const doubleTap = Gesture.Tap().numberOfTaps(2).onEnd(() => {
-    runOnJS(onDoubleTap)(status.category.id);
-  });
-
-  return (
-    <GestureDetector gesture={doubleTap}>
-      <View style={{ width: '48%' }} className="h-[220px] mb-4">
-        <View className="w-full h-full bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
-          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
-          <Animated.View 
-            style={[
-              { position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' },
-              animatedStyle
-            ]}
-          >
-            <LinearGradient
-              colors={fillColors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 220 }}
-            />
-          </Animated.View>
-
-          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2">
-            {renderIcon(status.category.icon, status.category.color || '#4f46e5', 40)}
-            <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-2">
-              {status.category.name}
-            </Text>
-            <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>
-              {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
-            </Text>
-            <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-xs mt-1 text-center`}>
-              {isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingMonthly')}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </GestureDetector>
-  );
-}
+export type LayoutType = 'bento' | 'canvas' | 'list' | 'carousel';
 
 export default function DashboardScreen() {
   const { t } = useTranslation();
   const { categories, budgetStatuses, refreshData, loading, error, transactions, accounts, netWorth } = useBudget();
   const router = useRouter();
+  
+  // Layout Management
+  const [layout, setLayout] = useState<LayoutType>('bento');
+  
+  useEffect(() => {
+    AsyncStorage.getItem('@dashboard_layout').then((val) => {
+      if (val) setLayout(val as LayoutType);
+    });
+  }, []);
+  
+  const cycleLayout = () => {
+    const layouts: LayoutType[] = ['bento', 'list', 'carousel', 'canvas'];
+    const nextIdx = (layouts.indexOf(layout) + 1) % layouts.length;
+    const next = layouts[nextIdx];
+    setLayout(next);
+    AsyncStorage.setItem('@dashboard_layout', next);
+  };
   
   // State for Add Expense Modal
   const [isAddingExpense, setIsAddingExpense] = useState(false);
@@ -234,8 +53,7 @@ export default function DashboardScreen() {
   const [addType, setAddType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE');
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
-  // Set default account when accounts load or when modal opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (accounts.length > 0 && selectedAccountId === null) {
       setSelectedAccountId(accounts[0].id);
     }
@@ -260,25 +78,18 @@ export default function DashboardScreen() {
     }
   };
 
-  // Derive top frequent notes for the selected category
   const frequentNotes = React.useMemo(() => {
     if (!addCategoryId) return [];
-    
     const categoryTransactions = transactions.filter(t => t.category_id === addCategoryId && t.note && t.note.trim().length > 0);
-    
     const noteCounts: Record<string, number> = {};
     categoryTransactions.forEach(t => {
       const note = t.note!.trim();
       noteCounts[note] = (noteCounts[note] || 0) + 1;
     });
-    
-    return Object.entries(noteCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 4) // Top 4 frequent notes
-      .map(entry => entry[0]);
+    return Object.entries(noteCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(entry => entry[0]);
   }, [addCategoryId, transactions]);
 
-  const handleNodeDoubleTap = (categoryId: string) => {
+  const handleAddExpense = (categoryId: string) => {
     setAddCategoryId(categoryId);
     setAddType('EXPENSE');
     if (accounts.length > 0) setSelectedAccountId(accounts[0].id);
@@ -325,7 +136,6 @@ export default function DashboardScreen() {
             type: addType,
             account_id: selectedAccountId
           });
-
         if (error) throw error;
       } else {
         const { error } = await supabase
@@ -339,13 +149,11 @@ export default function DashboardScreen() {
             type: addType,
             account_id: selectedAccountId
           });
-
         if (error) throw error;
       }
       
       await refreshData(true);
       
-      // Reset form
       setAddAmount('');
       setAddNote('');
       setAddTagsInput('');
@@ -383,63 +191,23 @@ export default function DashboardScreen() {
   const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
 
   return (
-    <GestureHandlerRootView className="flex-1 bg-slate-50 dark:bg-slate-900">
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
-        
-        {/* Hero Header */}
-        <View className="px-6 pt-16 pb-8 bg-indigo-600 rounded-b-[40px] shadow-lg mb-6">
-          <Text className="text-indigo-200 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.netWorth')}</Text>
-          <Text className="text-5xl font-extrabold text-white tracking-tight">${netWorth.toFixed(0)}</Text>
-          
-          <View className="mt-8 flex-row justify-between items-end">
-            <View>
-              <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{t('dashboard.remainingToday')}</Text>
-              <Text className="text-3xl font-black text-white">${totalRemainingToday.toFixed(0)}</Text>
-            </View>
-            <TouchableOpacity 
-              onPress={() => router.push('/stats')} 
-              className="bg-white/20 rounded-full px-5 py-3 flex-row items-center"
-            >
-              <Text className="text-white font-extrabold text-sm uppercase tracking-wider">{t('dashboard.stats')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+    <View className="flex-1 bg-slate-50 dark:bg-slate-900">
+      
+      {layout === 'canvas' && <CanvasLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
+      {layout === 'bento' && <BentoLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
+      {layout === 'list' && <ListLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
+      {layout === 'carousel' && <CarouselLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
 
-        {budgetStatuses.length === 0 ? (
-          <View className="px-6">
-            <View className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-sm items-center border border-slate-100 dark:border-slate-700">
-              <Text className="text-slate-800 dark:text-slate-200 text-center text-lg font-bold mb-2">{t('dashboard.noCategories')}</Text>
-              <Text className="text-slate-600 dark:text-slate-300 text-center">{t('dashboard.noCategoriesDesc')}</Text>
-            </View>
-          </View>
-        ) : (
-          <View className="px-6 flex-row flex-wrap justify-between">
-            {budgetStatuses.map((status, index) => {
-              if (status.category.is_accumulative) {
-                return (
-                  <TwoVesselCard 
-                    key={status.category.id}
-                    status={status}
-                    index={index}
-                    onDoubleTap={handleNodeDoubleTap}
-                  />
-                );
-              } else {
-                return (
-                  <SingleVesselCard 
-                    key={status.category.id}
-                    status={status}
-                    index={index}
-                    onDoubleTap={handleNodeDoubleTap}
-                  />
-                );
-              }
-            })}
-          </View>
-        )}
-      </ScrollView>
+      {/* Layout Switcher Button */}
+      <TouchableOpacity 
+        onPress={cycleLayout}
+        className="absolute top-14 right-6 bg-white/20 dark:bg-slate-800/50 p-3 rounded-full shadow-sm z-50 border border-white/30"
+      >
+        <LayoutTemplate color="#ffffff" size={24} />
+      </TouchableOpacity>
+      
 
-      {/* Floating Action Button (FAB) */}
+            {/* Floating Action Button (FAB) */}
       <TouchableOpacity
         className="absolute bottom-8 right-6 w-16 h-16 rounded-full shadow-lg shadow-indigo-200 dark:shadow-slate-800 z-50 overflow-hidden items-center justify-center bg-indigo-500"
         onPress={() => setIsAddingExpense(true)}
@@ -713,6 +481,6 @@ export default function DashboardScreen() {
           </View>
         </View>
       </Modal>
-    </GestureHandlerRootView>
+    </View>
   );
 }
