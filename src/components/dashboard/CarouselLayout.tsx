@@ -75,7 +75,10 @@ export default function CarouselLayout({ budgetStatuses, onAddExpense, masterVau
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const currentDay = now.getDate();
   const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
-  const remainingPct = 100 - monthProgressPct;
+  
+  const totalSpentThisMonth = budgetStatuses.reduce((sum, s) => sum + s.spentThisMonth, 0);
+  const totalExpectedMonthlyBudget = budgetStatuses.reduce((sum, s) => sum + s.expectedMonthlyBudget, 0);
+  const spentPct = totalExpectedMonthlyBudget > 0 ? (totalSpentThisMonth / totalExpectedMonthlyBudget) * 100 : 0;
 
   return (
     <View className="flex-1">
@@ -83,10 +86,14 @@ export default function CarouselLayout({ budgetStatuses, onAddExpense, masterVau
         <Text className="text-indigo-200 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.masterVault', 'Master Vault')}</Text>
         <Text className="text-5xl font-extrabold text-white tracking-tight">${masterVaultValue.toFixed(0)}</Text>
         <View className="mt-8 flex-row justify-end items-end">
-          <View className="items-end">
-             <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{remainingPct.toFixed(0)}% Left</Text>
-             <View className="w-24 h-2 bg-indigo-800 rounded-full overflow-hidden mt-1">
-                <View className="h-full bg-red-400 rounded-full" style={{ width: `${remainingPct}%` }} />
+          <View className="flex-1 ml-8">
+             <View className="flex-row justify-between mb-1">
+               <Text className="text-indigo-200 font-bold text-[10px] uppercase">{t('dashboard.monthlySpent', 'Spent')}: {spentPct.toFixed(0)}%</Text>
+               <Text className="text-indigo-200 font-bold text-[10px] uppercase text-right">Time: {monthProgressPct.toFixed(0)}%</Text>
+             </View>
+             <View className="w-full h-2 bg-indigo-800/50 rounded-full mt-1 relative">
+                <View className="h-full bg-white rounded-full" style={{ width: `${Math.min(100, spentPct)}%` }} />
+                <View className="absolute top-0 bottom-0 w-1 bg-red-500 shadow-sm" style={{ left: `${Math.max(1, Math.min(99, monthProgressPct))}%`, marginLeft: -2 }} />
              </View>
           </View>
         </View>
