@@ -24,7 +24,7 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'],
 ] as const;
 
-function CategoryNode({ status, index, totalNodes, onDoubleTap }: { status: BudgetStatus; index: number; totalNodes: number; onDoubleTap: (id: string) => void }) {
+function CategoryNode({ status, index, totalNodes, onDoubleTap, maxBudget }: { status: BudgetStatus; index: number; totalNodes: number; onDoubleTap: (id: string) => void; maxBudget: number }) {
   const { t } = useTranslation();
   const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   
@@ -35,6 +35,11 @@ function CategoryNode({ status, index, totalNodes, onDoubleTap }: { status: Budg
   const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2;
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
+
+  const baseScale = 0.7;
+  const maxScale = 1.3;
+  const relativeBudget = maxBudget > 0 ? status.expectedMonthlyBudget / maxBudget : 1;
+  const nodeScale = baseScale + (maxScale - baseScale) * relativeBudget;
 
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
@@ -58,7 +63,7 @@ function CategoryNode({ status, index, totalNodes, onDoubleTap }: { status: Budg
   const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
 
   return (
-    <Animated.View style={{ position: 'absolute', top: CANVAS_CENTER + y - 170, left: CANVAS_CENTER + x - 90, width: 180, height: 340 }} className="items-center justify-center">
+    <Animated.View style={{ position: 'absolute', top: CANVAS_CENTER + y - 170, left: CANVAS_CENTER + x - 90, width: 180, height: 340, transform: [{ scale: nodeScale }] }} className="items-center justify-center">
       <Pressable onPress={handleDoubleTap} className="w-full h-full">
         <View className="w-full h-full bg-white dark:bg-slate-800 rounded-[90px] shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
           <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
@@ -115,6 +120,8 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
   const radius = Math.max(240, calculatedRadius);
   const buttonScale = Math.max(1, radius / 240);
+  
+  const maxBudget = Math.max(...budgetStatuses.map(s => s.expectedMonthlyBudget), 0);
 
   React.useEffect(() => {
     if (totalNodes > 0) {
@@ -175,7 +182,7 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
           </View>
 
           {budgetStatuses.map((status, index) => (
-            <CategoryNode key={status.category.id} status={status} index={index} totalNodes={totalNodes} onDoubleTap={onAddExpense} />
+            <CategoryNode key={status.category.id} status={status} index={index} totalNodes={totalNodes} onDoubleTap={onAddExpense} maxBudget={maxBudget} />
           ))}
         </Animated.View>
       </GestureDetector>
