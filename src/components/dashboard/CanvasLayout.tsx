@@ -53,13 +53,13 @@ const NodeScaleSlider = ({ extremeLevel }: { extremeLevel: Animated.SharedValue<
   }));
 
   return (
-    <View className="absolute z-50 top-12 right-6 items-end pointer-events-auto">
-      <Text className="text-slate-600 dark:text-slate-300 font-bold mb-2 text-xs">{t('dashboard.nodeScale', 'Node Scale')}</Text>
+    <View className="absolute z-50 bottom-12 left-6 items-start pointer-events-auto bg-white/80 dark:bg-slate-800/80 p-3 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+      <Text className="text-slate-600 dark:text-slate-300 font-bold mb-3 text-xs">{t('dashboard.nodeScale', 'Node Scale')}</Text>
       <View className="h-[24px] justify-center" style={{ width: SLIDER_WIDTH }}>
         <View className="absolute w-full h-2 bg-slate-300 dark:bg-slate-600 rounded-full" />
         <Animated.View className="absolute h-2 bg-indigo-500 rounded-full" style={animatedTrackStyle} />
         <GestureDetector gesture={panGesture}>
-          <Animated.View className="w-6 h-6 bg-white border-2 border-indigo-500 rounded-full shadow-md" style={animatedKnobStyle} />
+          <Animated.View className="absolute w-6 h-6 bg-white border-2 border-indigo-500 rounded-full shadow-md" style={animatedKnobStyle} />
         </GestureDetector>
       </View>
     </View>
