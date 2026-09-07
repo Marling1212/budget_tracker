@@ -55,11 +55,11 @@ const NodeScaleSlider = ({ extremeLevel }: { extremeLevel: Animated.SharedValue<
   return (
     <View className="absolute z-50 bottom-12 left-6 items-start pointer-events-auto bg-white/80 dark:bg-slate-800/80 p-3 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
       <Text className="text-slate-600 dark:text-slate-300 font-bold mb-3 text-xs">{t('dashboard.nodeScale', 'Node Scale')}</Text>
-      <View className="h-[24px] justify-center" style={{ width: SLIDER_WIDTH }}>
-        <View className="absolute w-full h-2 bg-slate-300 dark:bg-slate-600 rounded-full" />
-        <Animated.View className="absolute h-2 bg-indigo-500 rounded-full" style={animatedTrackStyle} />
+      <View style={{ height: 24, justifyContent: 'center', width: SLIDER_WIDTH }}>
+        <View style={{ position: 'absolute', left: 0, right: 0, height: 8, borderRadius: 4, backgroundColor: '#cbd5e1' }} />
+        <Animated.View style={[{ position: 'absolute', left: 0, height: 8, borderRadius: 4, backgroundColor: '#6366f1' }, animatedTrackStyle]} />
         <GestureDetector gesture={panGesture}>
-          <Animated.View className="absolute w-6 h-6 bg-white border-2 border-indigo-500 rounded-full shadow-md" style={animatedKnobStyle} />
+          <Animated.View style={[{ position: 'absolute', left: 0, width: KNOB_SIZE, height: KNOB_SIZE, borderRadius: KNOB_SIZE / 2, backgroundColor: 'white', borderWidth: 2, borderColor: '#6366f1', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 1.5, elevation: 3 }, animatedKnobStyle]} />
         </GestureDetector>
       </View>
     </View>
