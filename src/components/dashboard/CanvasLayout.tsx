@@ -24,7 +24,49 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'],
 ] as const;
 
-function CategoryNode({ status, index, totalNodes, onDoubleTap, maxBudget }: { status: BudgetStatus; index: number; totalNodes: number; onDoubleTap: (id: string) => void; maxBudget: number }) {
+const NodeScaleSlider = ({ extremeLevel }: { extremeLevel: Animated.SharedValue<number> }) => {
+  const { t } = useTranslation();
+  const SLIDER_WIDTH = 120;
+  const KNOB_SIZE = 24;
+  
+  const savedX = useSharedValue(extremeLevel.value * (SLIDER_WIDTH - KNOB_SIZE));
+  const translateX = useSharedValue(extremeLevel.value * (SLIDER_WIDTH - KNOB_SIZE));
+
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      let newX = savedX.value + e.translationX;
+      if (newX < 0) newX = 0;
+      if (newX > SLIDER_WIDTH - KNOB_SIZE) newX = SLIDER_WIDTH - KNOB_SIZE;
+      translateX.value = newX;
+      extremeLevel.value = newX / (SLIDER_WIDTH - KNOB_SIZE);
+    })
+    .onEnd(() => {
+      savedX.value = translateX.value;
+    });
+
+  const animatedKnobStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }]
+  }));
+  
+  const animatedTrackStyle = useAnimatedStyle(() => ({
+    width: translateX.value + KNOB_SIZE / 2
+  }));
+
+  return (
+    <View className="absolute z-50 top-12 right-6 items-end pointer-events-auto">
+      <Text className="text-slate-600 dark:text-slate-300 font-bold mb-2 text-xs">{t('dashboard.nodeScale', 'Node Scale')}</Text>
+      <View className="h-[24px] justify-center" style={{ width: SLIDER_WIDTH }}>
+        <View className="absolute w-full h-2 bg-slate-300 dark:bg-slate-600 rounded-full" />
+        <Animated.View className="absolute h-2 bg-indigo-500 rounded-full" style={animatedTrackStyle} />
+        <GestureDetector gesture={panGesture}>
+          <Animated.View className="w-6 h-6 bg-white border-2 border-indigo-500 rounded-full shadow-md" style={animatedKnobStyle} />
+        </GestureDetector>
+      </View>
+    </View>
+  );
+};
+
+function CategoryNode({ status, index, totalNodes, onDoubleTap, maxBudget, extremeLevel }: { status: BudgetStatus; index: number; totalNodes: number; onDoubleTap: (id: string) => void; maxBudget: number; extremeLevel: Animated.SharedValue<number> }) {
   const { t } = useTranslation();
   const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   
@@ -36,10 +78,16 @@ function CategoryNode({ status, index, totalNodes, onDoubleTap, maxBudget }: { s
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius;
 
-  const baseScale = 0.55;
-  const maxScale = 1.45;
   const relativeBudget = maxBudget > 0 ? status.expectedMonthlyBudget / maxBudget : 1;
-  const nodeScale = baseScale + (maxScale - baseScale) * relativeBudget;
+
+  const animatedScaleStyle = useAnimatedStyle(() => {
+    const baseScale = 1 - 0.55 * extremeLevel.value;
+    const maxScale = 1 + 0.65 * extremeLevel.value;
+    const scale = baseScale + (maxScale - baseScale) * relativeBudget;
+    return {
+      transform: [{ scale }]
+    };
+  });
 
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
@@ -63,7 +111,7 @@ function CategoryNode({ status, index, totalNodes, onDoubleTap, maxBudget }: { s
   const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
 
   return (
-    <Animated.View style={{ position: 'absolute', top: CANVAS_CENTER + y - 170, left: CANVAS_CENTER + x - 90, width: 180, height: 340, transform: [{ scale: nodeScale }] }} className="items-center justify-center">
+    <Animated.View style={[{ position: 'absolute', top: CANVAS_CENTER + y - 170, left: CANVAS_CENTER + x - 90, width: 180, height: 340 }, animatedScaleStyle]} className="items-center justify-center">
       <Pressable onPress={handleDoubleTap} className="w-full h-full">
         <View className="w-full h-full bg-white dark:bg-slate-800 rounded-[90px] shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
           <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
@@ -91,6 +139,8 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
   const translateY = useSharedValue(0);
   const savedTranslateX = useSharedValue(0);
   const savedTranslateY = useSharedValue(0);
+  
+  const extremeLevel = useSharedValue(0.5);
 
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => { scale.value = savedScale.value * e.scale; })
@@ -182,10 +232,12 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
           </View>
 
           {budgetStatuses.map((status, index) => (
-            <CategoryNode key={status.category.id} status={status} index={index} totalNodes={totalNodes} onDoubleTap={onAddExpense} maxBudget={maxBudget} />
+            <CategoryNode key={status.category.id} status={status} index={index} totalNodes={totalNodes} onDoubleTap={onAddExpense} maxBudget={maxBudget} extremeLevel={extremeLevel} />
           ))}
         </Animated.View>
       </GestureDetector>
+      
+      <NodeScaleSlider extremeLevel={extremeLevel} />
     </>
   );
 }
