@@ -33,13 +33,7 @@ function ListRow({ status, index, onDoubleTap }: { status: BudgetStatus; index: 
   
   const targetWidth = `${fillPercentage}%`;
   
-    const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const currentDay = now.getDate();
-  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
-  const remainingPct = 100 - monthProgressPct;
-
-  return (
+    return (
     <Pressable onPress={handleDoubleTap} className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-4 shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
       <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700/50" />
       <View className="absolute left-0 bottom-0 top-0 opacity-20" style={{ width: targetWidth }}>

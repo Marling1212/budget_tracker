@@ -42,13 +42,7 @@ function CarouselCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
   // Subtract padding from screen width to get card width
   const cardWidth = width - 48;
 
-    const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const currentDay = now.getDate();
-  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
-  const remainingPct = 100 - monthProgressPct;
-
-  return (
+    return (
     <Pressable onPress={handleDoubleTap} style={{ width: cardWidth }} className="mr-6">
       <View className="w-full h-[450px] bg-white dark:bg-slate-800 rounded-[60px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />

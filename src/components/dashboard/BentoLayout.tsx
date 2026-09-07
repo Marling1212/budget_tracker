@@ -46,13 +46,7 @@ function TwoVesselCard({ status, index, onDoubleTap }: { status: BudgetStatus; i
   const topAnimatedStyle = useAnimatedStyle(() => ({ height: topFillHeight.value }));
   const bottomAnimatedStyle = useAnimatedStyle(() => ({ height: bottomFillHeight.value }));
 
-    const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const currentDay = now.getDate();
-  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
-  const remainingPct = 100 - monthProgressPct;
-
-  return (
+    return (
     <Pressable style={{ width: '48%' }} className="h-[220px] mb-4 flex-col justify-between" onPress={handleDoubleTap}>
       <View className="w-full h-[106px] bg-white dark:bg-slate-800 rounded-t-3xl rounded-b-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
@@ -115,6 +109,12 @@ function SingleVesselCard({ status, index, onDoubleTap }: { status: BudgetStatus
 
 export default function BentoLayout({ budgetStatuses, onAddExpense, netWorth, totalRemainingToday }: { budgetStatuses: BudgetStatus[], onAddExpense: (id: string) => void, netWorth: number, totalRemainingToday: number }) {
   const { t } = useTranslation();
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
+  const remainingPct = 100 - monthProgressPct;
+
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
       <View className="px-6 pt-16 pb-8 bg-indigo-600 rounded-b-[40px] shadow-lg mb-6">
