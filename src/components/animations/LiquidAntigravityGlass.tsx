@@ -116,12 +116,12 @@ export default function LiquidAntigravityGlass({
   });
 
   // The Wave Container Style
-  // By translating the container down based on liquidHeight,
-  // the wave crest sits exactly at liquidHeight from the top.
+  // The Animated.View has height 4000, and the wave is drawn at the bottom (y=0 in SVG, but viewBox maps it to the bottom of the SVG).
+  // To place the wave at exactly `liquidHeight`, we translate the container so its bottom edge aligns with `liquidHeight`.
   const animatedLiquidContainerStyle = useAnimatedStyle(() => {
     return {
       transform: [
-        { translateY: liquidHeight.value },
+        { translateY: liquidHeight.value - 4000 },
         { translateX: waveOffset.value },
       ],
     };
@@ -150,8 +150,8 @@ export default function LiquidAntigravityGlass({
   return (
     <View style={[{ width, height, overflow: 'hidden' }, styles.container]}>
       {/* 1. The Liquid Layer */}
-      <Animated.View style={[StyleSheet.absoluteFill, animatedLiquidContainerStyle]}>
-        <Svg width={width * 2} height={4000} style={{ position: 'absolute', bottom: 0 }}>
+      <Animated.View style={[{ position: 'absolute', top: 0, left: 0, width: width * 2, height: 4000 }, animatedLiquidContainerStyle]}>
+        <Svg width={width * 2} height={4000} viewBox={`0 -4000 ${width * 2} 4000`}>
           <AnimatedPath d={pathString} animatedProps={animatedPathProps} />
         </Svg>
       </Animated.View>
