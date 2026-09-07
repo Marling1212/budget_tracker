@@ -67,13 +67,13 @@ export default function LiquidAntigravityGlass({
       false
     );
 
-    // 3. Animate Bubbles (Zero-G Effect from bottom to top)
+    // 3. Animate Bubbles (Inverted buoyancy: they float from ceiling down to the wave surface)
     const animateBubble = (y: Animated.SharedValue<number>, x: Animated.SharedValue<number>, delay: number, speed: number) => {
       setTimeout(() => {
         y.value = withRepeat(
           withSequence(
-            withTiming(height, { duration: 0 }),
-            withTiming(-50, { duration: speed, easing: Easing.out(Easing.ease) })
+            withTiming(-20, { duration: 0 }),
+            withTiming(targetLiquidHeight, { duration: speed, easing: Easing.out(Easing.ease) })
           ),
           -1,
           false
@@ -171,7 +171,7 @@ export default function LiquidAntigravityGlass({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#0f172a', // Dark void space for empty area
+    backgroundColor: 'transparent', // Let the card's native background show through for empty space
     borderRadius: 24,
   },
   bubble: {
