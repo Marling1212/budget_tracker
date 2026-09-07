@@ -100,7 +100,7 @@ export default function LiquidAntigravityGlass({
 
   // --- Animations ---
   // The SVG mask represents the EMPTY space (matches the card background)
-  const emptySpaceColor = isDark ? '#1e293b' : '#ffffff'; // slate-800 or white
+  const emptySpaceColor = isDark ? '#334155' : '#ffffff'; // slate-700 (lighter gray) or white
   const animatedPathProps = useAnimatedProps(() => {
     return { fill: emptySpaceColor };
   });
