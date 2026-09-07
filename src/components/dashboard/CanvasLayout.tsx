@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, Text, Dimensions, Pressable } from 'react-native';
+import { View, Text, Dimensions, Pressable, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, runOnJS } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated';
 import { BudgetStatus } from '../../../types/database';
 import { useTranslation } from 'react-i18next';
+import { useDoubleTap } from '../../hooks/useDoubleTap';
 import * as Icons from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
+const CANVAS_CENTER = 1500;
 
 const renderIcon = (name: string, color: string, size: number) => {
   const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
@@ -22,9 +24,82 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'],
 ] as const;
 
-function CanvasNode({ status, index, totalNodes, onLongPress }: { status: BudgetStatus; index: number; totalNodes: number; onLongPress: (id: string) => void }) {
+function TwoVesselNode({ status, index, totalNodes, onDoubleTap }: { status: BudgetStatus; index: number; totalNodes: number; onDoubleTap: (id: string) => void }) {
   const { t } = useTranslation();
-  const CANVAS_CENTER = 1500;
+  const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
+  
+  const minSpacing = 280;
+  const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
+  const radius = Math.max(240, calculatedRadius);
+  
+  const angle = (index / totalNodes) * 2 * Math.PI - Math.PI / 2;
+  const x = Math.cos(angle) * radius;
+  const y = Math.sin(angle) * radius;
+
+  const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
+  const colors = [baseColor, baseColor] as const;
+  
+  // Top: Daily Glass
+  const topIsOverBudget = status.todayRemaining < 0;
+  const topColors = topIsOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
+  const topFillPercentage = Math.max(0, Math.min(100, (status.todayRemaining / status.dailyBudget) * 100)) || 0;
+  
+  // Bottom: Vault
+  const bottomIsNegative = status.totalSaved < 0;
+  const bottomColors = bottomIsNegative ? ['#ef4444', '#b91c1c'] as const : colors;
+  const bottomFillPercentage = Math.max(0, Math.min(100, (status.totalSaved / status.expectedMonthlyBudget) * 100)) || 0;
+  
+  const topTargetHeight = (topFillPercentage / 100) * 165;
+  const bottomTargetHeight = (bottomFillPercentage / 100) * 165;
+  
+  const topFillHeight = useSharedValue(0);
+  const bottomFillHeight = useSharedValue(0);
+
+  React.useEffect(() => {
+    topFillHeight.value = withTiming(topTargetHeight, { duration: 1500 });
+    setTimeout(() => { bottomFillHeight.value = withTiming(bottomTargetHeight, { duration: 1500 }); }, 300);
+  }, [topTargetHeight, bottomTargetHeight]);
+
+  const topAnimatedStyle = useAnimatedStyle(() => ({ height: topFillHeight.value }));
+  const bottomAnimatedStyle = useAnimatedStyle(() => ({ height: bottomFillHeight.value }));
+
+  return (
+    <Animated.View style={{ position: 'absolute', top: CANVAS_CENTER + y - 170, left: CANVAS_CENTER + x - 90, width: 180, height: 340 }}>
+      <Pressable onPress={handleDoubleTap} className="w-full h-full flex-col justify-between">
+        
+        {/* Daily Glass (Top) */}
+        <View className="w-full h-[166px] bg-white dark:bg-slate-800 rounded-t-[90px] rounded-b-2xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
+          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
+          <Animated.View style={[{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' }, topAnimatedStyle]}>
+            <LinearGradient colors={topColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 165 }} />
+          </Animated.View>
+          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2 pointer-events-none">
+            {renderIcon(status.category.icon, status.category.color || '#4f46e5', 32)}
+            <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">{status.category.name} Daily</Text>
+            <Text className={`${topIsOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-3xl mt-1`}>{topIsOverBudget ? '-' : ''}${Math.abs(status.todayRemaining).toFixed(0)}</Text>
+          </View>
+        </View>
+
+        {/* Vault (Bottom) */}
+        <View className="w-full h-[166px] bg-white dark:bg-slate-800 rounded-b-[90px] rounded-t-2xl shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center mt-2">
+          <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
+          <Animated.View style={[{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' }, bottomAnimatedStyle]}>
+            <LinearGradient colors={bottomColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', bottom: 0, left: 0, width: 180, height: 165 }} />
+          </Animated.View>
+          <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-2 pointer-events-none">
+            <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-1">Vault</Text>
+            <Text className={`${bottomIsNegative ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-3xl mt-1`}>{bottomIsNegative ? '-' : ''}${Math.abs(status.totalSaved).toFixed(0)}</Text>
+          </View>
+        </View>
+
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+function SingleVesselNode({ status, index, totalNodes, onDoubleTap }: { status: BudgetStatus; index: number; totalNodes: number; onDoubleTap: (id: string) => void }) {
+  const { t } = useTranslation();
+  const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   
   const minSpacing = 280;
   const calculatedRadius = (totalNodes * minSpacing) / (2 * Math.PI);
@@ -52,17 +127,8 @@ function CanvasNode({ status, index, totalNodes, onLongPress }: { status: Budget
   const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
 
   return (
-    <Animated.View 
-      style={{
-        position: 'absolute',
-        top: CANVAS_CENTER + y - 170,
-        left: CANVAS_CENTER + x - 90,
-        width: 180,
-        height: 340,
-      }}
-      className="items-center justify-center"
-    >
-      <Pressable onLongPress={() => onLongPress(status.category.id)} className="w-full h-full">
+    <Animated.View style={{ position: 'absolute', top: CANVAS_CENTER + y - 170, left: CANVAS_CENTER + x - 90, width: 180, height: 340 }} className="items-center justify-center">
+      <Pressable onPress={handleDoubleTap} className="w-full h-full">
         <View className="w-full h-full bg-white dark:bg-slate-800 rounded-[90px] shadow-sm border-4 border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
           <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
           <Animated.View style={[{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' }, animatedStyle]}>
@@ -130,6 +196,13 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, netWorth, t
     }
   }, [totalNodes, radius, width, height, scale, savedScale]);
 
+  // Month Progression logic
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
+  const remainingPct = 100 - monthProgressPct;
+
   return (
     <>
       <View className="absolute z-10 top-12 left-6" pointerEvents="none">
@@ -140,17 +213,35 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, netWorth, t
 
       <GestureDetector gesture={composedGestures}>
         <Animated.View style={[{ position: 'absolute', width: 3000, height: 3000, top: '50%', left: '50%', marginTop: -1500, marginLeft: -1500, backgroundColor: 'transparent' }, animatedCanvasStyle]}>
-          <View className="absolute bg-white dark:bg-slate-800 rounded-full items-center justify-center shadow-lg border-4 border-indigo-50 z-50 overflow-hidden"
-            style={{ top: 1500 - 80, left: 1500 - 80, width: 160, height: 160, transform: [{ scale: buttonScale }] }}>
-            <LinearGradient colors={['#e0e7ff', '#ffffff']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', width: '100%', height: '100%' }} />
-            <View className="items-center justify-center p-2">
-              <Text className="text-indigo-600 font-black text-sm text-center tracking-widest">{t('dashboard.remaining')}</Text>
-              <Text className="text-indigo-600 font-black text-3xl text-center mb-1">${totalRemainingToday.toFixed(0)}</Text>
+          
+          {/* Center node with progress indicator */}
+          <View className="absolute z-50 items-center justify-center" style={{ top: 1500 - 90, left: 1500 - 90, width: 180, height: 180, transform: [{ scale: buttonScale }] }}>
+            {/* Progression Ring Background */}
+            <View className="absolute inset-0 bg-slate-200 dark:bg-slate-700 rounded-full" />
+            
+            {/* Red Progression Fill - using a simple view that fills up proportionally from the bottom to represent time left */}
+            <View className="absolute inset-0 rounded-full overflow-hidden">
+               <View className="absolute bottom-0 left-0 right-0 bg-red-400" style={{ height: `${remainingPct}%` }} />
+            </View>
+            
+            {/* Inner Center Node */}
+            <View className="absolute bg-white dark:bg-slate-800 rounded-full items-center justify-center shadow-lg overflow-hidden border-[6px] border-white dark:border-slate-800"
+              style={{ width: 164, height: 164 }}>
+              <LinearGradient colors={['#e0e7ff', '#ffffff']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', width: '100%', height: '100%' }} />
+              <View className="items-center justify-center p-2">
+                <Text className="text-indigo-600 font-black text-sm text-center tracking-widest">{t('dashboard.remaining')}</Text>
+                <Text className="text-indigo-600 font-black text-3xl text-center mb-1">${totalRemainingToday.toFixed(0)}</Text>
+                <View className="bg-indigo-600 px-3 py-1 rounded-full mt-1">
+                  <Text className="text-white font-bold text-xs text-center">{remainingPct.toFixed(0)}% Left</Text>
+                </View>
+              </View>
             </View>
           </View>
-          {budgetStatuses.map((status, index) => (
-            <CanvasNode key={status.category.id} status={status} index={index} totalNodes={totalNodes} onLongPress={onAddExpense} />
-          ))}
+
+          {budgetStatuses.map((status, index) => {
+            if (status.category.is_accumulative) return <TwoVesselNode key={status.category.id} status={status} index={index} totalNodes={totalNodes} onDoubleTap={onAddExpense} />;
+            return <SingleVesselNode key={status.category.id} status={status} index={index} totalNodes={totalNodes} onDoubleTap={onAddExpense} />;
+          })}
         </Animated.View>
       </GestureDetector>
     </>

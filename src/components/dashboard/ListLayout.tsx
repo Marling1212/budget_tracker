@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { BudgetStatus } from '../../../types/database';
 import { useTranslation } from 'react-i18next';
+import { useDoubleTap } from '../../hooks/useDoubleTap';
 import * as Icons from 'lucide-react-native';
 
 const renderIcon = (name: string, color: string, size: number) => {
@@ -19,8 +20,9 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'],
 ] as const;
 
-function ListRow({ status, index, onLongPress }: { status: BudgetStatus; index: number; onLongPress: (id: string) => void }) {
+function ListRow({ status, index, onDoubleTap }: { status: BudgetStatus; index: number; onDoubleTap: (id: string) => void }) {
   const { t } = useTranslation();
+  const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
   
@@ -32,7 +34,7 @@ function ListRow({ status, index, onLongPress }: { status: BudgetStatus; index: 
   const targetWidth = `${fillPercentage}%`;
   
   return (
-    <Pressable onLongPress={() => onLongPress(status.category.id)} className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-4 shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+    <Pressable onPress={handleDoubleTap} className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-4 shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
       <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700/50" />
       <View className="absolute left-0 bottom-0 top-0 opacity-20" style={{ width: targetWidth }}>
          <LinearGradient colors={fillColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: '100%', height: '100%' }} />
@@ -85,7 +87,7 @@ export default function ListLayout({ budgetStatuses, onAddExpense, netWorth, tot
           </View>
         ) : (
           budgetStatuses.map((status, index) => (
-            <ListRow key={status.category.id} status={status} index={index} onLongPress={onAddExpense} />
+            <ListRow key={status.category.id} status={status} index={index} onDoubleTap={onAddExpense} />
           ))
         )}
       </View>

@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { BudgetStatus } from '../../../types/database';
 import { useTranslation } from 'react-i18next';
+import { useDoubleTap } from '../../hooks/useDoubleTap';
 import * as Icons from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -21,8 +22,9 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'],
 ] as const;
 
-function CarouselCard({ status, index, onLongPress }: { status: BudgetStatus; index: number; onLongPress: (id: string) => void }) {
+function CarouselCard({ status, index, onDoubleTap }: { status: BudgetStatus; index: number; onDoubleTap: (id: string) => void }) {
   const { t } = useTranslation();
+  const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
   
@@ -41,7 +43,7 @@ function CarouselCard({ status, index, onLongPress }: { status: BudgetStatus; in
   const cardWidth = width - 48;
 
   return (
-    <Pressable onLongPress={() => onLongPress(status.category.id)} style={{ width: cardWidth }} className="mr-6">
+    <Pressable onPress={handleDoubleTap} style={{ width: cardWidth }} className="mr-6">
       <View className="w-full h-[450px] bg-white dark:bg-slate-800 rounded-[60px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View style={[{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' }, animatedStyle]}>
@@ -103,7 +105,7 @@ export default function CarouselLayout({ budgetStatuses, onAddExpense, netWorth,
           decelerationRate="fast"
         >
           {budgetStatuses.map((status, index) => (
-            <CarouselCard key={status.category.id} status={status} index={index} onLongPress={onAddExpense} />
+            <CarouselCard key={status.category.id} status={status} index={index} onDoubleTap={onAddExpense} />
           ))}
         </ScrollView>
       )}

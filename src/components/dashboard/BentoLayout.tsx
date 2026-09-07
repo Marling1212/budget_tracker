@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { BudgetStatus } from '../../../types/database';
 import { useTranslation } from 'react-i18next';
+import { useDoubleTap } from '../../hooks/useDoubleTap';
 import * as Icons from 'lucide-react-native';
 
 const renderIcon = (name: string, color: string, size: number) => {
@@ -19,8 +20,9 @@ const GRADIENTS = [
   ['#6366f1', '#4f46e5'],
 ] as const;
 
-function TwoVesselCard({ status, index, onLongPress }: { status: BudgetStatus; index: number; onLongPress: (id: string) => void }) {
+function TwoVesselCard({ status, index, onDoubleTap }: { status: BudgetStatus; index: number; onDoubleTap: (id: string) => void }) {
   const { t } = useTranslation();
+  const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
   
@@ -45,7 +47,7 @@ function TwoVesselCard({ status, index, onLongPress }: { status: BudgetStatus; i
   const bottomAnimatedStyle = useAnimatedStyle(() => ({ height: bottomFillHeight.value }));
 
   return (
-    <Pressable style={{ width: '48%' }} className="h-[220px] mb-4 flex-col justify-between" onLongPress={() => onLongPress(status.category.id)}>
+    <Pressable style={{ width: '48%' }} className="h-[220px] mb-4 flex-col justify-between" onPress={handleDoubleTap}>
       <View className="w-full h-[106px] bg-white dark:bg-slate-800 rounded-t-3xl rounded-b-xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View style={[{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' }, topAnimatedStyle]}>
@@ -71,8 +73,9 @@ function TwoVesselCard({ status, index, onLongPress }: { status: BudgetStatus; i
   );
 }
 
-function SingleVesselCard({ status, index, onLongPress }: { status: BudgetStatus; index: number; onLongPress: (id: string) => void }) {
+function SingleVesselCard({ status, index, onDoubleTap }: { status: BudgetStatus; index: number; onDoubleTap: (id: string) => void }) {
   const { t } = useTranslation();
+  const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
   
@@ -87,7 +90,7 @@ function SingleVesselCard({ status, index, onLongPress }: { status: BudgetStatus
   const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
 
   return (
-    <Pressable style={{ width: '48%' }} className="h-[220px] mb-4" onLongPress={() => onLongPress(status.category.id)}>
+    <Pressable style={{ width: '48%' }} className="h-[220px] mb-4" onPress={handleDoubleTap}>
       <View className="w-full h-full bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
         <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
         <Animated.View style={[{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' }, animatedStyle]}>
@@ -128,8 +131,8 @@ export default function BentoLayout({ budgetStatuses, onAddExpense, netWorth, to
       ) : (
         <View className="px-6 flex-row flex-wrap justify-between">
           {budgetStatuses.map((status, index) => {
-            if (status.category.is_accumulative) return <TwoVesselCard key={status.category.id} status={status} index={index} onLongPress={onAddExpense} />;
-            return <SingleVesselCard key={status.category.id} status={status} index={index} onLongPress={onAddExpense} />;
+            if (status.category.is_accumulative) return <TwoVesselCard key={status.category.id} status={status} index={index} onDoubleTap={onAddExpense} />;
+            return <SingleVesselCard key={status.category.id} status={status} index={index} onDoubleTap={onAddExpense} />;
           })}
         </View>
       )}
