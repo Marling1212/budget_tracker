@@ -51,15 +51,16 @@ export default function LiquidAntigravityGlass({
   const bubble2X = useSharedValue(0);
   const bubble3X = useSharedValue(0);
 
+  // 1. Animate Liquid Level Height
   useEffect(() => {
-    // 1. Animate Liquid Level Height
     liquidHeight.value = withTiming(targetLiquidHeight, {
       duration: 1500,
       easing: Easing.inOut(Easing.cubic),
     });
+  }, [targetLiquidHeight]);
 
-    // 2. Animate Wave Translation (Continuous Horizontal Loop)
-    // We translate by one full wave cycle (which will be `width` wide)
+  // 2. Animate Wave and Bubbles (Continuous Horizontal Loop)
+  useEffect(() => {
     waveOffset.value = withRepeat(
       withTiming(-width, { duration: 3000, easing: Easing.linear }),
       -1, // infinite
@@ -92,7 +93,7 @@ export default function LiquidAntigravityGlass({
     animateBubble(bubble2Y, bubble2X, 1500, 5000);
     animateBubble(bubble3Y, bubble3X, 2500, 4500);
 
-  }, [targetLiquidHeight, width, height]);
+  }, [width, height]);
 
   // --- Animations ---
   // Color interpolation: Cyan to Red
