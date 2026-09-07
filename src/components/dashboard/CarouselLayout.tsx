@@ -6,6 +6,7 @@ import { BudgetStatus } from '../../../types/database';
 import { useTranslation } from 'react-i18next';
 import { useDoubleTap } from '../../hooks/useDoubleTap';
 import * as Icons from 'lucide-react-native';
+import LiquidAntigravityGlass from '../animations/LiquidAntigravityGlass';
 
 const { width } = Dimensions.get('window');
 
@@ -25,45 +26,34 @@ const GRADIENTS = [
 function CarouselCard({ status, index, onDoubleTap }: { status: BudgetStatus; index: number; onDoubleTap: (id: string) => void }) {
   const { t } = useTranslation();
   const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
-  const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
-  const colors = [baseColor, baseColor] as const;
   
   const remaining = status.todayRemaining;
   const isOverBudget = remaining < 0;
-  const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
-  
-  // Normal: 100% -> 0% down. Overbudget: 0% -> 100% up in red.
-  let fillPercentage = isOverBudget 
-    ? Math.min(100, (Math.abs(remaining) / status.dailyBudget) * 100) || 0
-    : Math.max(0, Math.min(100, (remaining / status.dailyBudget) * 100)) || 0;
-  
-  const targetHeight = (fillPercentage / 100) * 450;
-  const fillHeight = useSharedValue(0);
-
-  React.useEffect(() => { fillHeight.value = withTiming(targetHeight, { duration: 1500 }); }, [targetHeight]);
-  const animatedStyle = useAnimatedStyle(() => ({ height: fillHeight.value }));
-  
   const cardWidth = width - 48;
+  const cardHeight = 450;
 
   return (
     <Pressable onPress={handleDoubleTap} style={{ width: cardWidth }} className="mr-6">
-      <View className="w-full h-[450px] bg-white dark:bg-slate-800 rounded-[60px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
-        <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700" />
-        <Animated.View style={[{ position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden' }, animatedStyle]}>
-          <LinearGradient colors={fillColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 450 }} />
-        </Animated.View>
-        <View className="absolute inset-0 items-center justify-center bg-white/50 dark:bg-slate-800/50 p-6 pointer-events-none">
-          <View className="w-24 h-24 rounded-full bg-white dark:bg-slate-800 items-center justify-center shadow-lg border border-slate-100 dark:border-slate-700 mb-6">
-            {renderIcon(status.category.icon, status.category.color || '#4f46e5', 48)}
+      <View className="w-full h-[450px] rounded-[60px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+        <LiquidAntigravityGlass
+          width={cardWidth}
+          height={cardHeight}
+          dailyQuota={status.dailyBudget}
+          remainingToday={remaining}
+        >
+          <View className="absolute inset-0 items-center justify-center bg-white/20 dark:bg-slate-900/30 p-6 pointer-events-none">
+            <View className="w-24 h-24 rounded-full bg-white dark:bg-slate-800 items-center justify-center shadow-lg border border-slate-100 dark:border-slate-700 mb-6">
+              {renderIcon(status.category.icon, status.category.color || '#4f46e5', 48)}
+            </View>
+            <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-2xl uppercase tracking-widest text-center">{status.category.name}</Text>
+            <Text className={`${isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'} font-black text-6xl mt-4`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
+            <Text className={`${isOverBudget ? 'text-red-500 dark:text-red-300' : 'text-slate-700 dark:text-slate-300'} font-bold text-base mt-2 text-center`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
+            <View className="mt-8 bg-white/80 dark:bg-slate-800/80 px-6 py-3 rounded-full flex-row items-center shadow-sm">
+              <Text className="text-slate-500 dark:text-slate-400 font-bold mr-2 uppercase text-xs tracking-wider">{t('dashboard.spentToday')}</Text>
+              <Text className="text-slate-800 dark:text-slate-200 font-black text-lg">${status.spentToday.toFixed(0)}</Text>
+            </View>
           </View>
-          <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-2xl uppercase tracking-widest text-center">{status.category.name}</Text>
-          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-6xl mt-4`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
-          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'} font-bold text-base mt-2 text-center`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
-          <View className="mt-8 bg-white/80 dark:bg-slate-800/80 px-6 py-3 rounded-full flex-row items-center">
-            <Text className="text-slate-500 dark:text-slate-400 font-bold mr-2 uppercase text-xs tracking-wider">{t('dashboard.spentToday')}</Text>
-            <Text className="text-slate-800 dark:text-slate-200 font-black text-lg">${status.spentToday.toFixed(0)}</Text>
-          </View>
-        </View>
+        </LiquidAntigravityGlass>
       </View>
     </Pressable>
   );
