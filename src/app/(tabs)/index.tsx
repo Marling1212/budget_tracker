@@ -19,7 +19,7 @@ export type LayoutType = 'bento' | 'canvas' | 'list' | 'carousel';
 
 export default function DashboardScreen() {
   const { t } = useTranslation();
-  const { categories, budgetStatuses, refreshData, loading, error, transactions, accounts, netWorth } = useBudget();
+  const { categories, budgetStatuses, refreshData, loading, error, transactions, accounts, netWorth, masterVaultValue } = useBudget();
   const router = useRouter();
   
   // Layout Management
@@ -188,15 +188,13 @@ export default function DashboardScreen() {
     );
   }
 
-  const totalRemainingToday = budgetStatuses.reduce((sum, s) => sum + s.todayRemaining, 0);
-
   return (
     <View className="flex-1 bg-slate-50 dark:bg-slate-900">
       
-      {layout === 'canvas' && <CanvasLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
-      {layout === 'bento' && <BentoLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
-      {layout === 'list' && <ListLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
-      {layout === 'carousel' && <CarouselLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} netWorth={netWorth} totalRemainingToday={totalRemainingToday} />}
+      {layout === 'canvas' && <CanvasLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}
+      {layout === 'bento' && <BentoLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}
+      {layout === 'list' && <ListLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}
+      {layout === 'carousel' && <CarouselLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}
 
       {/* Layout Switcher Button */}
       <TouchableOpacity 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { BudgetStatus } from '../../../types/database';
@@ -26,56 +26,61 @@ function ListRow({ status, index, onDoubleTap }: { status: BudgetStatus; index: 
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
   
-  const remaining = status.expectedMonthlyBudget - status.spentThisMonth;
+  const remaining = status.todayRemaining;
   const isOverBudget = remaining < 0;
   const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
-  const fillPercentage = Math.max(0, Math.min(100, (remaining / status.expectedMonthlyBudget) * 100)) || 0;
+  
+  // Normal: 100% -> 0% down. Overbudget: 0% -> 100% up in red.
+  let fillPercentage = isOverBudget 
+    ? Math.min(100, (Math.abs(remaining) / status.dailyBudget) * 100) || 0
+    : Math.max(0, Math.min(100, (remaining / status.dailyBudget) * 100)) || 0;
   
   const targetWidth = `${fillPercentage}%`;
   
-    return (
+  return (
     <Pressable onPress={handleDoubleTap} className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-4 shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
       <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700/50" />
       <View className="absolute left-0 bottom-0 top-0 opacity-20" style={{ width: targetWidth }}>
          <LinearGradient colors={fillColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: '100%', height: '100%' }} />
       </View>
-      <View className="flex-row items-center justify-between z-10">
+      <View className="absolute left-0 bottom-0 top-0 opacity-100 items-end justify-center" style={{ width: targetWidth }}>
+        <View className="w-1 h-8 rounded-full mr-1 opacity-50" style={{ backgroundColor: fillColors[0] }} />
+      </View>
+      
+      <View className="flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">
-          <View className="bg-white/80 dark:bg-slate-900/50 p-3 rounded-full mr-4">
+          <View className="w-12 h-12 rounded-2xl items-center justify-center bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700">
             {renderIcon(status.category.icon, status.category.color || '#4f46e5', 24)}
           </View>
-          <View className="flex-1">
-            <Text className="text-slate-900 dark:text-slate-100 font-bold text-lg">{status.category.name}</Text>
-            {status.category.is_accumulative ? (
-              <Text className="text-slate-500 dark:text-slate-400 text-xs">Daily: ${Math.abs(status.todayRemaining).toFixed(0)} | Vault: ${Math.abs(status.totalSaved).toFixed(0)}</Text>
-            ) : (
-              <Text className="text-slate-500 dark:text-slate-400 text-xs">{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingMonthly')}</Text>
-            )}
+          <View className="ml-4 flex-1">
+            <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-base">{status.category.name}</Text>
+            <Text className="text-slate-500 dark:text-slate-400 font-medium text-xs mt-0.5">{status.spentToday.toFixed(0)} {t('dashboard.spentToday')}</Text>
           </View>
         </View>
+        
         <View className="items-end">
-          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl`}>
-            {isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}
-          </Text>
+          <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-xl`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
+          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'} font-bold text-xs mt-0.5`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
         </View>
       </View>
     </Pressable>
   );
 }
 
-export default function ListLayout({ budgetStatuses, onAddExpense, netWorth, totalRemainingToday }: { budgetStatuses: BudgetStatus[], onAddExpense: (id: string) => void, netWorth: number, totalRemainingToday: number }) {
+export default function ListLayout({ budgetStatuses, onAddExpense, masterVaultValue }: { budgetStatuses: BudgetStatus[], onAddExpense: (id: string) => void, masterVaultValue: number }) {
   const { t } = useTranslation();
-  
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
+  const remainingPct = 100 - monthProgressPct;
+
   return (
     <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
       <View className="px-6 pt-16 pb-8 bg-indigo-600 rounded-b-[40px] shadow-lg mb-6">
-        <Text className="text-indigo-200 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.netWorth')}</Text>
-        <Text className="text-5xl font-extrabold text-white tracking-tight">${netWorth.toFixed(0)}</Text>
-        <View className="mt-8 flex-row justify-between items-end">
-          <View>
-            <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{t('dashboard.remainingToday')}</Text>
-            <Text className="text-3xl font-black text-white">${totalRemainingToday.toFixed(0)}</Text>
-          </View>
+        <Text className="text-indigo-200 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.masterVault', 'Master Vault')}</Text>
+        <Text className="text-5xl font-extrabold text-white tracking-tight">${masterVaultValue.toFixed(0)}</Text>
+        <View className="mt-8 flex-row justify-end items-end">
           <View className="items-end">
              <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{remainingPct.toFixed(0)}% Left</Text>
              <View className="w-24 h-2 bg-indigo-800 rounded-full overflow-hidden mt-1">

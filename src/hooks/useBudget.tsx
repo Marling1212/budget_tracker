@@ -10,6 +10,7 @@ interface BudgetContextType {
   accounts: Account[];
   budgetStatuses: BudgetStatus[];
   netWorth: number;
+  masterVaultValue: number;
   loading: boolean;
   error: Error | null;
   currentMonth: Date;
@@ -200,6 +201,15 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
 
   const netWorth = accounts.reduce((sum, a) => sum + Number(a.balance), 0);
 
+  const actualNow = new Date();
+  const isCurrentMonth = actualNow.getMonth() === currentMonth.getMonth() && actualNow.getFullYear() === currentMonth.getFullYear();
+  const daysInMonth = getDaysInMonth(currentMonth);
+  const currentDayOfMonth = isCurrentMonth ? getDate(actualNow) : daysInMonth;
+
+  const totalDailyQuota = categories.reduce((sum, cat) => sum + cat.daily_budget, 0);
+  const totalSpentThisMonth = budgetStatuses.reduce((sum, status) => sum + status.spentThisMonth, 0);
+  const masterVaultValue = (totalDailyQuota * currentDayOfMonth) - totalSpentThisMonth;
+
   return (
     <BudgetContext.Provider value={{
       categories,
@@ -208,6 +218,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       accounts,
       budgetStatuses,
       netWorth,
+      masterVaultValue,
       loading,
       error,
       currentMonth,
