@@ -42,6 +42,12 @@ function CarouselCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
   // Subtract padding from screen width to get card width
   const cardWidth = width - 48;
 
+    const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
+  const remainingPct = 100 - monthProgressPct;
+
   return (
     <Pressable onPress={handleDoubleTap} style={{ width: cardWidth }} className="mr-6">
       <View className="w-full h-[450px] bg-white dark:bg-slate-800 rounded-[60px] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden items-center justify-center">
@@ -85,6 +91,12 @@ export default function CarouselLayout({ budgetStatuses, onAddExpense, netWorth,
           <View>
             <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{t('dashboard.remainingToday')}</Text>
             <Text className="text-3xl font-black text-white">${totalRemainingToday.toFixed(0)}</Text>
+          </View>
+          <View className="items-end">
+             <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{remainingPct.toFixed(0)}% Left</Text>
+             <View className="w-24 h-2 bg-indigo-800 rounded-full overflow-hidden mt-1">
+                <View className="h-full bg-red-400 rounded-full" style={{ width: `${remainingPct}%` }} />
+             </View>
           </View>
         </View>
       </View>

@@ -33,6 +33,12 @@ function ListRow({ status, index, onDoubleTap }: { status: BudgetStatus; index: 
   
   const targetWidth = `${fillPercentage}%`;
   
+    const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+  const monthProgressPct = ((currentDay - 1) / daysInMonth) * 100;
+  const remainingPct = 100 - monthProgressPct;
+
   return (
     <Pressable onPress={handleDoubleTap} className="bg-white dark:bg-slate-800 rounded-3xl p-4 mb-4 shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
       <View className="absolute inset-0 bg-slate-50 dark:bg-slate-700/50" />
@@ -75,6 +81,12 @@ export default function ListLayout({ budgetStatuses, onAddExpense, netWorth, tot
           <View>
             <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{t('dashboard.remainingToday')}</Text>
             <Text className="text-3xl font-black text-white">${totalRemainingToday.toFixed(0)}</Text>
+          </View>
+          <View className="items-end">
+             <Text className="text-indigo-200 font-bold text-xs uppercase mb-1">{remainingPct.toFixed(0)}% Left</Text>
+             <View className="w-24 h-2 bg-indigo-800 rounded-full overflow-hidden mt-1">
+                <View className="h-full bg-red-400 rounded-full" style={{ width: `${remainingPct}%` }} />
+             </View>
           </View>
         </View>
       </View>
