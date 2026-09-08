@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, Dimensions, Pressable, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, runOnJS } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BudgetStatus } from '../../../types/database';
 import { useTranslation } from 'react-i18next';
 import { useDoubleTap } from '../../hooks/useDoubleTap';
@@ -32,6 +33,24 @@ const NodeScaleSlider = ({ extremeLevel }: { extremeLevel: Animated.SharedValue<
   const savedX = useSharedValue(extremeLevel.value * (SLIDER_WIDTH - KNOB_SIZE));
   const translateX = useSharedValue(extremeLevel.value * (SLIDER_WIDTH - KNOB_SIZE));
 
+  React.useEffect(() => {
+    AsyncStorage.getItem('@node_scale_extremity').then((val) => {
+      if (val !== null) {
+        const numVal = parseFloat(val);
+        if (!isNaN(numVal) && numVal >= 0 && numVal <= 1) {
+          extremeLevel.value = numVal;
+          const initialX = numVal * (SLIDER_WIDTH - KNOB_SIZE);
+          translateX.value = initialX;
+          savedX.value = initialX;
+        }
+      }
+    });
+  }, []);
+
+  const saveScaleToStorage = (val: number) => {
+    AsyncStorage.setItem('@node_scale_extremity', val.toString());
+  };
+
   const panGesture = Gesture.Pan()
     .onUpdate((e) => {
       let newX = savedX.value + e.translationX;
@@ -42,6 +61,7 @@ const NodeScaleSlider = ({ extremeLevel }: { extremeLevel: Animated.SharedValue<
     })
     .onEnd(() => {
       savedX.value = translateX.value;
+      runOnJS(saveScaleToStorage)(translateX.value / (SLIDER_WIDTH - KNOB_SIZE));
     });
 
   const animatedKnobStyle = useAnimatedStyle(() => ({
