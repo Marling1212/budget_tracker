@@ -15,7 +15,7 @@ import BentoLayout from '../../components/dashboard/BentoLayout';
 import ListLayout from '../../components/dashboard/ListLayout';
 import CarouselLayout from '../../components/dashboard/CarouselLayout';
 
-export type LayoutType = 'bento' | 'canvas' | 'list' | 'carousel';
+export type LayoutType = 'bento' | 'canvas' | 'list' | 'carousel' | 'canvas-double';
 
 export default function DashboardScreen() {
   const { t } = useTranslation();
@@ -32,7 +32,7 @@ export default function DashboardScreen() {
   }, []);
   
   const cycleLayout = () => {
-    const layouts: LayoutType[] = ['bento', 'list', 'carousel', 'canvas'];
+    const layouts: LayoutType[] = ['bento', 'list', 'carousel', 'canvas', 'canvas-double'];
     const nextIdx = (layouts.indexOf(layout) + 1) % layouts.length;
     const next = layouts[nextIdx];
     setLayout(next);
@@ -191,7 +191,8 @@ export default function DashboardScreen() {
   return (
     <View className="flex-1 bg-slate-50 dark:bg-slate-900">
       
-      {layout === 'canvas' && <CanvasLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}
+      {layout === 'canvas' && <CanvasLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} useDoubleBucket={false} />}
+      {layout === 'canvas-double' && <CanvasLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} useDoubleBucket={true} />}
       {layout === 'bento' && <BentoLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}
       {layout === 'list' && <ListLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}
       {layout === 'carousel' && <CarouselLayout budgetStatuses={budgetStatuses} onAddExpense={handleAddExpense} masterVaultValue={masterVaultValue} />}

@@ -295,7 +295,7 @@ function SingleVesselNode({ status, index, totalNodes, onDoubleTap, maxBudget, e
   );
 }
 
-export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVaultValue }: { budgetStatuses: BudgetStatus[], onAddExpense: (id: string) => void, masterVaultValue: number }) {
+export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVaultValue, useDoubleBucket }: { budgetStatuses: BudgetStatus[], onAddExpense: (id: string) => void, masterVaultValue: number, useDoubleBucket?: boolean }) {
   const { t } = useTranslation();
   
   const scale = useSharedValue(1);
@@ -306,22 +306,6 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
   const savedTranslateY = useSharedValue(0);
   
   const extremeLevel = useSharedValue(0.5);
-
-  const [useDoubleBucket, setUseDoubleBucket] = React.useState(false);
-
-  React.useEffect(() => {
-    AsyncStorage.getItem('@use_double_bucket').then(val => {
-      if (val === 'true') setUseDoubleBucket(true);
-    });
-  }, []);
-
-  const toggleDoubleBucket = () => {
-    setUseDoubleBucket(prev => {
-      const next = !prev;
-      AsyncStorage.setItem('@use_double_bucket', next ? 'true' : 'false');
-      return next;
-    });
-  };
 
   const pinchGesture = Gesture.Pinch()
     .onUpdate((e) => { scale.value = savedScale.value * e.scale; })
@@ -422,13 +406,6 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
           })}
         </Animated.View>
       </GestureDetector>
-      
-      <TouchableOpacity 
-        className="absolute z-50 bottom-[96px] left-6 bg-white/80 dark:bg-slate-800/80 p-3 rounded-full shadow-sm border border-slate-200 dark:border-slate-700"
-        onPress={toggleDoubleBucket}
-      >
-        <Icons.Layers color={useDoubleBucket ? '#6366f1' : '#64748b'} size={24} />
-      </TouchableOpacity>
       
       <NodeScaleSlider extremeLevel={extremeLevel} />
     </>
