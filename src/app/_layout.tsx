@@ -8,6 +8,7 @@ import { useRouter, useSegments } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { useColorScheme } from 'nativewind';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,9 +50,14 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const { colorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
   
   useEffect(() => {
+    AsyncStorage.getItem('@theme').then(theme => {
+      if (theme === 'dark' || theme === 'light') {
+        setColorScheme(theme);
+      }
+    });
     SplashScreen.hideAsync();
   }, []);
 

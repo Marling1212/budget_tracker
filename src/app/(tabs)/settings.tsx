@@ -10,6 +10,7 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const AVAILABLE_ICONS = ['Tag', 'Coffee', 'Car', 'Home', 'ShoppingCart', 'Utensils', 'Smartphone', 'Heart', 'Smile', 'Book', 'Gift', 'Plane'];
 const AVAILABLE_COLORS = ['#6366f1', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
 
@@ -363,7 +364,11 @@ export default function SettingsScreen() {
         </View>
         <Switch 
           value={isDarkMode} 
-          onValueChange={(val) => setColorScheme(val ? 'dark' : 'light')} 
+          onValueChange={(val) => {
+            const theme = val ? 'dark' : 'light';
+            setColorScheme(theme);
+            AsyncStorage.setItem('@theme', theme);
+          }} 
           trackColor={{ false: '#e2e8f0', true: '#4f46e5' }}
           thumbColor="#ffffff"
         />
