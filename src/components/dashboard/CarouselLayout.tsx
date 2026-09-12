@@ -27,7 +27,9 @@ function CarouselCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
   const { t } = useTranslation();
   const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   
-  const remaining = status.todayRemaining;
+  const isAccumulative = status.category.is_accumulative;
+  const remaining = isAccumulative ? status.todayRemaining : (status.expectedMonthlyBudget - status.spentThisMonth);
+  const quota = isAccumulative ? status.dailyBudget : status.expectedMonthlyBudget;
   const isOverBudget = remaining < 0;
   const cardWidth = width - 48;
   const cardHeight = 450;
@@ -38,7 +40,7 @@ function CarouselCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
         <LiquidAntigravityGlass
           width={cardWidth}
           height={cardHeight}
-          dailyQuota={status.dailyBudget}
+          dailyQuota={quota}
           remainingToday={remaining}
         >
           <View className="absolute inset-0 items-center justify-center bg-white/20 dark:bg-slate-900/30 p-6 pointer-events-none">
@@ -47,10 +49,10 @@ function CarouselCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
             </View>
             <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-2xl uppercase tracking-widest text-center">{status.category.name}</Text>
             <Text className={`${isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'} font-black text-6xl mt-4`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
-            <Text className={`${isOverBudget ? 'text-red-500 dark:text-red-300' : 'text-slate-700 dark:text-slate-300'} font-bold text-base mt-2 text-center`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
+            <Text className={`${isOverBudget ? 'text-red-500 dark:text-red-300' : 'text-slate-700 dark:text-slate-300'} font-bold text-base mt-2 text-center`}>{isOverBudget ? t('dashboard.overspent') : (isAccumulative ? t('dashboard.remainingToday', 'Daily Glass') : t('dashboard.remainingMonthly', 'Monthly Glass'))}</Text>
             <View className="mt-8 bg-white/80 dark:bg-slate-800/80 px-6 py-3 rounded-full flex-row items-center shadow-sm">
-              <Text className="text-slate-500 dark:text-slate-400 font-bold mr-2 uppercase text-xs tracking-wider">{t('dashboard.spentToday')}</Text>
-              <Text className="text-slate-800 dark:text-slate-200 font-black text-lg">${status.spentToday.toFixed(0)}</Text>
+              <Text className="text-slate-500 dark:text-slate-400 font-bold mr-2 uppercase text-xs tracking-wider">{isAccumulative ? t('dashboard.spentToday', 'Spent Today') : t('dashboard.monthlySpent', 'Spent')}</Text>
+              <Text className="text-slate-800 dark:text-slate-200 font-black text-lg">${(isAccumulative ? status.spentToday : status.spentThisMonth).toFixed(0)}</Text>
             </View>
           </View>
         </LiquidAntigravityGlass>

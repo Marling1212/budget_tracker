@@ -25,7 +25,9 @@ function CategoryCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
   const { t } = useTranslation();
   const handleDoubleTap = useDoubleTap(() => onDoubleTap(status.category.id));
   
-  const remaining = status.todayRemaining;
+  const isAccumulative = status.category.is_accumulative;
+  const remaining = isAccumulative ? status.todayRemaining : (status.expectedMonthlyBudget - status.spentThisMonth);
+  const quota = isAccumulative ? status.dailyBudget : status.expectedMonthlyBudget;
   const isOverBudget = remaining < 0;
   const cardWidth = (Dimensions.get('window').width - 48 - 16) / 2;
   const cardHeight = 220;
@@ -36,14 +38,14 @@ function CategoryCard({ status, index, onDoubleTap }: { status: BudgetStatus; in
         <LiquidAntigravityGlass
           width={cardWidth}
           height={cardHeight}
-          dailyQuota={status.dailyBudget}
+          dailyQuota={quota}
           remainingToday={remaining}
         >
           <View className="absolute inset-0 items-center justify-center bg-white/30 dark:bg-slate-900/40 p-2 pointer-events-none">
             {renderIcon(status.category.icon, status.category.color || '#4f46e5', 40)}
             <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-sm uppercase tracking-wider text-center mt-2">{status.category.name}</Text>
             <Text className={`${isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'} font-black text-2xl mt-1`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
-            <Text className={`${isOverBudget ? 'text-red-500 dark:text-red-300' : 'text-slate-700 dark:text-slate-300'} font-bold text-xs mt-1 text-center`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
+            <Text className={`${isOverBudget ? 'text-red-500 dark:text-red-300' : 'text-slate-700 dark:text-slate-300'} font-bold text-xs mt-1 text-center`}>{isOverBudget ? t('dashboard.overspent') : (isAccumulative ? t('dashboard.remainingToday', 'Daily Glass') : t('dashboard.remainingMonthly', 'Monthly Glass'))}</Text>
           </View>
         </LiquidAntigravityGlass>
       </View>

@@ -26,14 +26,16 @@ function ListRow({ status, index, onDoubleTap }: { status: BudgetStatus; index: 
   const baseColor = status.category.color || GRADIENTS[index % GRADIENTS.length][0];
   const colors = [baseColor, baseColor] as const;
   
-  const remaining = status.todayRemaining;
+  const isAccumulative = status.category.is_accumulative;
+  const remaining = isAccumulative ? status.todayRemaining : (status.expectedMonthlyBudget - status.spentThisMonth);
+  const quota = isAccumulative ? status.dailyBudget : status.expectedMonthlyBudget;
   const isOverBudget = remaining < 0;
   const fillColors = isOverBudget ? ['#ef4444', '#b91c1c'] as const : colors;
   
   // Normal: 100% -> 0% down. Overbudget: 0% -> 100% up in red.
   let fillPercentage = isOverBudget 
-    ? Math.min(100, (Math.abs(remaining) / status.dailyBudget) * 100) || 0
-    : Math.max(0, Math.min(100, (remaining / status.dailyBudget) * 100)) || 0;
+    ? Math.min(100, (Math.abs(remaining) / quota) * 100) || 0
+    : Math.max(0, Math.min(100, (remaining / quota) * 100)) || 0;
   
   const targetWidth = `${fillPercentage}%`;
   
@@ -54,13 +56,13 @@ function ListRow({ status, index, onDoubleTap }: { status: BudgetStatus; index: 
           </View>
           <View className="ml-4 flex-1">
             <Text className="text-slate-900 dark:text-slate-100 font-extrabold text-base">{status.category.name}</Text>
-            <Text className="text-slate-500 dark:text-slate-400 font-medium text-xs mt-0.5">{status.spentToday.toFixed(0)} {t('dashboard.spentToday')}</Text>
+            <Text className="text-slate-500 dark:text-slate-400 font-medium text-xs mt-0.5">{(isAccumulative ? status.spentToday : status.spentThisMonth).toFixed(0)} {isAccumulative ? t('dashboard.spentToday') : t('dashboard.monthlySpent', 'Spent')}</Text>
           </View>
         </View>
         
         <View className="items-end">
           <Text className={`${isOverBudget ? 'text-red-600' : 'text-slate-900 dark:text-slate-100'} font-black text-xl`}>{isOverBudget ? '-' : ''}${Math.abs(remaining).toFixed(0)}</Text>
-          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'} font-bold text-xs mt-0.5`}>{isOverBudget ? t('dashboard.overspent') : t('dashboard.remainingToday', 'Daily Glass')}</Text>
+          <Text className={`${isOverBudget ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'} font-bold text-xs mt-0.5`}>{isOverBudget ? t('dashboard.overspent') : (isAccumulative ? t('dashboard.remainingToday', 'Daily Glass') : t('dashboard.remainingMonthly', 'Monthly Glass'))}</Text>
         </View>
       </View>
     </Pressable>
