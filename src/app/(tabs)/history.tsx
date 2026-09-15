@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -19,6 +19,39 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Transaction, Category } from '../../types/database';
 import { format, subMonths, addMonths } from 'date-fns';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTranslation } from 'react-i18next';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
+
+function ProgressBar({ percentage, color, expectedPercentage }: { percentage: number, color: readonly [string, string, ...string[]], expectedPercentage?: number }) {
+  const width = useSharedValue(0);
+
+  useEffect(() => {
+    width.value = withDelay(300, withTiming(percentage, { duration: 1000 }));
+  }, [percentage]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: `${width.value}%`,
+  }));
+
+  return (
+    <View className="h-4 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden relative">
+      <Animated.View style={[{ height: '100%', borderRadius: 9999 }, animatedStyle]}>
+        <LinearGradient
+          colors={color}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </Animated.View>
+      {expectedPercentage !== undefined && (
+        <View 
+          className="absolute top-0 bottom-0 w-1 bg-slate-800 dark:bg-slate-200 z-10"
+          style={{ left: `${expectedPercentage}%`, marginLeft: -2 }}
+        />
+      )}
+    </View>
+  );
+}
 
 const renderIcon = (name: string, color: string, size: number) => {
   const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
@@ -26,6 +59,7 @@ const renderIcon = (name: string, color: string, size: number) => {
 };
 
 export default function HistoryScreen() {
+  const { t } = useTranslation();
   const { categories, transactions, refreshData, loading, budgetStatuses, currentMonth, setCurrentMonth, accounts } = useBudget();
   
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -98,6 +132,43 @@ export default function HistoryScreen() {
         data: groups[date]
       }));
   }, [transactions, selectedCategory, searchQuery, categories]);
+
+  // Calculate filtered totals
+  const { filteredExpense, filteredIncome } = useMemo(() => {
+    let expense = 0;
+    let income = 0;
+    sections.forEach(section => {
+      section.data.forEach(t => {
+        if (t.type === 'INCOME') income += Number(t.amount);
+        else expense += Number(t.amount);
+      });
+    });
+    return { filteredExpense: expense, filteredIncome: income };
+  }, [sections]);
+
+  const totalMonthlySpent = budgetStatuses.reduce((sum, s) => sum + s.spentThisMonth, 0);
+  
+  let progressPercentage = 0;
+  let progressLabel = '';
+  let progressColor = ['#3b82f6', '#8b5cf6'] as const;
+  let expectedPercentage = undefined;
+  
+  if (selectedCategory !== 'ALL') {
+    const status = budgetStatuses.find(s => s.category.id === selectedCategory);
+    if (status && status.expectedMonthlyBudget > 0) {
+      progressPercentage = Math.min(100, (filteredExpense / status.expectedMonthlyBudget) * 100);
+      progressLabel = t('history.ofBudget', { budget: status.expectedMonthlyBudget });
+      if (filteredExpense > status.expectedMonthlyBudget) {
+        progressColor = ['#ef4444', '#b91c1c'] as const;
+      }
+      expectedPercentage = (status.currentDayOfMonth / status.daysInMonth) * 100;
+    }
+  } else if (searchQuery.trim() !== '' && totalMonthlySpent > 0) {
+    progressPercentage = Math.min(100, (filteredExpense / totalMonthlySpent) * 100);
+    progressLabel = t('history.ofTotalSpent');
+  }
+  
+  const showSummary = selectedCategory !== 'ALL' || searchQuery.trim() !== '';
 
   const openEditModal = (tx: Transaction) => {
     setEditingTransaction(tx);
@@ -273,6 +344,33 @@ export default function HistoryScreen() {
             ))}
           </ScrollView>
         </View>
+
+        {showSummary && (
+          <View className="mt-4 bg-slate-100 dark:bg-slate-700/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <Text className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-wider mb-3">{t('history.searchSummary')}</Text>
+            
+            <View className="flex-row justify-between mb-3">
+              <View>
+                <Text className="text-slate-400 dark:text-slate-500 text-xs font-medium uppercase mb-0.5">{t('history.totalExpense')}</Text>
+                <Text className="text-slate-900 dark:text-slate-100 font-black text-xl">${filteredExpense.toFixed(0)}</Text>
+              </View>
+              <View className="items-end">
+                <Text className="text-slate-400 dark:text-slate-500 text-xs font-medium uppercase mb-0.5">{t('history.totalIncome')}</Text>
+                <Text className="text-green-500 font-black text-xl">+${filteredIncome.toFixed(0)}</Text>
+              </View>
+            </View>
+
+            {progressLabel !== '' && (
+              <View className="mt-2 pt-3 border-t border-slate-200 dark:border-slate-600">
+                <View className="flex-row justify-between items-center mb-2">
+                  <Text className="text-slate-600 dark:text-slate-300 text-xs font-bold">{t('history.budgetProgress')}</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium">{progressLabel}</Text>
+                </View>
+                <ProgressBar percentage={progressPercentage} color={progressColor} expectedPercentage={expectedPercentage} />
+              </View>
+            )}
+          </View>
+        )}
       </View>
 
       {/* Transactions List */}

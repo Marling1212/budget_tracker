@@ -60,6 +60,14 @@ export const resources = {
         signInFailed: 'Sign In Failed',
         comingSoon: 'Coming Soon',
         oauthComingSoon: 'OAuth with {{provider}} will be available once configured in Supabase.',
+      },
+      history: {
+        searchSummary: 'Search Summary',
+        totalExpense: 'Total Expense',
+        totalIncome: 'Total Income',
+        budgetProgress: 'Budget Progress',
+        ofBudget: 'of {{budget}} budget',
+        ofTotalSpent: 'of total monthly spent',
       }
     },
   },
@@ -124,6 +132,14 @@ export const resources = {
         signInFailed: '登入失敗',
         comingSoon: '即將推出',
         oauthComingSoon: '設定完成後即可使用 {{provider}} 登入。',
+      },
+      history: {
+        searchSummary: '搜尋摘要',
+        totalExpense: '總支出',
+        totalIncome: '總收入',
+        budgetProgress: '預算進度',
+        ofBudget: '佔 {{budget}} 預算',
+        ofTotalSpent: '佔本月總支出',
       }
     },
   },
