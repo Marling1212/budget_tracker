@@ -71,13 +71,15 @@ export default function CarouselLayout({ budgetStatuses, onAddExpense, masterVau
   const totalSpentThisMonth = budgetStatuses.reduce((sum, s) => sum + s.spentThisMonth, 0);
   const totalExpectedMonthlyBudget = budgetStatuses.reduce((sum, s) => sum + s.expectedMonthlyBudget, 0);
   const spentPct = totalExpectedMonthlyBudget > 0 ? (totalSpentThisMonth / totalExpectedMonthlyBudget) * 100 : 0;
+  const totalSpentToday = budgetStatuses.reduce((sum, s) => sum + (s.spentToday || 0), 0);
 
   return (
     <View className="flex-1">
       <View className="px-6 pt-16 pb-8 bg-indigo-600 rounded-b-[40px] shadow-lg mb-8">
         <Text className="text-indigo-200 font-bold text-sm uppercase tracking-widest mb-1">{t('dashboard.masterVault', 'Master Vault')}</Text>
         <Text className="text-5xl font-extrabold text-white tracking-tight">${masterVaultValue.toFixed(0)}</Text>
-        <View className="mt-8 flex-row justify-end items-end">
+        <Text className="text-indigo-200 font-bold text-sm mt-2">{t('dashboard.todayExpense', "Today's Expense")}: ${totalSpentToday.toFixed(0)}</Text>
+        <View className="mt-6 flex-row justify-end items-end">
           <View className="flex-1 ml-8">
              <View className="flex-row justify-between mb-1">
                <Text className="text-indigo-200 font-bold text-[10px] uppercase">{t('dashboard.monthlySpent', 'Spent')}: {spentPct.toFixed(0)}%</Text>

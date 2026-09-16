@@ -358,6 +358,7 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
   const totalSpentThisMonth = budgetStatuses.reduce((sum, s) => sum + s.spentThisMonth, 0);
   const totalExpectedMonthlyBudget = budgetStatuses.reduce((sum, s) => sum + s.expectedMonthlyBudget, 0);
   const spentPct = totalExpectedMonthlyBudget > 0 ? (totalSpentThisMonth / totalExpectedMonthlyBudget) * 100 : 0;
+  const totalSpentToday = budgetStatuses.reduce((sum, s) => sum + (s.spentToday || 0), 0);
 
   return (
     <>
@@ -382,7 +383,8 @@ export default function CanvasLayout({ budgetStatuses, onAddExpense, masterVault
               <View className="items-center justify-center p-2">
                 <Text className="text-indigo-600 font-black text-sm text-center tracking-widest">{t('dashboard.masterVault', 'Master Vault')}</Text>
                 <Text className="text-indigo-600 font-black text-3xl text-center mb-1">${masterVaultValue.toFixed(0)}</Text>
-                <View className="w-24 mt-2">
+                <Text className="text-indigo-400 font-bold text-[9px] text-center mb-1">{t('dashboard.todayExpense', "Today's Expense")}: ${totalSpentToday.toFixed(0)}</Text>
+                <View className="w-24 mt-1">
                   <View className="flex-row justify-between mb-1">
                     <Text className="text-indigo-800 font-bold text-[8px] uppercase">{spentPct.toFixed(0)}%</Text>
                     <Text className="text-red-500 font-bold text-[8px] uppercase">{monthProgressPct.toFixed(0)}%</Text>
