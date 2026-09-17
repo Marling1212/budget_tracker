@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
-import { getDaysInMonth, getDate, format } from 'date-fns';
+import { getDaysInMonth, getDate, format, subMonths } from 'date-fns';
 import { supabase } from '../lib/supabase';
 import { Category, Transaction, BudgetStatus, RecurringTransaction, Account } from '../types/database';
 
@@ -9,6 +9,7 @@ interface BudgetContextType {
   recurringTransactions: RecurringTransaction[];
   accounts: Account[];
   budgetStatuses: BudgetStatus[];
+  sixMonthStats: { label: string; value: number }[];
   netWorth: number;
   masterVaultValue: number;
   loading: boolean;
@@ -26,6 +27,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const [recurringTransactions, setRecurringTransactions] = useState<RecurringTransaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [budgetStatuses, setBudgetStatuses] = useState<BudgetStatus[]>([]);
+  const [sixMonthStats, setSixMonthStats] = useState<{ label: string; value: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -127,10 +129,41 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
 
       if (transactionsError) throw transactionsError;
 
+      // 3. Fetch last 6 months for chart
+      const sixMonthsAgo = subMonths(now, 5);
+      const firstDayOfSixMonthsAgo = `${sixMonthsAgo.getFullYear()}-${String(sixMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`;
+
+      const { data: sixMonthsData, error: sixMonthsError } = await supabase
+        .from('transactions')
+        .select('date, amount')
+        .gte('date', firstDayOfSixMonthsAgo)
+        .lt('date', firstDayOfNextMonth)
+        .eq('type', 'EXPENSE')
+        .lte('created_at', new Date().toISOString());
+
+      if (sixMonthsError) throw sixMonthsError;
+
+      const sixMonthStatsArr = [];
+      for (let i = 5; i >= 0; i--) {
+        const m = subMonths(now, i);
+        const label = format(m, 'MMM');
+        const monthKey = format(m, 'yyyy-MM');
+        sixMonthStatsArr.push({ label, monthKey, value: 0 });
+      }
+
+      (sixMonthsData as {date: string, amount: number}[]).forEach(t => {
+        const monthKey = t.date.substring(0, 7);
+        const stat = sixMonthStatsArr.find(s => s.monthKey === monthKey);
+        if (stat) {
+          stat.value += Number(t.amount);
+        }
+      });
+
       setCategories(categoriesData as Category[]);
       setTransactions(transactionsData as Transaction[]);
       setRecurringTransactions(finalRecurringData as RecurringTransaction[]);
       setAccounts(accountsData as Account[]);
+      setSixMonthStats(sixMonthStatsArr.map(s => ({ label: s.label, value: s.value })));
     } catch (err: any) {
       console.error('Error fetching budget data:', err);
       setError(err);
@@ -217,6 +250,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       recurringTransactions,
       accounts,
       budgetStatuses,
+      sixMonthStats,
       netWorth,
       masterVaultValue,
       loading,

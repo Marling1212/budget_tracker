@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
 import React, { useEffect } from 'react';
 import * as Icons from 'lucide-react-native';
+import { PieChart, BarChart } from 'react-native-gifted-charts';
 
 const renderIcon = (name: string, color: string, size: number) => {
   const IconComponent = (Icons as any)[name || 'Tag'] || Icons.Tag;
@@ -45,7 +46,7 @@ function ProgressBar({ percentage, color, expectedPercentage }: { percentage: nu
 }
 
 export default function StatsScreen() {
-  const { budgetStatuses, loading, currentMonth, setCurrentMonth } = useBudget();
+  const { budgetStatuses, sixMonthStats, loading, currentMonth, setCurrentMonth } = useBudget();
   const router = useRouter();
 
   if (loading) {
@@ -64,6 +65,20 @@ export default function StatsScreen() {
 
   const firstStatus = budgetStatuses[0];
   const timePercentage = firstStatus ? (firstStatus.currentDayOfMonth / firstStatus.daysInMonth) * 100 : 0;
+
+  const pieData = budgetStatuses
+    .filter(s => s.spentThisMonth > 0)
+    .map(status => ({
+      value: status.spentThisMonth,
+      color: status.category.color || '#4f46e5',
+      text: status.category.name,
+    }));
+
+  const barData = (sixMonthStats || []).map(stat => ({
+    value: stat.value,
+    label: stat.label,
+    frontColor: '#3b82f6',
+  }));
 
   return (
     <ScrollView className="flex-1 bg-slate-50 dark:bg-slate-900" contentContainerStyle={{ padding: 20 }}>
@@ -117,6 +132,51 @@ export default function StatsScreen() {
           </Text>
         </View>
       </View>
+
+      {/* 6-Month Trend */}
+      {barData.length > 0 && (
+        <View className="bg-white dark:bg-slate-800 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-700 items-center">
+          <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-6 tracking-tight self-start">6-Month Trend</Text>
+          <View style={{ marginLeft: -10 }}>
+            <BarChart
+              data={barData}
+              barWidth={28}
+              spacing={20}
+              roundedTop
+              roundedBottom
+              hideRules
+              xAxisThickness={0}
+              yAxisThickness={0}
+              yAxisTextStyle={{color: '#94a3b8'}}
+              xAxisLabelTextStyle={{color: '#94a3b8', fontSize: 11}}
+              noOfSections={4}
+              maxValue={Math.max(...barData.map(d => d.value), 1000)}
+              initialSpacing={10}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* Category Breakdown Pie Chart */}
+      {pieData.length > 0 && (
+        <View className="bg-white dark:bg-slate-800 rounded-[32px] p-6 mb-8 shadow-sm border border-slate-100 dark:border-slate-700 items-center">
+          <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-6 tracking-tight self-start">Spending Proportion</Text>
+          <PieChart
+            donut
+            innerRadius={60}
+            radius={90}
+            data={pieData}
+            centerLabelComponent={() => {
+              return (
+                <View className="justify-center items-center">
+                  <Text className="text-slate-900 dark:text-slate-100 font-bold text-2xl">${totalSpent.toFixed(0)}</Text>
+                  <Text className="text-slate-500 text-xs">Total</Text>
+                </View>
+              );
+            }}
+          />
+        </View>
+      )}
 
       {/* Category Breakdown */}
       <Text className="text-xl font-extrabold text-slate-800 dark:text-slate-200 mb-4 tracking-tight">Category Breakdown</Text>
