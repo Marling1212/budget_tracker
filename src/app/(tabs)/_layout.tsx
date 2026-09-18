@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Settings, List } from 'lucide-react-native';
+import { Home, Settings, List, PieChart } from 'lucide-react-native';
 import { BudgetProvider } from '../../hooks/useBudget';
 
 export default function TabLayout() {
@@ -35,8 +35,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="stats"
           options={{
-            href: null,
             title: 'Analysis',
+            tabBarIcon: ({ color }) => <PieChart color={color} size={24} />,
           }}
         />
       </Tabs>
