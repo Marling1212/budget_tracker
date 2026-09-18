@@ -166,6 +166,10 @@ export default function StatsScreen() {
             innerRadius={60}
             radius={90}
             data={pieData}
+            showText
+            textColor="#ffffff"
+            textSize={12}
+            fontWeight="bold"
             centerLabelComponent={() => {
               return (
                 <View className="justify-center items-center">
