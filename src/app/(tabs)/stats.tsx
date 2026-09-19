@@ -85,6 +85,7 @@ export default function StatsScreen() {
     .map(item => ({
       value: item.status.spentThisMonth,
       color: getCategoryColor(item.status.category.color, item.index),
+      text: item.status.category.name,
     }));
 
   const barData = (sixMonthStats || []).map(stat => ({
@@ -188,6 +189,14 @@ export default function StatsScreen() {
               );
             }}
           />
+          <View className="flex-row flex-wrap justify-center mt-8 w-full px-2">
+            {pieData.map((item, index) => (
+              <View key={index} className="flex-row items-center mx-3 mb-3">
+                <View style={{ backgroundColor: item.color }} className="w-3 h-3 rounded-full mr-2 shadow-sm" />
+                <Text className="text-slate-600 dark:text-slate-400 text-xs font-bold">{item.text}</Text>
+              </View>
+            ))}
+          </View>
         </View>
       )}
 
