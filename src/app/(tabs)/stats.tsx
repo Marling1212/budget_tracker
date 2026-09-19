@@ -14,6 +14,13 @@ const renderIcon = (name: string, color: string, size: number) => {
   return <IconComponent color={color} size={size} />;
 };
 
+const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+const getCategoryColor = (color: string | undefined | null, index: number) => {
+  if (color && color.trim() !== '') return color;
+  return PIE_COLORS[index % PIE_COLORS.length];
+};
+
 function ProgressBar({ percentage, color, expectedPercentage }: { percentage: number, color: readonly [string, string, ...string[]], expectedPercentage?: number }) {
   const width = useSharedValue(0);
 
@@ -67,11 +74,14 @@ export default function StatsScreen() {
   const timePercentage = firstStatus ? (firstStatus.currentDayOfMonth / firstStatus.daysInMonth) * 100 : 0;
 
   const pieData = budgetStatuses
-    .filter(s => s.spentThisMonth > 0)
-    .map(status => ({
-      value: status.spentThisMonth,
-      color: status.category.color || '#4f46e5',
-      text: status.category.name,
+    .map((status, index) => ({
+      status,
+      index
+    }))
+    .filter(item => item.status.spentThisMonth > 0)
+    .map(item => ({
+      value: item.status.spentThisMonth,
+      color: getCategoryColor(item.status.category.color, item.index),
     }));
 
   const barData = (sixMonthStats || []).map(stat => ({
@@ -166,10 +176,6 @@ export default function StatsScreen() {
             innerRadius={60}
             radius={90}
             data={pieData}
-            showText
-            textColor="#ffffff"
-            textSize={12}
-            fontWeight="bold"
             centerLabelComponent={() => {
               return (
                 <View className="justify-center items-center">
@@ -191,7 +197,7 @@ export default function StatsScreen() {
           : 0;
         const catIsOver = status.spentThisMonth > status.expectedMonthlyBudget;
         
-        const baseColor = status.category.color || '#4f46e5';
+        const baseColor = getCategoryColor(status.category.color, index);
         const color = catIsOver ? ['#ef4444', '#b91c1c'] as const : [baseColor, baseColor] as const;
 
         return (
