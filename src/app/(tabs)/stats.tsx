@@ -17,7 +17,10 @@ const renderIcon = (name: string, color: string, size: number) => {
 const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
 const getCategoryColor = (color: string | undefined | null, index: number) => {
-  if (color && color.trim() !== '') return color;
+  const defaultBlues = ['#4f46e5', '#6366f1'];
+  if (color && color.trim() !== '' && !defaultBlues.includes(color.toLowerCase())) {
+    return color;
+  }
   return PIE_COLORS[index % PIE_COLORS.length];
 };
 
