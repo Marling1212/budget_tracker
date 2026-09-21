@@ -14,7 +14,7 @@ const renderIcon = (name: string, color: string, size: number) => {
   return <IconComponent color={color} size={size} />;
 };
 
-const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+const PIE_COLORS = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#0891b2', '#65a30d'];
 
 const getCategoryColor = (color: string | undefined | null, index: number) => {
   const defaultBlues = ['#4f46e5', '#6366f1'];
@@ -183,8 +183,8 @@ export default function StatsScreen() {
             centerLabelComponent={() => {
               return (
                 <View className="justify-center items-center">
-                  <Text className="text-slate-900 dark:text-slate-100 font-bold text-2xl">${totalSpent.toFixed(0)}</Text>
-                  <Text className="text-slate-500 text-xs">Total</Text>
+                  <Text className="text-slate-800 dark:text-slate-200 font-black text-3xl">${totalSpent.toFixed(0)}</Text>
+                  <Text className="text-slate-600 dark:text-slate-400 font-bold text-sm mt-1">Total Spent</Text>
                 </View>
               );
             }}
